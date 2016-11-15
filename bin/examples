@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#invalid=$(curl -X GET \
+#       -H "Accept: text/meow" \
+#       http://localhost:5678/feline/felix)
+
+curl -X GET \
+     -v \
+     --header "Accept: application/json" \
+     "http://localhost:5678/cat?name=felix&color=black"
