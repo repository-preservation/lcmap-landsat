@@ -1,4 +1,4 @@
-(ns landsat.middleware
+(ns lcmap.aardvark.middleware
   (:require [clojure.tools.logging :as log]))
 
 ;;; These wrappers ought to be defined in a separate project.

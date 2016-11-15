@@ -1,8 +1,8 @@
-(ns landsat.core
+(ns lcmap.aardvark.core
   "Entrypoint for app."
   (:require [com.stuartsierra.component :as component]
-            [landsat.config]
-            [landsat.system]
+            [lcmap-landsat.config]
+            [lcmap-landsat.system]
             [clojure.tools.logging :as log])
   (:gen-class))
 

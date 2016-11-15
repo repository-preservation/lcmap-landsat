@@ -39,7 +39,7 @@
              :test {:dependencies [[http-kit "2.2.0"]
                                    [http-kit.fake "0.2.2"]]}
              :uberjar {:aot :all
-                       :main landsat.core}}
+                       :main lcmap.aardvark.core}}
   ;; :main ^:skip-aot feline.core
   :target-path "target/%s/"
   :compile-path "%s/classes"

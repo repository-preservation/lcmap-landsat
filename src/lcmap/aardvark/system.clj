@@ -1,4 +1,4 @@
-(ns landsat.system
+(ns lcmap.aardvark.system
   "Define components and function for building a system"
   (:require [com.stuartsierra.component :as component]
             [ring.component.jetty :refer [jetty-server]]

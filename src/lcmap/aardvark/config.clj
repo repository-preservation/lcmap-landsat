@@ -1,4 +1,4 @@
-(ns landsat.config
+(ns lcmap.aardvark.config
   "Configuration!"
   (:require [uberconf.core :as uberconf]
             [schema.core :as schema]))
@@ -10,5 +10,5 @@
 
 (defn meow [] "meow")
 
-(defn build [{:keys [ini] :or {ini "feline.ini"} :as args}]
+(defn build [{:keys [ini] :or {ini "aardvark.ini"} :as args}]
   (uberconf/init-cfg {:ini ini :schema config-schema}))
