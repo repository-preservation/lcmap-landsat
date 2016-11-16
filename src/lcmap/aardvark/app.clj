@@ -16,7 +16,7 @@
   dependencies (components) available to handling functions."
   [db msg]
   (context "/" req
-    (-> (routes (cat/resource db msg)
+    (-> (routes (landsat/resource db msg)
                 (problem/resource db msg))
         (wrap-accept)
         (middleware/wrap-content-type)

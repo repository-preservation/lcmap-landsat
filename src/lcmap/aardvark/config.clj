@@ -10,5 +10,5 @@
 
 (defn meow [] "meow")
 
-(defn build [{:keys [ini] :or {ini "aardvark.ini"} :as args}]
+(defn build [{:keys [ini] :or {ini "lcmap-landsat.ini"} :as args}]
   (uberconf/init-cfg {:ini ini :schema config-schema}))

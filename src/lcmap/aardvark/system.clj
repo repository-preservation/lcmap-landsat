@@ -5,7 +5,7 @@
             [clojure.tools.logging :as log]
             [qbits.alia :as alia]
             [langohr.core :as rmq]
-            [landsat.app :as app]))
+            [lcmap.aardvark.app :as app]))
 
 ;;;
 
