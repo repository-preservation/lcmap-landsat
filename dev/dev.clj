@@ -3,6 +3,7 @@
             [clojure.tools.namespace.repl :refer [refresh refresh-all]]
             [lcmap.aardvark.config :as config]
             [lcmap.aardvark.system :as system]
+            [clojure.java.io :as io]
             [uberconf.core :as uberconf]))
 
 (def system "A Var containing the application" nil)
@@ -10,7 +11,9 @@
 (defn init
   "Prepare a system, in the Var #'system"
   []
-  (alter-var-root #'system (fn [_] (system/system (config/build {})))))
+  (alter-var-root #'system
+                  (fn [_] (system/system
+                           (config/build {:ini (io/resource "lcmap-landsat-dev.ini")})))))
 
 (defn start
   "Start components of system and update Var #'system"
