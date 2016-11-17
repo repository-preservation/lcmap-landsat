@@ -3,10 +3,14 @@
             [org.httpkit.client :as http]
             [lcmap.aardvark.shared :refer :all]))
 
-(defn req [method path]
-  @(http/request {:method method
-                  :url (str "http://localhost:5678" path)
-                  :headers {"Accept" "text/html"}}))
+(defn req
+  ""
+  ([method path headers]
+   @(http/request {:method method
+                   :url (str "http://localhost:5679" path)
+                   :headers headers}))
+  ([method path]
+    (req method path {"Accept" "application/json"})))
 
 (deftest app-tests
   (with-system [system]
@@ -18,4 +22,10 @@
         (is (= 201 (:status resp)))))
     (testing "delete"
       (let [resp (req :delete "/landsat")]
-        (is (= 410 (:status resp)))))))
+        (is (= 410 (:status resp)))))
+    (testing "unsupported verbs"
+      (let [resp (req :put "/landsat")]
+        (is (= 405 (:status resp)))))
+    (testing "search for unsupported type"
+      (let [resp (req :get "/landsat" {"Accept" "application/foo"})]
+        (is (= 406 (:status resp)))))))

@@ -3,52 +3,19 @@
             [cheshire.core :as json]
             [ring.util.accept :refer [defaccept best-match]]))
 
-  ;;; Representation encoding functions
+(defn wrap-handler
+  "Generic request/response transformer.
 
-(defn to-netcdf
-  "Encode response body as Netcdf"
-  [response]
-  (log/debug "to netcdf")
-  (assoc response :body "<html></html>"))
-
-(defn to-geotiff
-  "Encode response body as GeoTiff"
-  [response]
-  (log/debug "to geotiff")
-  (update response :body json/encode))
-
-(defn to-json
-  "Encode response body as JSON"
-  [response]
-  (log/debug "to json")
-  (update response :body json/encode))
-
-(defaccept encoder
-  "application/netcdf" to-netcdf
-  "application/geotiff" to-geotiff)
-
-(defn wrap-response-body
-  "Changes representation of response body based on accept headers"
-  [handler]
+  The response transform fn is given both the request and
+  response map because the response may be transformed in
+  a way that depends on request values; e.g. content-type."
+  [handler req-tf res-tf]
   (fn [request]
-    (log/debug "req - wrap response body")
-    (let [response (handler request)]
-      (log/debug "resp = wrap response body")
-      (encoder request #(merge {} response)))))
-
-(defn wrap-content-type
-  "Transform request body and response body using content-type headers"
-  [handler]
-  (fn [request]
-    (log/debug "req - content-type wrapper ...")
-    ;; XXX use content-type header to transform the request body
-    ;;     into a data-structure
-    (let [response (handler request)]
-      (log/debug "res - content-type wrapper ...")
-
-      ;; XXX use accept header to transform response data-structure
-      ;;     into a response string
-      response)))
+    (log/debug "req - wrap handler ...")
+    (let [request (req-tf request)
+          response (handler request)]
+      (log/debug "res - wrap handler ...")
+      (res-tf request response))))
 
 (defn wrap-authenticate
   "Add Identity to request map"

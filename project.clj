@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  ;; http server
                  [ring/ring "1.5.0"]
+                 [ring/ring-json "0.4.0"]
                  [ring-jetty-component "0.3.1"]
                  [usgs-eros/ring-accept "0.2.0-SNAPSHOT"]
                  [usgs-eros/ring-problem "0.1.0-SNAPSHOT"]
