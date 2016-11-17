@@ -37,8 +37,8 @@
                              [lein-kibit "0.1.2"]
                              [jonase/eastwood "0.2.3"]]}
              :test {:dependencies [[http-kit "2.2.0"]
-                                   [http-kit.fake "0.2.2"]]
-                    :resource-paths ["test"]}
+                                   [http-kit.fake "0.2.2"]]}
+
 
              :uberjar {:aot :all
                        :main lcmap.aardvark.core}}
