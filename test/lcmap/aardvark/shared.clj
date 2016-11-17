@@ -22,7 +22,8 @@
 (defmacro with-system
   "Start and stop the system, useful for integration tests."
   [[binding] & body]
-  `(let [~binding (component/start (test-system (io/resource "lcmap-landsat-test.ini")))]
+  `(let [~binding (component/start (test-system
+                                     (io/resource "lcmap-landsat-test.ini")))]
      (try
        (do ~@body)
        (finally

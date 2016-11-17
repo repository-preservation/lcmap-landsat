@@ -8,7 +8,8 @@
 
 (defn search [req db]
   (log/debug "aardvark search ...")
-  (let [ard {:ubids ["LANDSAT_8/toa/band1", "LANDSAT_8/toa/band2"]}]
+  (let [ard {:ubids ["LANDSAT_8/toa/band1", "LANDSAT_8/toa/band2"]}
+        session ()]
     {:status 200 :body [ard]}))
 
 (defn ingest [req db]
@@ -33,11 +34,3 @@
      (GET    "/landsat" [] (search req db))
      (POST   "/landsat" [] (ingest req db))
      (DELETE "/landsat" [] (delete req db)))))
-
-    ;; Other resources to support inventory, scene to tile mapping reports, etc.
-    ;; (context "/landsat/:id" req
-    ;; (GET    "/" req (encoder req #(details req db)))
-    ;; (POST   "/" req (encoder req #(ingest req db)))
-    ;; (PUT    "/" req (encoder req #(update req db)))
-    ;; (PATCH  "/" req (encoder req #(update req db)))
-    ;; (DELETE "/" req (encoder req #(delete req db))))))

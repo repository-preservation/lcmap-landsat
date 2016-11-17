@@ -24,6 +24,20 @@
 (defn new-database [config]
   (map->Database {:config config}))
 
+
+(defrecord DatabaseSession [database]
+  component/Lifecycle
+  (start [component]
+    (log/info "starting db session component ...")
+    (assoc component :db-session (alia/connect (:db component))))
+  (stop [component]
+    (log/info "stopping db session component ...")
+    (alia/shutdown (:db-session component))
+    (dissoc component :db-session)))
+
+(defn new-database-session [database]
+  (map->DatabaseSession {:db database}))
+
 ;;;
 
 (defrecord Event [config]

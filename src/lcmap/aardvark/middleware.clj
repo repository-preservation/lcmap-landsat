@@ -35,7 +35,7 @@
     (log/debug "req - wrap response body")
     (let [response (handler request)]
       (log/debug "resp = wrap response body")
-      (encoder request response))))
+      (encoder request #(merge {} response)))))
 
 (defn wrap-content-type
   "Transform request body and response body using content-type headers"
