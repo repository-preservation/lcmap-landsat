@@ -1,8 +1,8 @@
-(ns landsat.core
+(ns lcmap.aardvark.core
   "Entrypoint for app."
   (:require [com.stuartsierra.component :as component]
-            [landsat.config]
-            [landsat.system]
+            [lcmap.aardvark.config :as config]
+            [lcmap.aardvark.system :as system]
             [clojure.tools.logging :as log])
   (:gen-class))
 
@@ -19,8 +19,8 @@
   (try
     (log/debugf "Starting app with `lcmap-landsat.ini`")
     (-> args
-        landsat.config/build
-        landsat.system/system
+        config/build
+        system/system
         component/start
         handle-shutdown)
     (catch java.io.FileNotFoundException e

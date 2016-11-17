@@ -1,11 +1,11 @@
-(ns landsat.system
+(ns lcmap.aardvark.system
   "Define components and function for building a system"
   (:require [com.stuartsierra.component :as component]
             [ring.component.jetty :refer [jetty-server]]
             [clojure.tools.logging :as log]
             [qbits.alia :as alia]
             [langohr.core :as rmq]
-            [landsat.app :as app]))
+            [lcmap.aardvark.app :as app]))
 
 ;;;
 
@@ -23,6 +23,20 @@
 
 (defn new-database [config]
   (map->Database {:config config}))
+
+
+(defrecord DatabaseSession [database]
+  component/Lifecycle
+  (start [component]
+    (log/info "starting db session component ...")
+    (assoc component :db-session (alia/connect (:db component))))
+  (stop [component]
+    (log/info "stopping db session component ...")
+    (alia/shutdown (:db-session component))
+    (dissoc component :db-session)))
+
+(defn new-database-session [database]
+  (map->DatabaseSession {:db database}))
 
 ;;;
 

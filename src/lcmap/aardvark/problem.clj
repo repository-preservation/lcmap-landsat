@@ -1,4 +1,4 @@
-(ns landsat.problem
+(ns lcmap.aardvark.problem
   "Project specific problem resources."
   (:require [clojure.tools.logging :as log]
             [compojure.core :refer :all]

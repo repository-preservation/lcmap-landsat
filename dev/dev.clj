@@ -1,8 +1,8 @@
 (ns dev
   (:require [com.stuartsierra.component :as component]
             [clojure.tools.namespace.repl :refer [refresh refresh-all]]
-            [feline.config]
-            [feline.system]
+            [lcmap.aardvark.config :as config]
+            [lcmap.aardvark.system :as system]
             [uberconf.core :as uberconf]))
 
 (def system "A Var containing the application" nil)
@@ -10,7 +10,7 @@
 (defn init
   "Prepare a system, in the Var #'system"
   []
-  (alter-var-root #'system (fn [_] (feline.system/system (feline.config/build {})))))
+  (alter-var-root #'system (fn [_] (system/system (config/build {})))))
 
 (defn start
   "Start components of system and update Var #'system"

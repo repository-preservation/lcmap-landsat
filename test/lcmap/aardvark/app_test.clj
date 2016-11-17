@@ -1,7 +1,7 @@
-(ns landsat.app-test
+(ns lcmap.aardvark.app-test
   (:require [clojure.test :refer :all]
             [org.httpkit.client :as http]
-            [landsat.shared :refer :all]))
+            [lcmap.aardvark.shared :refer :all]))
 
 (defn req [method path]
   @(http/request {:method method
