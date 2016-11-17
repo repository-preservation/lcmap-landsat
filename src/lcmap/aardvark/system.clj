@@ -89,4 +89,4 @@
    :db   (new-database cfg)
    :msg  (new-event cfg)
    :app  (component/using (new-app cfg) [:db :msg])
-   :server (component/using (jetty-server (:server cfg)) [:app])))
+   :http (component/using (jetty-server (:http cfg)) [:app])))
