@@ -17,11 +17,11 @@
   "Start the app."
   [& args]
   (try
-    (log/debugf "Starting app with `lcmap-landsat.ini`")
+    (log/debugf "Starting app with `lcmap-landsat.edn`")
     (-> args
         config/build
         system/system
         component/start
         handle-shutdown)
     (catch java.io.FileNotFoundException e
-      (log/error "File not found, is `lcmap-landsat.ini` on the load path?"))))
+      (log/error "File not found, is `lcmap-landsat.edn` on the load path?"))))

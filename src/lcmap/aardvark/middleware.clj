@@ -3,7 +3,6 @@
             [cheshire.core :as json]
             [ring.util.accept :refer [defaccept best-match]]))
 
-
   ;;; Representation encoding functions
 
 (defn to-netcdf
