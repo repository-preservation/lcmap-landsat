@@ -13,7 +13,7 @@
   []
   (alter-var-root #'system
                   (fn [_] (system/system
-                           (config/build {:ini (io/resource "lcmap-landsat-dev.ini")})))))
+                           (config/build {:edn (io/resource "lcmap-landsat-dev.edn")})))))
 
 (defn start
   "Start components of system and update Var #'system"
