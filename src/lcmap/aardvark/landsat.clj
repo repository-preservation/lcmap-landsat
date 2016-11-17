@@ -8,9 +8,7 @@
 
 (defn search [req db]
   (log/debug "aardvark search ...")
-  (let [ard {:ubids ["LANDSAT_8/toa/band1", "LANDSAT_8/toa/band2"]}
-        session ()]
-    {:status 200 :body [ard]}))
+  {:status 200 :body "LANDSAT_8/toa/band1"})
 
 (defn ingest [req db]
   (log/debug "ingest scene ...")
