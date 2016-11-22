@@ -5,7 +5,7 @@
             [schema.core :as schema]))
 
 (def config-schema
-  {:http     {:port schema/Num }
+  {:http     {:port schema/Num :join? schema/Bool :daemon? schema/Bool}
    :database {:contact-points [schema/Str]}
    :event    {:host schema/Str :port schema/Int}
    schema/Keyword schema/Str})
