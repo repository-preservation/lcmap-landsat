@@ -26,10 +26,6 @@
   {:status 405
    :headers {"Allow" (clojure.string/join "," verbs)}})
 
-(defn notify [cat msg]
-  (log/debug "aardvark notify ...")
-  "some notification data-structure")
-
 ;;; Request entity related functions
 
 (defn prepare-with
@@ -79,7 +75,7 @@
 
 (defn resource
   "Handlers for landsat resource."
-  [db msg]
+  [db]
   (context "/" req
     (-> (routes
            (GET    "/landsat" [] (search req db))

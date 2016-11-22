@@ -1,10 +1,11 @@
 (ns lcmap.aardvark.config
   "Configuration!"
   (:require [uberconf.core :as uberconf]
+            [clojure.tools.logging :as log]
             [schema.core :as schema]))
 
 (def config-schema
-  {:http     {:port schema/Num}
+  {:http     {:port schema/Num :join? schema/Bool :daemon? schema/Bool}
    :database {:contact-points [schema/Str]}
    :event    {:host schema/Str :port schema/Int}
    schema/Keyword schema/Str})
@@ -13,4 +14,5 @@
 ;;  (uberconf/init-cfg {:ini ini :schema config-schema}))
 
 (defn build [{:keys [edn] :or {edn "lcmap-landsat.edn"} :as args}]
-  (uberconf/init-cfg {:edn edn :schema config-schema}))
+  (do (log/info "Building configuration from " edn)
+      (uberconf/init-cfg {:edn edn :schema config-schema})))

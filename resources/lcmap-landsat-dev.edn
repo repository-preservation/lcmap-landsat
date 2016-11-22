@@ -1,3 +1,3 @@
-{:http {:port 5679}
+{:http {:port 5678 :join? false :daemon? true}
  :database {:contact-points "localhost"}
  :event {:host "localhost" :port 5672}}

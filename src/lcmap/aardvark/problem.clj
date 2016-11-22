@@ -50,7 +50,7 @@
 
 (defn resource
   "Handlers for problem resource"
-  [db msg]
+  [db]
   (context "/problems" req
    (ANY "/" [] (problem/as-json problem/default-problems))
    (ANY "/example" [] (throw (ex-info "Some Clojure exception info" {})))))

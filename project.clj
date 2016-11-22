@@ -25,8 +25,8 @@
                  ;; logging
                  [org.clojure/tools.logging "0.3.1"]
                  [org.slf4j/slf4j-log4j12 "1.7.21"]
-                 ;; system component library
-                 [com.stuartsierra/component "0.3.1"]
+                 ;; state management
+                 [mount "0.1.10"]
                  ;; configuration
                  [usgs-eros/uberconf "0.1.0-SNAPSHOT"]]
   :profiles {:dev {:resource-paths ["dev"]
