@@ -8,7 +8,7 @@
             [uberconf.core :as uberconf]))
 
 (defn start
-  "Start dev system"
+  "Start dev system with a replacement config namespace"
   []
   (let [cfg (config/build {:edn (io/resource "lcmap-landsat-dev.edn")})]
     (mount/start-with {#'lcmap.aardvark.state/config cfg})))
