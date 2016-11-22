@@ -1,19 +1,20 @@
 (ns lcmap.aardvark.app-test
   (:require [clojure.test :refer :all]
             [org.httpkit.client :as http]
+            [lcmap.aardvark.state :refer [config]]
             [lcmap.aardvark.shared :refer :all]))
 
 (defn req
   ""
   ([method path headers]
    @(http/request {:method method
-                   :url (str "http://localhost:5679" path)
+                   :url (str "http://localhost:5678" path)
                    :headers headers}))
   ([method path]
-    (req method path {"Accept" "application/json"})))
+   (req method path {"Accept" "application/json"})))
 
 (deftest app-tests
-  (with-system [system]
+  (with-system
     (testing "search"
       (let [resp (req :get "/landsat")]
         (is (= 200 (:status resp)))))
