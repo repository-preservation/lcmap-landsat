@@ -1,42 +1,26 @@
 (ns dev
-  (:require [com.stuartsierra.component :as component]
+  (:require
             [clojure.tools.namespace.repl :refer [refresh refresh-all]]
             [lcmap.aardvark.config :as config]
-            [lcmap.aardvark.system :as system]
             [clojure.java.io :as io]
+            [mount.core :as mount]
+            [lcmap.aardvark.state :refer [config]]
             [uberconf.core :as uberconf]))
 
-(def system "A Var containing the application" nil)
-
-(defn init
-  "Prepare a system, in the Var #'system"
-  []
-  (alter-var-root #'system
-                  (fn [_] (system/system
-                           (config/build {:edn (io/resource "lcmap-landsat-dev.edn")})))))
-
 (defn start
-  "Start components of system and update Var #'system"
+  "Start dev system"
   []
-  (if #'system
-    (alter-var-root #'system component/start)))
+  (let [cfg (config/build {:edn (io/resource "lcmap-landsat-dev.edn")})]
+    (mount/start-with {#'lcmap.aardvark.state/config cfg})))
 
 (defn stop
-  "Stop components of system and update Var #'system"
+  "Stop system"
   []
-  (if #'system
-    (alter-var-root #'system component/stop)))
-
-(defn void
-  "Return system to uninitialized state"
-  []
-  (if #'system
-    (alter-var-root #'system (fn [_] nil))))
+  (mount/stop))
 
 (defn go
   "Prepare and start a system"
   []
-  (init)
   (start)
   :ready)
 
@@ -44,5 +28,4 @@
   "Stop, refresh, and start a system."
   []
   (stop)
-  (void)
   (refresh :after `go))

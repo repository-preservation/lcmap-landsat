@@ -1,8 +1,6 @@
 (ns lcmap.aardvark.core
   "Entrypoint for app."
-  (:require [com.stuartsierra.component :as component]
-            [lcmap.aardvark.config :as config]
-            [lcmap.aardvark.system :as system]
+  (:require [mount.core :as mount]
             [clojure.tools.logging :as log])
   (:gen-class))
 
@@ -10,7 +8,7 @@
   "Stop system during shutdown."
   [system]
   (.addShutdownHook (Runtime/getRuntime)
-                    (Thread. #(component/stop system)))
+                    (Thread. #(mount/stop)))
   system)
 
 (defn -main
@@ -19,9 +17,7 @@
   (try
     (log/debugf "Starting app with `lcmap-landsat.edn`")
     (-> args
-        config/build
-        system/system
-        component/start
+        mount/start
         handle-shutdown)
     (catch java.io.FileNotFoundException e
       (log/error "File not found, is `lcmap-landsat.edn` on the load path?"))))

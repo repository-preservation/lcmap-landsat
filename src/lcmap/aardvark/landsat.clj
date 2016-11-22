@@ -18,15 +18,11 @@
   (log/debug "remove scene ...")
   {:status 410 :body "scene deleted"})
 
-(defn notify [cat msg]
-  (log/debug "aardvark notify ...")
-  "some notification data-structure")
-
 ;;; Routes
 
 (defn resource
   "Handlers for landsat resource."
-  [db msg]
+  [db]
   (routes
     (context "/" req
      (GET    "/landsat" [] (search req db))
