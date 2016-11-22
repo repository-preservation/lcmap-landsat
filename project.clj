@@ -24,9 +24,7 @@
                  ;; logging
                  [org.clojure/tools.logging "0.3.1"]
                  [org.slf4j/slf4j-log4j12 "1.7.21"]
-                 ;; system component library
-                 [com.stuartsierra/component "0.3.1"]
-                 ;; alternative to component, mount
+                 ;; state management
                  [mount "0.1.10"]
                  ;; configuration
                  [usgs-eros/uberconf "0.1.0-SNAPSHOT"]]
