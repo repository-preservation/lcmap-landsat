@@ -30,8 +30,13 @@ mount/start.  See https://github.com/tolitius/mount/blob/master/README.md"
   :stop  (rmq/close event))
 
 (defstate graph
-  :start (str "hello")
-  :stop  (str "goodbye"))
+  :start 33)
+  ;;:stop  (.close graph))
+
+(defstate tile-search
+  "Simple map index of tile-spec terms."
+  :start 33
+  :stop 34)
 
 (defstate handler
   :start (handler/landsat db))
