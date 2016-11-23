@@ -8,6 +8,10 @@ services:
   rabbit:
     image: rabbitmq:3-management
     ports:
-    - "8080:15672"
+    - "15672:15672"
     - "5672:5672"
     - "5671:5671"
+  cassandra:
+    image: cassandra:3.9
+    ports:
+    - "9042:9042"
