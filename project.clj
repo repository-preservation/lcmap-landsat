@@ -28,7 +28,7 @@
                  [mount "0.1.10"]
                  ;; configuration
                  [usgs-eros/uberconf "0.1.0-SNAPSHOT"]]
-  :profiles {:dev {:resource-paths ["dev"]
+  :profiles {:dev {:resource-paths ["dev" "resources/dev" "resources/shared"]
                    :dependencies [[org.clojure/tools.namespace "0.3.0-alpha3"]
                                   [http-kit "2.2.0"]
                                   [http-kit.fake "0.2.2"]]
@@ -36,7 +36,8 @@
                              [lein-ancient "0.6.10"]
                              [lein-kibit "0.1.2"]
                              [jonase/eastwood "0.2.3"]]}
-             :test {:dependencies [[http-kit "2.2.0"]
+             :test {:resource-paths ["test" "resources/test" "resources/shared"]
+                    :dependencies [[http-kit "2.2.0"]
                                    [http-kit.fake "0.2.2"]]}
 
 

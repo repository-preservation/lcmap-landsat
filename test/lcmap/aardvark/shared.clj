@@ -7,7 +7,7 @@
 (defmacro with-system
   "Start and stop the system, useful for integration tests."
   [& body]
-  `(let [cfg# (config/build {:edn (io/resource "lcmap-landsat-test.edn")})]
+  `(let [cfg# (config/build {:edn (io/resource "lcmap-landsat.edn")})]
     (mount/start-with {#'lcmap.aardvark.state/config cfg#})
     (log/debug "Starting test system with config:" cfg#)
     (try
