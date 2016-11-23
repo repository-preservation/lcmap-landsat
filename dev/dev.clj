@@ -10,7 +10,7 @@
 (defn start
   "Start dev system with a replacement config namespace"
   []
-  (let [cfg (config/build {:edn (io/resource "lcmap-landsat-dev.edn")})]
+  (let [cfg (config/build {:edn (io/resource "lcmap-landsat.edn")})]
     (mount/start-with {#'lcmap.aardvark.state/config cfg})))
 
 (defn stop

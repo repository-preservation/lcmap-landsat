@@ -6,7 +6,6 @@
 (def space {})
 (def time {})
 
-(def query "select ubid from lcmap.tile_specs")
 
 (def landsat
   "Schema describing entity relationship for landsat"
