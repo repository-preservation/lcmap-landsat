@@ -38,28 +38,28 @@
 
 (defn save-problem
   "Persist instance of a problem for subsequent retrieval."
-  [problem db]
+  [problem]
   (log/debug "Save problem to db")
   problem)
 
 (defn find-problem
   "Retrieve problem, both type or instance."
-  [db request]
+  [request]
   (log/debug request)
   (problem/problem (ex-info "Example" {})))
 
 (defn resource
   "Handlers for problem resource"
-  [db]
-  (context "/problems" req
+  [request]
+  (context "/problems" request
    (ANY "/" [] (problem/as-json problem/default-problems))
    (ANY "/example" [] (throw (ex-info "Some Clojure exception info" {})))))
 
 (defn transformer
   "Used with problem/wrap-problem to transform problem before
   building response."
-  [problem req db]
+  [problem req]
   (-> problem
       (link-problem req)
-      (save-problem db))
+      (save-problem))
   problem)

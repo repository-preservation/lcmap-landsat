@@ -9,15 +9,15 @@
 
 ;;; Response producing functions
 
-(defn search [req db]
+(defn search [req]
   (log/debug "aardvark search ...")
   {:status 200 :body "LANDSAT_8/toa/band1"})
 
-(defn ingest [req db]
+(defn ingest [req]
   (log/debug "ingest scene ...")
   {:status 201 :body "scene ingest scheduled"})
 
-(defn delete [req db]
+(defn delete [req]
   (log/debug "remove scene ...")
   {:status 410 :body "scene deleted"})
 
@@ -75,11 +75,11 @@
 
 (defn resource
   "Handlers for landsat resource."
-  [db]
-  (context "/" req
+  [request]
+  (context "/" request
     (-> (routes
-           (GET    "/landsat" [] (search req db))
-           (POST   "/landsat" [] (ingest req db))
-           (DELETE "/landsat" [] (delete req db))
+           (GET    "/landsat" [] (search request))
+           (POST   "/landsat" [] (ingest request))
+           (DELETE "/landsat" [] (delete request))
            (ANY    "/landsat" [] (allow "GET" "POST" "DELETE")))
         (wrap-handler prepare-with respond-with))))
