@@ -1,3 +1,5 @@
+[![Build Status][travis-badge]][travis][![Clojars Project][clojars-badge]][clojars]
+
 # lcmap-landsat
 LCMAP Landsat data ingest, inventory &amp; distribution
 
