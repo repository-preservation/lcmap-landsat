@@ -27,13 +27,15 @@ echo Version: $VERSION
 # fails, no need for a redundant echo. It doesn't make sense
 # to continue if authentication fails.
 if docker login -u $DOCKER_USER -p $DOCKER_PASS; then
-   exit 1
+    echo "hub.docker.com authentication successful."
+else
+    exit 1
 fi
 
 # Travis will build topic branches, but Docker images should not be
 # built for each one because this would result in a *lot* of images
 # during periods of active development.
-if [ "$BRANCH" == "master" ] || [ "$BRANCH" == "develop" ] || true; then
+if [ "$BRANCH" == "master" ] || [ "$BRANCH" == "develop" ] ; then
 
     # Using the commit SHA will ensure that built images persist on
     # Docker Hub unless explicitly removed. A more meaningful tag
