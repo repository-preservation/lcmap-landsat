@@ -46,7 +46,7 @@ if [ "$BRANCH" == "master" ] || [ "$BRANCH" == "develop" ] || true; then
     lein uberjar
     docker build -f Dockerfile -t $COMMIT_TAG .
     docker tag $COMMIT_TAG $BRANCH_TAG
-    # docker push $REPO
+    docker push $REPO
     echo "Building Docker image ... done"
 
 else
