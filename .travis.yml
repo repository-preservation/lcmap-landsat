@@ -21,3 +21,8 @@ before_install:
 
 after_success:
   - bin/deploy
+
+notifications:
+  slack:
+    rooms:
+      - lcmap:UTqlh9PfPVomfpli10WKyZoh#cicd
