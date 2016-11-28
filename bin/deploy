@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# This file is executed by Travis CI when a buid succeeds. If you
+# execute this file manually, please be sure the build runs.
+
+export REPO=usgseros/lcmap-landsat
+
+# If deploying manually the TRAVIS_BRANCH will not be set, so it needs
+# to be set using a git command. Even though this script is intended
+# to build images for master and develop, any "/" characters in the
+# branch are replaced so that if images are built for topic branches
+# the name will conform to Docker Hub tag name rules.
+BRANCH="${TRAVIS_BRANCH:-`git rev-parse --abbrev-ref HEAD | tr / -`}"
+echo Branch: $BRANCH
+
+# ...same for the commit.
+COMMIT="${TRAVIS_COMMIT:-`git rev-parse HEAD`}"
+echo Commit: $COMMIT
+
+# Version is extracted from project.clj so that a meaningful tag can
+# be added to the image. This expects a particular versioning scheme
+# and handles the case when the string "-SNAPSHOT" is not present.
+export VERSION=`head -n1 project.clj | grep -oP "[\d+]\.[\d+]\.[\d+](-SNAPSHOT)?"`
+echo Version: $VERSION
+
+# The docker login command print an error if authentication
+# fails, no need for a redundant echo. It doesn't make sense
+# to continue if authentication fails.
+if docker login -u $DOCKER_USER -p $DOCKER_PASS; then
+   exit 1
+fi
+
+# Travis will build topic branches, but Docker images should not be
+# built for each one because this would result in a *lot* of images
+# during periods of active development.
+if [ "$BRANCH" == "master" ] || [ "$BRANCH" == "develop" ] || true; then
+
+    # Using the commit SHA will ensure that built images persist on
+    # Docker Hub unless explicitly removed. A more meaningful tag
+    # is also created using the <branch>-<version> but that can be
+    # superseded by subsequent builds.
+    COMMIT_TAG=$REPO:$COMMIT
+    BRANCH_TAG=$REPO:$BRANCH-$VERSION
+
+    echo "Building Docker image for $COMMIT_TAG ($BRANCH_TAG)"
+    lein uberjar
+    docker build -f Dockerfile -t $COMMIT_TAG .
+    docker tag $COMMIT_TAG $BRANCH_TAG
+    # docker push $REPO
+    echo "Building Docker image ... done"
+
+else
+   echo "Skipping Docker image build, on branch '$BRANCH' (not master or develop)"
+
+fi

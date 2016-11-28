@@ -5,14 +5,16 @@
             [schema.core :as schema]))
 
 (def config-schema
-  {:http     {:port schema/Num :join? schema/Bool :daemon? schema/Bool}
+  {:http     {:port schema/Num
+              (schema/optional-key :join?) schema/Bool
+              (schema/optional-key :daemon?) schema/Bool}
    :database {:contact-points [schema/Str]}
-   :event    {:host schema/Str :port schema/Int}
+   :event    {:host schema/Str :port schema/Num}
    schema/Keyword schema/Str})
 
-;;(defn build [{:keys [ini] :or {ini "lcmap-landsat.ini"} :as args}]
-;;  (uberconf/init-cfg {:ini ini :schema config-schema}))
-
-(defn build [{:keys [edn] :or {edn "lcmap-landsat.edn"} :as args}]
-  (do (log/info "Building configuration from " edn)
-      (uberconf/init-cfg {:edn edn :schema config-schema})))
+(defn build [{:keys [edn cli env schema]
+              :or {schema config-schema}
+              :as args}]
+  (log/debugf "using schema: '%s'" schema)
+  (log/debugf "build config: '%s'" (uberconf/build-cfg args))
+  (uberconf/init-cfg {:edn edn :cli cli :env env :schema schema}))
