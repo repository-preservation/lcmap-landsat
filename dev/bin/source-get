@@ -1,0 +1,6 @@
+#!/bin/bash
+
+curl -v \
+     -H "Accept: application/json, */*" \
+     -X GET \
+     http://localhost:5678/landsat/source/LT50470282005313PAC01

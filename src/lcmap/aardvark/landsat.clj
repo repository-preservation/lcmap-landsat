@@ -1,25 +1,16 @@
 (ns lcmap.aardvark.landsat
   "Resources and representations."
   (:require [cheshire.core :as json]
+            [clj-time.format :as time-fmt]
+            [clj-time.coerce :as time-coerce]
             [clojure.tools.logging :as log]
             [clojure.string :as string]
             [compojure.core :refer :all]
             [ring.util.accept :refer [accept]]
+            [lcmap.aardvark.tile :as tile]
             [lcmap.aardvark.middleware :refer [wrap-handler]]))
 
 ;;; Response producing functions
-
-(defn search [req]
-  (log/debug "aardvark search ...")
-  {:status 200 :body "LANDSAT_8/toa/band1"})
-
-(defn ingest [req]
-  (log/debug "ingest scene ...")
-  {:status 201 :body "scene ingest scheduled"})
-
-(defn delete [req]
-  (log/debug "remove scene ...")
-  {:status 410 :body "scene deleted"})
 
 (defn allow [& verbs]
   (log/debug "explaining allow verbs")
@@ -36,34 +27,14 @@
 
 ;;; Response entity related functions
 
-(defn to-netcdf
-  "Encode response body as Netcdf"
-  [response]
-  (log/debug "to netcdf")
-  (assoc response :body "NetCDF"))
-
-(defn to-geotiff
-  "Encode response body as GeoTiff"
-  [response]
-  (log/debug "to geotiff")
-  (assoc response :body "geotiff"))
-
-(defn to-html
-  ""
-  [response]
-  (log/debug "to html")
-  (assoc response :body "HTML"))
-
 (defn to-json
   "Encode response body as JSON"
   [response]
   (log/debug "to JSON")
   (update response :body json/encode))
 
-(def supported-types (accept "application/netcdf" to-netcdf
-                             "application/geotiff" to-geotiff
-                             "application/json" to-json
-                             "text/html" to-html))
+(def supported-types (accept "application/json" to-json
+                             "*/*" to-json))
 
 (defn respond-with
   ""
@@ -75,11 +46,9 @@
 
 (defn resource
   "Handlers for landsat resource."
-  [request]
-  (context "/" request
+  []
+  (context "/landsat" request
     (-> (routes
-           (GET    "/landsat" [] (search request))
-           (POST   "/landsat" [] (ingest request))
-           (DELETE "/landsat" [] (delete request))
-           (ANY    "/landsat" [] (allow "GET" "POST" "DELETE")))
+         (GET    "/" [] {:body "TBD"})
+         (ANY    "/" [] (allow "GET")))
         (wrap-handler prepare-with respond-with))))

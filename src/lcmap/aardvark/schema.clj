@@ -1,5 +1,6 @@
 (ns lcmap.aardvark.schema
-  (:require [schema.core :as s]))
+  (:require [schema.core :as s])
+  (:refer-clojure :exclude [time]))
 
 (def x {})
 (def y {})

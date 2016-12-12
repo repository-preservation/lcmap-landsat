@@ -1,5 +1,5 @@
 (ns lcmap.aardvark.graph
-  (:require [lcmap.aardvark.state :refer [db-session]]
+  (:require [lcmap.aardvark.db :refer [db-session]]
             [qbits.alia :as alia]
             [clojure.tools.logging :as log]
             [clojure.string :as str]))

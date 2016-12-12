@@ -15,9 +15,12 @@ env:
   - secure: KwM2J/HxxvAXAu91m1im/v0o0volV75o1xzE2nX1Nx2k2zyoYT8B6HiHa2EGuEsZX2smyoLRK+IDbY2znSt0FV+Z0C8SS5y7N6KFTRfyxqVr1Fl0yb6FfonRN9HYbBtx0FQmfoBGTNiFOb38BR5qGxv4fuqFJo0YMC3Hb38ElSwQb2LnYEsO5m5jfGN8U999K7P1kGLRmbWVx4FCMLgvUITLJYUnYHIbVoPVzL8HXAqtF9oXlsOoXHQMEUEVg52aiuONXyWMvAmzo5Gyne9aGROO8HyXxnKRx4rukwnOLQk6v5rupKSnCwuIRcovDtFr6WE1e8JlKtodELwGriyk5pAbUoCAD3aUXsQ4QrUHvfkWUsMDFdD4IS7Dd5ELzKF17NYzLJpYrpcYiQXYtE7o8TUYimzpu5P4VJQX6QplOXPPl5R+cMpGGHDYAZnlon36dnsZKacrYoYSjCLlFMvpbEu+U8s7mCZ/WMNq1lPf0uJDAQqvqDY5XNP7J/3sZl6KSaerd2dc7GnJLCljalv5sz4nZFgLb4TITtYINI9Opghsu94GIMGefi4DtZYeocjP30apEVuilp+aLCS/e/pkLgVpZf1yDj9KLuCSm0obnqXgsO7v5am/qzid7ps77m+72wtm9wpD5SdYzTqpf/6hzCUJpWXPzRu018ZexcjRJUw= # DOCKER_PASS
 
 before_install:
-  - cd resources/test/
+  - cd test/resources
   - docker-compose up -d
   - cd ../..
+  - sudo apt-add-repository ppa:ubuntugis/ppa -y
+  - sudo apt-get update -qq
+  - sudo apt-get install libgdal-dev libgdal-java -y
 
 after_success:
   - bin/deploy

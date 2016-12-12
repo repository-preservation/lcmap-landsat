@@ -1,6 +1,7 @@
 (ns lcmap.aardvark.core
-  "Entrypoint for app."
+  "Entrypoint for HTTP mode."
   (:require [mount.core :as mount]
+            [clojure.tools.cli :refer [parse-opts]]
             [clojure.tools.logging :as log]
             [lcmap.aardvark.state :as state]
             [lcmap.aardvark.config :as config])
@@ -11,11 +12,20 @@
                [nil "--http.daemon? VALUE"]
                [nil "--database.contact-points VALUE"]
                [nil "--event.host VALUE"]
-               [nil "--event.port VALUE"]])
+               [nil "--event.port VALUE"]
+               [nil "--server"]
+               [nil "--worker"]])
 
 (defn -main
   "Start the app."
   [& args]
+  (let [cli (parse-opts args cli-spec)]
+    (if (get-in cli [:options :server])
+      (do (log/info "HTTP server mode enabled")
+          (require 'lcmap.aardvark.server)))
+    (if (get-in cli [:options :worker])
+      (do (log/info "AMQP worker mode enabled")
+          (require 'lcmap.aardvark.worker))))
   (mount/start (mount/with-args {:config {:cli {:args args
                                                 :spec cli-spec}
                                           :env {:prefix "lcmap.landsat."

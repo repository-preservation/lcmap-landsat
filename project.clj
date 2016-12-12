@@ -27,8 +27,17 @@
                  ;; state management
                  [mount "0.1.10"]
                  ;; configuration
-                 [usgs-eros/uberconf "0.1.0-SNAPSHOT"]]
-  :profiles {:dev {:resource-paths ["dev" "resources/dev" "resources/shared"]
+                 [usgs-eros/uberconf "0.1.0-SNAPSHOT"]
+                 ;; cryptographic checking
+                 [digest "1.4.5"]
+                 [dire "0.5.4"]
+                 [me.raynes/fs "1.4.6"]
+                 ;; ingest related dependencies
+                 [clj-gdal "0.4.0-ALPHA"]
+                 [org.clojure/core.memoize "0.5.8"]
+                 [org.clojure/data.xml "0.1.0-beta1"]
+                 [org.clojure/data.zip "0.1.2"]]
+  :profiles {:dev {:resource-paths ["dev" "dev/resources" "resources" "data"]
                    :dependencies [[org.clojure/tools.namespace "0.3.0-alpha3"]
                                   [http-kit "2.2.0"]
                                   [http-kit.fake "0.2.2"]]
@@ -36,13 +45,11 @@
                              [lein-ancient "0.6.10"]
                              [lein-kibit "0.1.2"]
                              [jonase/eastwood "0.2.3"]]}
-             :test {:resource-paths ["test" "resources/test" "resources/shared"]
+             :test {:resource-paths ["test" "test/resources" "resources" "data"]
                     :dependencies [[http-kit "2.2.0"]
                                    [http-kit.fake "0.2.2"]]}
-
-
              :uberjar {:aot :all
                        :main lcmap.aardvark.core}}
   :target-path "target/%s/"
   :compile-path "%s/classes"
-  :repl-options {:init-ns dev})
+  :repl-options {:init-ns lcmap.aardvark.user})
