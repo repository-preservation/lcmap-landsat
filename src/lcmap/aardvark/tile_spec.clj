@@ -1,19 +1,15 @@
 (ns lcmap.aardvark.tile-spec
   "Functions for retrieving and creating tile-specs."
-  (:require [cheshire.core :as json]
-            [clojure.tools.logging :as log]
-            [compojure.core :refer :all]
+  (:require [clojure.tools.logging :as log]
             [gdal.core]
             [gdal.dataset]
             [lcmap.aardvark.db :as db :refer [db-session]]
             [lcmap.aardvark.espa :as espa]
-            [lcmap.aardvark.middleware :refer [wrap-handler]]
             [lcmap.aardvark.util :as util]
             [mount.core :as mount :refer [defstate]]
             [qbits.alia :as alia]
             [qbits.hayt :as hayt]
             [qbits.hayt.cql :as cql]
-            [ring.util.accept :refer [accept]]
             [schema.core :as schema])
   (:refer-clojure :exclude [find]))
 
@@ -28,13 +24,11 @@
    :ubid schema/Str
     schema/Keyword schema/Str})
 
-(defn insert
-  "Create tile-spec in DB."
+(defn validate
+  "Produce a map of errors if the tile-spec is invalid, otherwise nil."
   [tile-spec]
-  (log/tracef "insert tile-spec: %s" tile-spec)
-  (alia/execute db-session
-                (hayt/insert :tile_specs (hayt/values tile-spec)))
-  tile-spec)
+  (log/tracef "validate tile-spec: %s" tile-spec)
+  (schema/check tile-spec-schema tile-spec))
 
 (defn all
   "Retrieve all tile-specs."
@@ -52,53 +46,13 @@
                    (hayt/where params)
                    (hayt/allow-filtering))))
 
-(defn validate
-  "Produce a map of errors if the tile-spec is invalid, otherwise nil."
+(defn insert
+  "Create tile-spec in DB."
   [tile-spec]
-  (log/tracef "validate tile-spec: %s" tile-spec)
-  (schema/check tile-spec-schema tile-spec))
-
-(defn get-tile-spec
-  "Search for a source and produce a response map."
-  [ubid]
-  (log/debugf "lookup tile-spec: %s" ubid)
-  (if-let [result (query ubid)]
-    {:status 200 :body result}
-    {:status 404 :body []}))
-
-(defn put-tile-spec
-  "Handle request for creating a tile-spec."
-  [ubid {params :params :as req}]
-  (let [tile-spec (merge {:ubid ubid} params)]
-    (or (some->> (validate tile-spec)
-                 (assoc {:status 403} :body))
-        (some->> (insert tile-spec)
-                 (assoc {:status 202} :body)))))
-
-;;; Request-Response middleware
-
-(defn to-json
-  "Encode response body as JSON"
-  [response]
-  (log/debug "responding with JSON")
-  (update response :body json/encode))
-
-(def supported-types
-  (accept "application/json" to-json
-          "*/*" to-json))
-
-;;; Routing
-
-(defn resource
-  "Subordinate Landsat resource for managing source data."
-  []
-  (context "/landsat/tile-specs" request
-           (-> (routes
-                (GET "/:ubid" [ubid]
-                     (get-tile-spec ubid))
-                (PUT "/:ubid" [ubid]
-                     (put-tile-spec request)))
-               (wrap-handler identity supported-types))))
+  (log/tracef "insert tile-spec: %s" tile-spec)
+  (alia/execute db-session
+                (hayt/insert :tile_specs (hayt/values tile-spec)))
+  tile-spec)
 
 ;;; Worker related
 

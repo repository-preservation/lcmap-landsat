@@ -25,7 +25,7 @@
    (schema/optional-key :state_name) schema/Str
    (schema/optional-key :state_desc) schema/Str})
 
-(defn- search
+(defn search
   "Query DB for source."
   [source-id]
   (log/debugf "search for source: %s" source-id)
@@ -34,15 +34,7 @@
        (alia/execute db-session)
        (seq)))
 
-(defn lookup
-  "Search for a source and produce a response map."
-  [source-id]
-  (log/debugf "lookup source: %s" source-id)
-  (if-let [result (search source-id)]
-    {:status 200 :body result}
-    {:status 404 :body []}))
-
-(defn- validate
+(defn validate
   "Produce a map of errors if the job is invalid, otherwise nil."
   [source]
   (log/debugf "validate source %s" source)
@@ -84,39 +76,3 @@
      (insert source+)))
   ([source name]
    (activity source name nil)))
-
-(defn persist
-  "Handle request for creating a source and produce a response."
-  [source-id {params :params :as req}]
-  (let [source (merge {:id source-id :state_name "created"} params)]
-    (or (some->> (validate source)
-                 (assoc {:status 403} :body))
-        (some->> (search source-id)
-                 (assoc {:status 409} :body))
-        (some->> (insert-and-publish source)
-                 (assoc {:status 202} :body)))))
-
-;;; Request-Response Middleware
-
-(defn to-json
-  "Encode response body as JSON"
-  [response]
-  (log/debug "responding with JSON")
-  (update response :body json/encode))
-
-(def supported-types
-  (accept "application/json" to-json
-          "*/*" to-json))
-
-;;; Routing
-
-(defn resource
-  "Subordinate Landsat resource for managing source data."
-  []
-  (context "/landsat/source" request
-    (-> (routes
-         (GET "/:source-id" [source-id]
-              (lookup source-id))
-         (PUT "/:source-id" [source-id]
-              (persist source-id request)))
-        (wrap-handler identity supported-types))))

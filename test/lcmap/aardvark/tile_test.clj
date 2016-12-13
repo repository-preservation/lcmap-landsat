@@ -41,20 +41,3 @@
       (is (= :fail (tile/process corrupt-source))))
     (testing "an archive that isn't ESPA output"
       (is (= :fail (tile/process corrupt-source))))))
-
-(deftest landsat-resource
-  (with-system
-    (testing "search"
-      (let [resp (req :get "http://localhost:5679/landsat/tiles"
-                      :headers {"Accept" "application/json"}
-                      :form-params {:x 0 :y 0
-                                    :ubid "LANDSAT_5/TM/sr_band1"
-                                    :acquired "2000-01-01/2005-01-01"})]
-        (is (= 200 (:status resp)))))
-    (testing "search for unsupported type"
-      (let [resp (req :get "http://localhost:5679/landsat/tiles"
-                      :form-params {:x 0 :y 0
-                                    :ubid "LANDSAT_5/TM/sr_band1"
-                                    :acquired "2000-01-01/2005-01-01"}
-                      :headers {"Accept" "application/foo"})]
-        (is (= 406 (:status resp)))))))

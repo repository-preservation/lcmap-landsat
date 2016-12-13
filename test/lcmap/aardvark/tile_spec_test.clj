@@ -24,11 +24,9 @@
         (is (= :done result))))
     (testing "processing Landsat 7 archive"
       (let [result (tile-spec/process L7 spec-opts)]
-        (is (= :done result)))))
-  (with-system
+        (is (= :done result))))
     (testing "finding by UBID"
-      (let [params {:ubid "LANDSAT_5/TM/sr_band1"}
-            results (tile-spec/query params)]
+      (let [results (tile-spec/query {:ubid "LANDSAT_5/TM/sr_band1"})]
         (is (= 1 (count results)))
         (is (= "LANDSAT_5" (-> results first :satellite)))
         (is (= "TM" (-> results first :instrument)))))))

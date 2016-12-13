@@ -10,13 +10,10 @@
   6. Remove temporary files.
 
   "
-  (:require [cheshire.core :as json]
-            [clj-time.core :as time]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [clojure.core.memoize :as memoize]
             [clojure.set]
             [clojure.tools.logging :as log]
-            [compojure.core :refer :all]
             [dire.core :as dire]
             [gdal.core]
             [gdal.band]
@@ -31,7 +28,6 @@
             [lcmap.aardvark.middleware :refer [wrap-handler]]
             [langohr.basic :as lb]
             [mount.core :as mount :refer [defstate]]
-            [ring.util.accept :refer [accept]]
             [qbits.alia :as alia]
             [qbits.hayt :as hayt]
             [schema.core :as schema])
@@ -272,41 +268,6 @@
     (process-scene dir source))
   (activity source "done")
   :done)
-
-;;; REST API Functions
-
-(defn search [{{:keys [:ubid :x :y :acquired]} :params :as req}]
-  (let [tile+    {:ubid ubid
-                  :x (Integer/parseInt x)
-                  :y (Integer/parseInt y)
-                  :acquired (clojure.string/split acquired #"/")}
-        tiles (find tile+)]
-    {:status 200 :body tiles}))
-
-(defn to-json
-  "Encode response body as JSON"
-  [response]
-  (log/debug "to JSON")
-  (update response :body json/encode))
-
-(def supported-types (accept "application/json" to-json
-                             "*/*" to-json))
-
-(defn respond-with
-  ""
-  [request response]
-  (log/debug "responding with a supported content type")
-  (supported-types request response))
-
-;;; Routes
-
-(defn resource
-  "Handlers for landsat resource."
-  []
-  (context "/landsat" request
-    (-> (routes
-         (GET "/tiles" [] (search request)))
-        (wrap-handler identity respond-with))))
 
 ;;; Error handlers
 
