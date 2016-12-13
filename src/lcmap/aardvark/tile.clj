@@ -276,7 +276,6 @@
 ;;; REST API Functions
 
 (defn search [{{:keys [:ubid :x :y :acquired]} :params :as req}]
-  (log/debug "aardvark search ...")
   (let [tile+    {:ubid ubid
                   :x (Integer/parseInt x)
                   :y (Integer/parseInt y)

@@ -2,16 +2,15 @@
   (:require [clojure.tools.logging :as log]
             [clojure.java.io :as io]
             [lcmap.aardvark.config :as config]
-            [mount.core :as mount :refer [defstate]]
-            [org.httpkit.client :as http]
-            [qbits.alia :as alia]))
+            [mount.core :as mount]
+            [org.httpkit.client :as http]))
 
 (defmacro with-system
   "Start and stop the system, useful for integration tests."
   [& body]
   `(let [cfg# (config/build {:edn (io/resource "lcmap-landsat.edn")})]
      (mount/start-with {#'config/config cfg#})
-     (log/debug "Starting test system with config:" cfg#)
+     (log/debugf "starting test system with config: %s" cfg#)
      (try
        (do ~@body)
        (finally

@@ -41,32 +41,13 @@
   (tile-spec/process source spec-opts)
   (tile/process source))
 
-;; This is included in the developer namespace for convenience.
-
 (comment
-  (let [L5 {:id  "LT50460272000005"
-            :uri (-> "ESPA/CONUS/ARD/LT50460272000005-SC20160826121722.tar.gz" io/resource io/as-url str)
-            :checksum "9aa16eac2b9b8a20301ad091ceb9f3f4"}
-        L7 {:id  "LE70460272000029"
+  "This uses sample data to produce a tile-spec and tiles from
+   an ESPA archive."
+  (let [L7 {:id  "LE70460272000029"
             :uri (-> "ESPA/CONUS/ARD/LE70460272000029-SC20160826120223.tar.gz" io/resource io/as-url str)
             :checksum "e1d2f9b28b1f55c13ee2a4b7c4fc52e7"}
         spec-opts {:keyspace_name "lcmap_landsat_dev"
                    :table_name "conus"
                    :data_shape [128 128]}]
-    (setup L5 spec-opts)
-    (setup L7 spec-opts))
-  ;; Get the L5/L7 tile-specs
-  (tile-spec/query {:ubid "LANDSAT_5/TM/sr_band1"})
-  (tile-spec/query {:ubid "LANDSAT_7/ETM/sr_band1"})
-  ;; Get some L5/L7 tiles
-  (let [tile (tile/find {:x -2062080
-                         :y  2952960
-                         :ubid "LANDSAT_5/TM/sr_band1"
-                         :acquired ["2000-01-01" "2006-01-01"]})]
-    (-> tile first :data))
-  (let [tile (tile/find {:x -2062080
-                         :y  2952960
-                         :ubid "LANDSAT_7/ETM/sr_band1"
-                         :acquired ["2000-01-01" "2006-01-01"]})]
-    (-> tile first :data))
-  (count (tile-spec/all)))
+    (setup L7 spec-opts)))

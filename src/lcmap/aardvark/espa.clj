@@ -124,7 +124,7 @@
 (defn parse-bands
   "Create a list of bands from ESPA metadata."
   [path]
-  (log/debug "Parsing metadata file:" path)
+  (log/debug "parsing metadata file:" path)
   (let [data (xml/parse path)
         root (zip/xml-zip data)]
     (bands->list root)))

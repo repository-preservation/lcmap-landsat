@@ -31,20 +31,22 @@
 (defn insert
   "Create tile-spec in DB."
   [tile-spec]
-  (log/debugf "insert tile-spec: %s" tile-spec)
-  (alia/execute db-session (hayt/insert :tile_specs (hayt/values tile-spec)))
+  (log/tracef "insert tile-spec: %s" tile-spec)
+  (alia/execute db-session
+                (hayt/insert :tile_specs (hayt/values tile-spec)))
   tile-spec)
 
 (defn all
   "Retrieve all tile-specs."
   []
+  (log/tracef "retrieve all tile-specs")
   (alia/execute db-session
                 (hayt/select :tile_specs)))
 
 (defn query
   "Find tile-spec in DB."
   [params]
-  (log/debugf "search for tile-spec: %s" params)
+  (log/tracef "search for tile-spec: %s" params)
   (alia/execute db-session
                 (hayt/select :tile_specs
                    (hayt/where params)
@@ -53,7 +55,7 @@
 (defn validate
   "Produce a map of errors if the tile-spec is invalid, otherwise nil."
   [tile-spec]
-  (log/debugf "validate tile-spec: %s" tile-spec)
+  (log/tracef "validate tile-spec: %s" tile-spec)
   (schema/check tile-spec-schema tile-spec))
 
 (defn get-tile-spec
@@ -148,5 +150,6 @@
   [{:keys [id checksum uri] :as source} opts]
   (if (util/checksum! source)
     (util/with-temp [dir uri]
-      (process-scene dir opts))
+      (process-scene dir opts)
+      :done)
     :failed))

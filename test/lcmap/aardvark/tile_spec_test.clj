@@ -1,24 +1,31 @@
 (ns lcmap.aardvark.tile-spec-test
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
-            [lcmap.aardvark.shared :as shared]
+            [lcmap.aardvark.fixtures]
+            [lcmap.aardvark.shared :refer :all :as shared]
             [lcmap.aardvark.tile-spec :as tile-spec]))
 
-(def data-path "test/resources/data/landsat/")
+(def L5 {:id  "LT50460272000005"
+         :uri (-> "ESPA/CONUS/ARD/LT50460272000005-SC20160826121722.tar.gz" io/resource io/as-url str)
+         :checksum "9aa16eac2b9b8a20301ad091ceb9f3f4"})
 
-(def landsat-source {:id "LT50470282005313"
-                     :uri (-> "data/landsat.tar.gz" io/resource io/as-url str)
-                     :checksum "c7aae8568ee8be9347373dd44d7e14c4"})
+(def L7 {:id  "LE70460272000029"
+         :uri (-> "ESPA/CONUS/ARD/LE70460272000029-SC20160826120223.tar.gz" io/resource io/as-url str)
+         :checksum "e1d2f9b28b1f55c13ee2a4b7c4fc52e7"})
 
-(def tile-spec-opts {:data_shape [256 256]
-                     :keyspace_name "lcmap_landsat_test"
-                     :table_name "conus"})
+(def spec-opts {:keyspace_name "lcmap_landsat_test"
+                :table_name "conus"
+                :data_shape [128 128]})
 
 (deftest test-processing
-  (shared/with-system
-    (testing "saving an ESPA archive"
-      (let [results (tile-spec/process-scene data-path tile-spec-opts)]
-        (is (= 32 (count results)))))
+  (with-system
+    (testing "processing Landsat 5 archive"
+      (let [result (tile-spec/process L5 spec-opts)]
+        (is (= :done result))))
+    (testing "processing Landsat 7 archive"
+      (let [result (tile-spec/process L7 spec-opts)]
+        (is (= :done result)))))
+  (with-system
     (testing "finding by UBID"
       (let [params {:ubid "LANDSAT_5/TM/sr_band1"}
             results (tile-spec/query params)]
