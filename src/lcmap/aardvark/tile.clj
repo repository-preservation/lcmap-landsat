@@ -172,7 +172,7 @@
   [tile]
   (let [data (:data tile)
         fill (:fill tile)]
-    (and (some? fill) (some? data) (= 0 (.compareTo data fill)))))
+    (and (some? fill) (some? data) (zero? (.compareTo data fill)))))
 
 (defn locate-fn
   "Build projection coordinate point calculator for GDAL dataset."
@@ -236,7 +236,7 @@
           [xs ys] (:data_shape band)
           tiles   (dataset->tiles tile-xf dataset xs ys)]
       (activity (merge source {:ubid (band :ubid)}) "band-start")
-      (dorun (pmap #(process-tile %) tiles))
+      (dorun (pmap process-tile tiles))
       (activity (merge source {:ubid (band :ubid)}) "band-done"))))
 
 (defn process-scene

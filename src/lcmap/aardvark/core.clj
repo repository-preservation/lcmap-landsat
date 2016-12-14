@@ -20,12 +20,12 @@
   "Start the app."
   [& args]
   (let [cli (parse-opts args cli-spec)]
-    (if (get-in cli [:options :server])
-      (do (log/info "HTTP server mode enabled")
-          (require 'lcmap.aardvark.server)))
-    (if (get-in cli [:options :worker])
-      (do (log/info "AMQP worker mode enabled")
-          (require 'lcmap.aardvark.worker))))
+    (when (get-in cli [:options :server])
+      (log/info "HTTP server mode enabled")
+      (require 'lcmap.aardvark.server))
+    (when (get-in cli [:options :worker])
+      (log/info "AMQP worker mode enabled")
+          (require 'lcmap.aardvark.worker)))
   (mount/start (mount/with-args {:config {:cli {:args args
                                                 :spec cli-spec}
                                           :env {:prefix "lcmap.landsat."
