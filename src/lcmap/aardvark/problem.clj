@@ -2,8 +2,26 @@
   "Project specific problem resources."
   (:require [clojure.tools.logging :as log]
             [compojure.core :refer :all]
-            [ring.middleware.problem :as problem])
+            [ring.middleware.problem :as problem :refer [defproblems]])
   (:import (java.net URI)))
+
+;;; Problem building related functions.
+
+(defn detail+
+  "Add ex-data to problem"
+  [problematic exception]
+  (-> problematic
+      (problem/make-instance exception)
+      (assoc :detail (ex-data exception))))
+
+(defproblems lcmap-landsat-problems
+  [[clojure.lang.ExceptionInfo
+    {:type "lcmap-landsat-default-problem"
+     :title "LCMAP Landsat Problem"
+     :status 500}
+    detail+]])
+
+;;; Problem representation related functions.
 
 (defn uri-str
   "Build URI for resource, and optionally a request."
@@ -48,13 +66,6 @@
   (log/debug request)
   (problem/problem (ex-info "Example" {})))
 
-(defn resource
-  "Handlers for problem resource"
-  []
-  (context "/problems" request
-   (ANY "/" [] (problem/as-json problem/default-problems))
-   (ANY "/example" [] (throw (ex-info "Some Clojure exception info" {})))))
-
 (defn transformer
   "Used with problem/wrap-problem to transform problem before
   building response."
@@ -63,3 +74,10 @@
       (link-problem req)
       (save-problem))
   problem)
+
+(defn resource
+  "Handlers for problem resource"
+  []
+  (context "/problems" request
+   (ANY "/" [] (problem/as-json problem/default-problems))
+   (ANY "/example" [] (throw (ex-info "Some Clojure exception info" {})))))
