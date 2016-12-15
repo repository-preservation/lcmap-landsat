@@ -1,5 +1,12 @@
 (ns lcmap.aardvark.config
-  "Configuration!"
+  "Config-related state management.
+
+  This application is configured by reading EDN; either from a file
+  during development/test or from STDIN when built and deployed.
+
+  Schema is used in tandem with `uberconf` to enforce the presence of
+  required values and coerce values into the expected types (numbers,
+  booleans, and lists)."
   (:require [uberconf.core :as uberconf]
             [clojure.tools.logging :as log]
             [mount.core :refer [defstate] :as mount]

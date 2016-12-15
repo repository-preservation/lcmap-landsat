@@ -1,22 +1,34 @@
 (ns lcmap.aardvark.core
-  "Entrypoint for HTTP mode."
+  "Functions for starting a server, worker, or both.
+
+  The server is an HTTP handler and the worker is an AMQP consumer.
+
+  Both modes of operation can be run in a single process, although
+  in a production environment they should be run separately so that
+  each can be scaled independently to handle varying workloads.
+
+  See also:
+  * `dev/lcmap/aardvark/dev.clj` for REPL-driven development.
+  * `dev/resources/lcmap-landsat.edn` for configuration."
   (:require [mount.core :as mount]
             [clojure.edn :as edn]
-            [clojure.tools.cli :refer [parse-opts]]
             [clojure.tools.logging :as log]
-            [lcmap.aardvark.state :as state]
-            [lcmap.aardvark.config :as config])
+            [lcmap.aardvark.config :as config]
+            [lcmap.aardvark.state :as state])
   (:gen-class))
 
 (defn args->cfg
-  "Transform STDIN args (EDN) to data."
+  "Transform STDIN args (EDN) to data.
+
+  CLI arguments are automatically split on whitespace; this function
+  joins arguments before reading the first form."
   [args]
   (->> args
        (clojure.string/join " ")
        (clojure.edn/read-string)))
 
 (defn -main
-  "Start the app."
+  "Start the server, worker, or both."
   [& args]
   (let [cfg (args->cfg args)]
     (log/debugf "cfg: '%s'" cfg)
