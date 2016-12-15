@@ -1,8 +1,6 @@
 (ns lcmap.aardvark.landsat
   "Resources and representations."
   (:require [cheshire.core :as json]
-            [clj-time.format :as time-fmt]
-            [clj-time.coerce :as time-coerce]
             [clojure.tools.logging :as log]
             [clojure.string :as string]
             [compojure.core :refer :all]
@@ -46,6 +44,7 @@
                   :y (Integer/parseInt y)
                   :acquired (clojure.string/split acquired #"/")}
         tiles (tile/find tile+)]
+    (log/debugf "GET /landsat/tiles")
     {:status 200 :body tiles}))
 
 (defn get-tile-spec

@@ -2,9 +2,9 @@
 
 # lcmap-landsat
 
-LCMAP Landsat data ingest, inventory &amp; distribution
+LCMAP Landsat data ingest, inventory &amp; distribution.
 
-### Development
+## Development
 
 Install docker-compose (make sure the version support docker-compose.yml version 2 formats).
 
@@ -13,39 +13,42 @@ cd resources/dev
 docker-compose up
 ```
 
-## Configuration
+Start a REPL.
 
-### File Based (using Extensible Data Notation / EDN)
-
-This application expects `lcmap-landsat.edn` to be present on the resource-path for configuration. See [the example configuration][1] for configuration options.
-
-### Command Line Parameters
-
-Command line parameters are useful most useful when running the [`usgseros/lcmap-landsat` Docker image] and you don't want to build a subsequent image with a configuration file.
-
-This is the example Java command:
-
-```
-java -jar lcmap-landsat-0.1.0-SNAPSHOT-standalone.jar
-  --http.port 5678 \
-  --http.join? true \
-  --http.daemon? false \
-  --database.contact-points localhost \
-  --event.host localhost \
-  --event.port 5672
+```bash
+lein run
 ```
 
-This is the example Docker command:
+Switch to the `lcmap.aardvark.dev` namespace and start the system. This
+will start a server (using Jetty) and a worker.
 
+```clojure
+(dev)
+(start)
 ```
-docker run usgseros/lcmap-landsat:latest \
-  --http.port 5678 \
-  --http.join? true \
-  --http.daemon? false \
-  --database.contact-points localhost \
-  --event.host localhost \
-  --event.port 5672
+
+## Building and Running
+
+
+### Building
+
+Use `lein uberjar` (or `make build`) to build a standalone jarfile.
+
+### Running
+
+There are two modes of operation: a web-server that handles HTTP requests, and a worker that handles AMQP messages. A single process can simultaneusly run both modes, although this is not recommended in a production environment.
+
+Execute the jarfile like this, passing configuration data as EDN via STDIN:
+
+```bash
+java -jar \
+  target/uberjar/lcmap-landsat-0.1.0-SNAPSHOT-standalone.jar \
+  $(cat dev/resources/lcmap-landsat.edn)
 ```
+
+### Docker Image
+
+Use `make docker-image` to build a Docker image that includes GDAL dependencies.
 
 ## Deployment
 

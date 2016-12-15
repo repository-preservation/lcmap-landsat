@@ -1,5 +1,5 @@
 (ns lcmap.aardvark.dev
-  (:require
+  (:require [clojure.edn :as edn]
             [clojure.tools.namespace.repl :refer [refresh refresh-all]]
             [clojure.java.io :as io]
             [mount.core :as mount]
@@ -15,8 +15,9 @@
 (defn start
   "Start dev system with a replacement config namespace"
   []
-  (let [cfg (config/build {:edn (io/resource "lcmap-landsat.edn")})]
-    (mount/start-with {#'lcmap.aardvark.config/config cfg})))
+  (let [cfg (edn/read-string (slurp (io/resource "lcmap-landsat.edn")))]
+    (-> (mount/with-args {:config cfg})
+        (mount/start))))
 
 (defn stop
   "Stop system"

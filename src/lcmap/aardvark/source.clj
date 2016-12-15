@@ -50,7 +50,7 @@
 (defn publish
   "Add source to queue for processing."
   [source]
-  (let [exchange (get-in config [:event :server-exchange])
+  (let [exchange (get-in config [:server :exchange])
         routing "ingest"
         payload (json/encode source)]
     (log/debugf "publish '%s' source: %s" routing payload)

@@ -34,12 +34,12 @@
 ;; Worker related state
 
 (defstate worker-exchange
-  :start (let [exchange-name (get-in config [:event :worker-exchange])]
+  :start (let [exchange-name (get-in config [:worker :exchange])]
            (log/debugf "creating worker exchange: %s" exchange-name)
            (le/declare event/amqp-channel exchange-name "topic" {:durable true})))
 
 (defstate worker-queue
-  :start (let [queue-name (get-in config [:event :worker-queue])]
+  :start (let [queue-name (get-in config [:worker :queue])]
            (log/debugf "creating worker queue: %s" queue-name)
            (lq/declare event/amqp-channel queue-name {:durable true
                                                       :exclusive false
@@ -47,7 +47,7 @@
 
 (defstate worker-binding
   :start (let [queue (:queue worker-queue)
-               exchange (get-in config [:event :server-exchange])]
+               exchange (get-in config [:server :exchange])]
            (log/debugf "binding %s to %s" queue exchange)
            (lq/bind event/amqp-channel queue exchange {:routing-key "ingest"})))
 

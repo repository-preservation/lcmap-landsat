@@ -1,33 +1,29 @@
 (ns lcmap.aardvark.core
   "Entrypoint for HTTP mode."
   (:require [mount.core :as mount]
+            [clojure.edn :as edn]
             [clojure.tools.cli :refer [parse-opts]]
             [clojure.tools.logging :as log]
             [lcmap.aardvark.state :as state]
             [lcmap.aardvark.config :as config])
   (:gen-class))
 
-(def cli-spec [[nil "--http.port VALUE"]
-               [nil "--http.join? VALUE"]
-               [nil "--http.daemon? VALUE"]
-               [nil "--database.contact-points VALUE"]
-               [nil "--event.host VALUE"]
-               [nil "--event.port VALUE"]
-               [nil "--server"]
-               [nil "--worker"]])
+(defn args->cfg
+  "Transform STDIN args (EDN) to data."
+  [args]
+  (->> args
+       (clojure.string/join " ")
+       (clojure.edn/read-string)))
 
 (defn -main
   "Start the app."
   [& args]
-  (let [cli (parse-opts args cli-spec)]
-    (when (get-in cli [:options :server])
+  (let [cfg (args->cfg args)]
+    (log/debugf "cfg: '%s'" cfg)
+    (when (get-in cfg [:server])
       (log/info "HTTP server mode enabled")
       (require 'lcmap.aardvark.server))
-    (when (get-in cli [:options :worker])
+    (when (get-in cfg [:worker])
       (log/info "AMQP worker mode enabled")
-          (require 'lcmap.aardvark.worker)))
-  (mount/start (mount/with-args {:config {:cli {:args args
-                                                :spec cli-spec}
-                                          :env {:prefix "lcmap.landsat."
-                                                :separator #"\."}
-                                          :edn "lcmap-landsat.edn"}})))
+      (require 'lcmap.aardvark.worker))
+    (mount/start (mount/with-args {:config cfg}))))

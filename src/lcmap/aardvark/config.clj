@@ -5,30 +5,35 @@
             [mount.core :refer [defstate] :as mount]
             [schema.core :as schema]))
 
-(def config-schema
-  {:http     {:port schema/Num
-              (schema/optional-key :join?) schema/Bool
-              (schema/optional-key :daemon?) schema/Bool}
-   :database {:contact-points [schema/Str]
-              :default-keyspace schema/Str}
-   :event    {:host schema/Str
-              :port schema/Num
-              :server-exchange schema/Str
-              :server-queue schema/Str
-              :worker-exchange schema/Str
-              :worker-queue schema/Str}
-   (schema/optional-key :server) schema/Bool
-   (schema/optional-key :worker) schema/Bool
+(def jetty {(schema/optional-key :port) schema/Num
+            (schema/optional-key :join?) schema/Bool
+            (schema/optional-key :daemon?) schema/Bool
+            schema/Keyword schema/Str})
+
+(def event {:host schema/Str
+            :port schema/Num
+            schema/Keyword schema/Str})
+
+(def database {:contact-points [schema/Str]
+               :default-keyspace schema/Str})
+
+(def server {:exchange schema/Str
+             :queue schema/Str})
+
+(def worker {:exchange schema/Str
+             :queue schema/Str})
+
+(def root-cfg
+  {:jetty jetty
+   :event event
+   :database database
+   (schema/optional-key :server) server
+   (schema/optional-key :worker) worker
    schema/Keyword schema/Str})
 
-(defn build [{:keys [edn cli env schema]
-              :or {schema config-schema}
-              :as args}]
-  (log/debugf "using schema: '%s'" schema)
-  (log/debugf "build config: '%s'" (uberconf/build-cfg args))
-  (uberconf/init-cfg {:edn edn :cli cli :env env :schema schema}))
-
 (defstate config
-  :start (let [args ((mount/args) :config)]
-           (log/debugf "starting config with: %s" args)
-           (build args)))
+  :start (let [cfg ((mount/args) :config)]
+           (log/debugf "starting config: %s" cfg)
+           (->> cfg
+                (uberconf.core/coerce-cfg root-cfg)
+                (uberconf.core/check-cfg root-cfg))))

@@ -1,5 +1,6 @@
 (ns lcmap.aardvark.shared
-  (:require [clojure.tools.logging :as log]
+  (:require [clojure.edn :as edn]
+            [clojure.tools.logging :as log]
             [clojure.java.io :as io]
             [lcmap.aardvark.config :as config]
             [mount.core :as mount]
@@ -8,9 +9,9 @@
 (defmacro with-system
   "Start and stop the system, useful for integration tests."
   [& body]
-  `(let [cfg# (config/build {:edn (io/resource "lcmap-landsat.edn")})]
-     (mount/start-with {#'config/config cfg#})
+  `(let [cfg# (edn/read-string (slurp (io/resource "lcmap-landsat.edn")))]
      (log/debugf "starting test system with config: %s" cfg#)
+     (mount/start (mount/with-args {:config cfg#}))
      (try
        (do ~@body)
        (finally

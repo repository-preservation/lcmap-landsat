@@ -1,15 +1,5 @@
 (ns lcmap.aardvark.tile
-  "Functions for producing tiles from a source archive.
-
-  Steps:
-  1. Verify integrity of file using checksum.
-  2. Uncompress archive to temporary space.
-  3. Unarchive file to temporary space.
-  4. Verify conformance of metadata.
-  5. For each band, generate and save tiles.
-  6. Remove temporary files.
-
-  "
+  "Functions for producing and retrieving tile data."
   (:require [clojure.java.io :as io]
             [clojure.core.memoize :as memoize]
             [clojure.set]
@@ -82,6 +72,10 @@
     (log/debugf "snap point (%s,%s) to (%s,%s)" x y tx ty)
     [(long tx) (long ty)]))
 
+(comment
+  (let [ts (first (tile-spec/query {:ubid "LANDSAT_5/TM/sr_band1"}))]
+    (snap 0 2952959 ts)))
+
 ;;; Database functions
 
 (defn find
@@ -99,8 +93,9 @@
                               [>= :acquired (str t1)]
                               [<= :acquired (str t2)]])]
     (if (nil? spec)
-      (throw (ex-info (format "no tile-spec for %s" ubid))))
-    (log/tracef "find tile %s.%s: %s" keyspace table tile)
+      (throw (ex-info (format "no tile-spec for %s" ubid) {})))
+    (throw (ex-info "example" {:x "123" :y "abc"}))
+    (log/debugf "find tile %s.%s: %s" keyspace table tile)
     (alia/execute db-session (hayt/select table where))))
 
 (defn save

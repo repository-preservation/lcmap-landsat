@@ -1,11 +1,11 @@
-{:http {:port 5678
-        :join? false
-        :daemon? true}
- :database {:contact-points "localhost"
-            :default-keyspace "lcmap_landsat_dev"}
- :event {:host "localhost"
-         :port 5672
-         :server-exchange "dev.lcmap.landsat.server"
-         :server-queue    "dev.lcmap.landsat.server"
-         :worker-exchange "dev.lcmap.landsat.worker"
-         :worker-queue    "dev.lcmap.landsat.worker"}}
+{:database  {:contact-points "localhost"
+             :default-keyspace "lcmap_landsat_dev"}
+ :event     {:host "localhost"
+             :port 5672}
+ :jetty     {:port 5678
+             :join? false
+             :daemon? true}
+ :server    {:exchange "dev.lcmap.landsat.server"
+             :queue "dev.lcmap.landsat.server"}
+ :worker    {:exchange "dev.lcmap.landsat.worker"
+             :queue "dev.lcmap.landsat.worker"}}
