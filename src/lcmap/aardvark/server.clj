@@ -53,7 +53,7 @@
            (make-handler)))
 
 (defstate server
-  :start (let [args (get-in config [:jetty])]
+  :start (let [args (get-in config [:http])]
            (log/debugf "starting Jetty: %s" args)
            (run-jetty ring-handler args))
   :stop  (do

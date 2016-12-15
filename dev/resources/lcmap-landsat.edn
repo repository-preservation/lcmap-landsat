@@ -2,7 +2,7 @@
              :default-keyspace "lcmap_landsat_dev"}
  :event     {:host "localhost"
              :port 5672}
- :jetty     {:port 5678
+ :http      {:port 5678
              :join? false
              :daemon? true}
  :server    {:exchange "dev.lcmap.landsat.server"

@@ -12,10 +12,10 @@
             [mount.core :refer [defstate] :as mount]
             [schema.core :as schema]))
 
-(def jetty {(schema/optional-key :port) schema/Num
-            (schema/optional-key :join?) schema/Bool
-            (schema/optional-key :daemon?) schema/Bool
-            schema/Keyword schema/Str})
+(def http {(schema/optional-key :port) schema/Num
+           (schema/optional-key :join?) schema/Bool
+           (schema/optional-key :daemon?) schema/Bool
+           schema/Keyword schema/Str})
 
 (def event {:host schema/Str
             :port schema/Num
@@ -31,7 +31,7 @@
              :queue schema/Str})
 
 (def root-cfg
-  {:jetty jetty
+  {:http http
    :event event
    :database database
    (schema/optional-key :server) server
