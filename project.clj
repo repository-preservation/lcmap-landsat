@@ -50,6 +50,7 @@
                                    [http-kit.fake "0.2.2"]]}
              :uberjar {:aot :all
                        :main lcmap.aardvark.core}}
+  :main lcmap.aardvark.core
   :target-path "target/%s/"
   :compile-path "%s/classes"
   :repl-options {:init-ns lcmap.aardvark.user})
