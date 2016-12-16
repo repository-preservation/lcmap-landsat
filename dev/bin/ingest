@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# FILE_URI="uri=file:$(pwd)/data/ESPA/CONUS/ARD/LE70470282005321-SC20160826121348.tar.gz"
-
 FILES=`ls data/ESPA/CONUS/ARD/*.tar.gz`
 PWD=`pwd`
 
