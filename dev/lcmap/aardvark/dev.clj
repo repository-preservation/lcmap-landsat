@@ -51,4 +51,11 @@
         spec-opts {:keyspace_name "lcmap_landsat_dev"
                    :table_name "conus"
                    :data_shape [128 128]}]
-    (setup L7 spec-opts)))
+    (setup L7 spec-opts))
+  (let [L5 {:id  "LE70460272000029"
+            :uri (-> "ESPA/CONUS/ARD/LT50460272000005-SC20160826121722.tar.gz" io/resource io/as-url str)
+            :checksum "9aa16eac2b9b8a20301ad091ceb9f3f4"}
+        spec-opts {:keyspace_name "lcmap_landsat_dev"
+                   :table_name "conus"
+                   :data_shape [128 128]}]
+    (setup L5 spec-opts)))
