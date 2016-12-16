@@ -5,5 +5,3 @@
   []
   (require 'lcmap.aardvark.dev)
   (in-ns 'lcmap.aardvark.dev))
-
-(dev)

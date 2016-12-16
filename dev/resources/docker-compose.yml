@@ -4,7 +4,7 @@ services:
     image: elasticsearch:5.0.0
     ports:
     - "9200:9200"
-    - "9300-9300"
+    - "9300:9300"
   rabbit:
     image: rabbitmq:3-management
     ports:

@@ -1,7 +1,7 @@
 (defproject lcmap-landsat "0.1.0-SNAPSHOT"
   :description "Landsat HTTP resource & ingest for LCMAP"
   :url "http://github.com/usgs-eros/lcmap-landsat"
-  :license {:name "Public Domain"
+  :license {:name "Unlicense"
             :url ""}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  ;; http server
@@ -36,7 +36,11 @@
                  [clj-gdal "0.4.0-ALPHA"]
                  [org.clojure/core.memoize "0.5.8"]
                  [org.clojure/data.xml "0.1.0-beta1"]
-                 [org.clojure/data.zip "0.1.2"]]
+                 [org.clojure/data.zip "0.1.2"]
+                 [gov.usgs.eros/lcmap-commons "1.0.0-SNAPSHOT"]
+                 ;; needed to make indexing calls to elasticsearch
+                 [http-kit "2.2.0"]]
+
   :profiles {:dev {:resource-paths ["dev" "dev/resources" "resources" "data"]
                    :dependencies [[org.clojure/tools.namespace "0.3.0-alpha3"]
                                   [http-kit "2.2.0"]
@@ -46,8 +50,7 @@
                              [lein-kibit "0.1.2"]
                              [jonase/eastwood "0.2.3"]]}
              :test {:resource-paths ["test" "test/resources" "resources" "data"]
-                    :dependencies [[http-kit "2.2.0"]
-                                   [http-kit.fake "0.2.2"]]}
+                    :dependencies [[http-kit.fake "0.2.2"]]}
              :uberjar {:aot :all
                        :main lcmap.aardvark.core}}
   :main lcmap.aardvark.core

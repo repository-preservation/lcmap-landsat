@@ -31,9 +31,14 @@
              :queue {:name schema/Str
                      :bind [schema/Any]}})
 
+(def search {:url schema/Str
+             :ubid-index schema/Str
+             :ubid-index-type schema/Str})
+
 (def root-cfg
   {:event event
    :database database
+   :search search
    (schema/optional-key :http) http
    (schema/optional-key :server) server
    (schema/optional-key :worker) worker

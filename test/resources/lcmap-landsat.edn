@@ -9,4 +9,7 @@
              :queue "test.lcmap.landsat.server"}
  :worker    {:exchange {:name "test.lcmap.landsat.worker"}
              :queue    {:name "test.lcmap.landsat.worker"
-                        :bind [["test.lcmap.landsat.server" "ingest"]]}}}
+                        :bind [["test.lcmap.landsat.server" "ingest"]]}}
+:search     {:url "http://localhost:9200"
+             :ubid-index "lcmap_landsat_test_ubids"
+             :ubid-index-type "ubid"}}

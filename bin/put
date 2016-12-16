@@ -1,0 +1,7 @@
+#!/bin/bash
+
+curl -v \
+     -X PUT \
+     -d 'uri=file:///home/jmorton/Projects/lcmap/lcmap-landsat/test/resources/data/landsat.tar.gz' \
+     -d 'checksum=c7aae8568ee8be9347373dd44d7e14c4' \
+     http://localhost:5678/landsat/source/LT50470282005313PAC01
