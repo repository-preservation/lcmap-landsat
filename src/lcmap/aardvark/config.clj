@@ -27,13 +27,14 @@
 (def server {:exchange schema/Str
              :queue schema/Str})
 
-(def worker {:exchange schema/Str
-             :queue schema/Str})
+(def worker {:exchange {:name schema/Str}
+             :queue {:name schema/Str
+                     :bind [schema/Any]}})
 
 (def root-cfg
-  {:http http
-   :event event
+  {:event event
    :database database
+   (schema/optional-key :http) http
    (schema/optional-key :server) server
    (schema/optional-key :worker) worker
    schema/Keyword schema/Str})

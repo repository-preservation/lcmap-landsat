@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# FILE_URI="uri=file:$(pwd)/data/ESPA/CONUS/ARD/LE70470282005321-SC20160826121348.tar.gz"
+
+FILES=`ls data/ESPA/CONUS/ARD/*.tar.gz`
+PWD=`pwd`
+
+for f in $FILES
+do
+    check=`md5sum $f | cut --byte=-32`
+    scene=`echo "$f" | cut --delimiter "/" --fields=5`
+    uri=$PWD/$f
+
+    curl  \
+      -X PUT \
+      -H "Accept: application/json, */*" \
+      -d "uri=file://$uri" \
+      -d "checksum=$check" \
+      http://localhost:5678/landsat/source/$scene
+
+done

@@ -33,23 +33,34 @@
 
 ;; Worker related state
 
+(defstate worker-channel
+  :start (let [channel (lch/open event/amqp-connection)]
+           (lb/qos channel 1)
+           channel)
+  :stop (lch/close worker-channel))
+
 (defstate worker-exchange
-  :start (let [exchange-name (get-in config [:worker :exchange])]
+  :start (let [exchange-name (get-in config [:worker :exchange :name])]
            (log/debugf "creating worker exchange: %s" exchange-name)
-           (le/declare event/amqp-channel exchange-name "topic" {:durable true})))
+           (le/declare worker-channel exchange-name "topic" {:durable true})))
 
 (defstate worker-queue
-  :start (let [queue-name (get-in config [:worker :queue])]
+  :start (let [queue-name (get-in config [:worker :queue :name])]
            (log/debugf "creating worker queue: %s" queue-name)
-           (lq/declare event/amqp-channel queue-name {:durable true
+           (lq/declare worker-channel queue-name {:durable true
                                                       :exclusive false
                                                       :auto-delete false})))
 
 (defstate worker-binding
-  :start (let [queue (:queue worker-queue)
-               exchange (get-in config [:server :exchange])]
-           (log/debugf "binding %s to %s" queue exchange)
-           (lq/bind event/amqp-channel queue exchange {:routing-key "ingest"})))
+  :start (let [dest     (get-in config [:worker :queue :name])
+               bindings (get-in config [:worker :queue :bind])]
+           (log/debugf "parsed config: %s" config)
+           (doseq [[src routing-key] bindings]
+             (log/debugf "binding %s to %s" dest src)
+             (lq/bind worker-channel
+                      dest
+                      src
+                      {:routing-key routing-key}))))
 
 (defstate worker-consumer
   :start (let [f {:handle-delivery-fn handle-delivery
@@ -57,9 +68,9 @@
                queue-name (:queue worker-queue)
                worker-fn (lcons/create-default event/amqp-channel f)]
            (log/debugf "starting worker consumer: %s" queue-name)
-           (lb/consume event/amqp-channel queue-name worker-fn))
+           (lb/consume worker-channel queue-name worker-fn))
   :stop  (let []
            (log/debug "stopping worker consumer: %s" worker-consumer)
-           (lb/cancel event/amqp-channel worker-consumer)))
+           (lb/cancel worker-channel worker-consumer)))
 
 (def worker worker-consumer)

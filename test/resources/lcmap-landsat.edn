@@ -7,5 +7,6 @@
              :daemon? true}
  :server    {:exchange "test.lcmap.landsat.server"
              :queue "test.lcmap.landsat.server"}
- :worker    {:exchange "test.lcmap.landsat.worker"
-             :queue "test.lcmap.landsat.worker"}}
+ :worker    {:exchange {:name "test.lcmap.landsat.worker"}
+             :queue    {:name "test.lcmap.landsat.worker"
+                        :bind [["test.lcmap.landsat.server" "ingest"]]}}}
