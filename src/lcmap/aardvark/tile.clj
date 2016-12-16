@@ -68,13 +68,9 @@
   [x y spec]
   (let [{:keys [tile_x tile_y shift_x shift_y]} spec
         tx (- x (mod (+ x shift_x) tile_x))
-        ty (- y (mod (+ y shift_y) tile_y))]
-    (log/debugf "snap point (%s,%s) to (%s,%s)" x y tx ty)
+        ty (- y (mod (+ y shift_y) (- tile_y)))]
+    (log/debug "Snap: (%d,%d) to (%d,%d)" x y tx ty)
     [(long tx) (long ty)]))
-
-(comment
-  (let [ts (first (tile-spec/query {:ubid "LANDSAT_5/TM/sr_band1"}))]
-    (snap 0 2952959 ts)))
 
 ;;; Database functions
 
@@ -94,7 +90,6 @@
                               [<= :acquired (str t2)]])]
     (if (nil? spec)
       (throw (ex-info (format "no tile-spec for %s" ubid) {})))
-    (throw (ex-info "example" {:x "123" :y "abc"}))
     (log/debugf "find tile %s.%s: %s" keyspace table tile)
     (alia/execute db-session (hayt/select table where))))
 

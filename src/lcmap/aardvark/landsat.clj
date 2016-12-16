@@ -98,7 +98,7 @@
          (ANY "/" [] (allow "GET"))
          (GET "/source/:source-id" [source-id] (get-source source-id))
          (PUT "/source/:source-id" [source-id] (put-source source-id request))
-         (GET "/tile" [] (get-tiles request))
+         (GET "/tiles" [] (get-tiles request))
          (GET "/tile-spec/:ubid{.+}" [ubid] (get-tile-spec ubid request))
          (PUT "/tile-spec/:ubid{.+}" [ubid] (put-tile-spec ubid request)))
         (wrap-handler prepare-with respond-with))))
