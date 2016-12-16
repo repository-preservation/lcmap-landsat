@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/USGS-EROS/lcmap-landsat.svg?branch=develop)](https://travis-ci.org/USGS-EROS/lcmap-landsat)
-[![Clojars Project][clojars-badge]][clojars]
+
+<!-- Add the clojars badge once this project is actually pushed there -->
+<!--[![Clojars Project][clojars-badge]][clojars]-->
 
 # lcmap-landsat
 
