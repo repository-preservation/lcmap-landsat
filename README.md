@@ -9,6 +9,13 @@ LCMAP Landsat data ingest, inventory &amp; distribution.
 
 ## Development
 
+Initialize submodules (to get dev/test data).
+
+```bash
+git submodule init
+git submodule update
+```
+
 Install docker-compose (make sure the version support docker-compose.yml version 2 formats).
 
 ```bash
