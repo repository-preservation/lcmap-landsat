@@ -9,3 +9,7 @@ docker-shell:
 
 docker-up:
 	docker run usgseros/lcmap-landsat:0.1.0-SNAPSHOT
+
+docker-super-clean:
+	docker rm `docker ps -a -q`
+	docker rmi `docker images -q`
