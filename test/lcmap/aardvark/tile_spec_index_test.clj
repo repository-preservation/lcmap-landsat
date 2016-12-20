@@ -26,7 +26,7 @@
       (let [out (index/clear!)
             raw (index/search "tm")
             err (get-in
-                 (first (get-in raw ["root_cause"]))["type"])]
+                 (first (get-in raw ["root_cause"])) ["type"])]
         (is (= "index_not_found_exception" err))))
 
     (testing "load and search the index"

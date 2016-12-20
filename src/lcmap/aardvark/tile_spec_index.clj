@@ -44,11 +44,11 @@
   ([db-keyspace]
    (let [query (str "select ubid from " db-keyspace ".tile_specs")
          results (try (alia/execute db-session query)
-                   (catch Throwable t
-                     (log/debug
-                      (apply str (interpose "\n" (.getStackTrace t))))))
+                      (catch Throwable t
+                        (log/debug
+                         (apply str (interpose "\n" (.getStackTrace t))))))
          ubids (distinct (map :ubid results))]
-    ubids)))
+     ubids)))
 
 (defn ubid->tags
   "Extracts tags from a sequence of ubids and returns a sequence with the
@@ -60,16 +60,16 @@
   "Creates a bulk index payload from a sequence of tags"
   [tags]
   (let []
-       (apply str
-         (map #(str
-                (json/write-str {"index" {"_retry_on_conflict" 3}}) "\n"
-                (json/write-str {"ubid" (first %) "tags" (rest %)}) "\n")
-               tags))))
+    (apply str
+           (map #(str
+                  (json/write-str {"index" {"_retry_on_conflict" 3}}) "\n"
+                  (json/write-str {"ubid" (first %) "tags" (rest %)}) "\n")
+                tags))))
 
 (defn- get-errors
   "Returns errors from json payload if one exists, nil otherwise"
   [response]
-  (get-in (json/read-str response)["error"]))
+  (get-in (json/read-str response) ["error"]))
 
 (defn load!
   "Loads index payload into index/url"
@@ -81,11 +81,11 @@
 
   ([url payload]
    (let [{:keys [status headers body error] :as resp} @(http/post url
-                                                        {:body payload})
+                                                                  {:body payload})
          errors (or error (get-errors body))]
-      (if errors
-        (do (log/debug (str "load! errors:" errors)) errors)
-        (do (log/debug (str "load! success:" body)) body)))))
+     (if errors
+       (do (log/debug (str "load! errors:" errors)) errors)
+       (do (log/debug (str "load! success:" body)) body)))))
 
 (defn clear!
   "Clears the index specified by index/url"
@@ -102,17 +102,17 @@
 (defn search
   "Submits a supplied query to the ubid index, which should conform to the
    elasticsearch query syntax. Returns a clojure dictionary of the raw results"
- ([query]
-  (search (search-api-url) query))
+  ([query]
+   (search (search-api-url) query))
 
- ([api-url query]
-  (let [full-url (str api-url "?q=" (http/url-encode query))
-        {:keys [status headers body error] :as resp} @(http/get full-url)
-        errors (or error (get-errors body))]
-       (if errors
-         (do (log/debug (str "search error:" errors "full url:" full-url))
+  ([api-url query]
+   (let [full-url (str api-url "?q=" (http/url-encode query))
+         {:keys [status headers body error] :as resp} @(http/get full-url)
+         errors (or error (get-errors body))]
+     (if errors
+       (do (log/debug (str "search error:" errors "full url:" full-url))
            errors)
-         (do (log/debug (str "search success:" body "full url:" full-url))
+       (do (log/debug (str "search success:" body "full url:" full-url))
            (json/read-str body))))))
 
 (defn search->ubids
