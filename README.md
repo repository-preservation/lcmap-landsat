@@ -37,6 +37,8 @@ will start a server (using Jetty) and a worker.
 (start)
 ```
 
+A [FAQ][3] is available for common development & test issues.
+
 ## Building and Running
 
 
