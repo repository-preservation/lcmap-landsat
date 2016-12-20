@@ -70,4 +70,4 @@ Use `make docker-image` to build a Docker image that includes GDAL dependencies.
 
 [1]: https://github.com/USGS-EROS/lcmap-landsat/blob/develop/resources/shared/lcmap-landsat.edn "Configuration File"
 [2]: https://hub.docker.com/r/usgseros/lcmap-landsat/ "Docker Image"
-[3]: (docs/DevFAQ.md) "Developers Frequently Asked Questions"
+[3]: docs/DevFAQ.md "Developers Frequently Asked Questions"
