@@ -57,7 +57,7 @@
   (map #(conj (seq (str/split % #"/|_")) %) ubids))
 
 (defn tags->index-payload
-  "Creates a bulk index payload from a sequence of ubids"
+  "Creates a bulk index payload from a sequence of tags"
   [tags]
   (let []
        (apply str
@@ -72,12 +72,9 @@
   (get-in (json/read-str response)["error"]))
 
 (defn load!
-  "Loads index-payload into index/url"
+  "Loads index payload into index/url"
   ([]
-   (let [payload (tags->index-payload
-                  (ubid->tags
-                   (universal-band-ids
-                    (get-in config [:database :default-keyspace]))))
+   (let [payload (tags->index-payload (ubid->tags (universal-band-ids)))
          bulk-url (bulk-api-url)]
      (log/debug "Loading payload:" payload " into bulk api at:" bulk-url)
      (load! bulk-url payload)))
@@ -87,8 +84,8 @@
                                                         {:body payload})
          errors (or error (get-errors body))]
       (if errors
-        (do (log/debug (str "load-index! errors:" errors)) errors)
-        (do (log/debug (str "load-index! success:" body)) body)))))
+        (do (log/debug (str "load! errors:" errors)) errors)
+        (do (log/debug (str "load! success:" body)) body)))))
 
 (defn clear!
   "Clears the index specified by index/url"
@@ -99,8 +96,8 @@
    (let [{:keys [status headers body error] :as resp} @(http/delete index-url)
          errors (or error (get-errors body))]
      (if errors
-       (do (log/debug (str "clear-index! errors:" errors)) errors)
-       (do (log/debug (str "clear-index! success:" body)) body)))))
+       (do (log/debug (str "clear! errors:" errors)) errors)
+       (do (log/debug (str "clear! success:" body)) body)))))
 
 (defn search
   "Submits a supplied query to the ubid index, which should conform to the
