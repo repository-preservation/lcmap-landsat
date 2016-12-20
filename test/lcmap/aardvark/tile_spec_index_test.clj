@@ -1,4 +1,4 @@
-(ns lcmap.aardvark.ubid-test
+(ns lcmap.aardvark.tile-spec-index-test
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
             [lcmap.aardvark.db :as db]
@@ -9,7 +9,7 @@
             [lcmap.aardvark.tile-spec :as tile-spec]
             [lcmap.aardvark.tile-spec-test :refer [L5 spec-opts]]
 
-            [lcmap.aardvark.ubid :as ubid]))
+            [lcmap.aardvark.tile-spec-index :as index]))
 
 (deftest test-indexing
   (shared/with-system
@@ -17,14 +17,14 @@
     (tile-spec/process L5 spec-opts)
 
     (testing "retrieving ubids"
-      (is (not (= nil? (ubid/get-ubids)))))
+      (is (not (= nil? (index/universal-band-ids)))))
 
     (testing "tokenizing ubids"
-      (is (not (= nil? (ubid/ubid->tags (ubid/get-ubids))))))
+      (is (not (= nil? (index/ubid->tags (index/universal-band-ids))))))
 
     (testing "clear the index"
-      (let [out (ubid/clear-index!)
-            raw (ubid/search "tm")
+      (let [out (index/clear!)
+            raw (index/search "tm")
             err (get-in
                  (first (get-in raw ["root_cause"]))["type"])]
         (is (= "index_not_found_exception" err))))
@@ -32,21 +32,21 @@
     (testing "load and search the index"
           ;; have to call _refresh after loading the index to open a new segment
           ;; Otherwise we'd have to wait 1 second for the results to be searchable
-      (let [load-results (ubid/load-index!)
+      (let [load-results (index/load!)
             refresh-results (http/post
-                             (str (ubid/get-search-index-url) "/_refresh"))
+                             (str (index/url) "/_refresh"))
             refresh-status (:status @refresh-results)]
         (log/debug "ES Refresh Results:" refresh-status)
-        (is (< 0 (count (ubid/search->ubids (ubid/search "tm")))))))
+        (is (< 0 (count (index/search->ubids (index/search "tm")))))))
 
     (testing "index search"
-      (let [raw (ubid/search "((tm AND cloud) OR band3) AND NOT shadow AND 5")
-            results (ubid/search->ubids raw)
+      (let [raw (index/search "((tm AND cloud) OR band3) AND NOT shadow AND 5")
+            results (index/search->ubids raw)
             expected (seq (vector "LANDSAT_5/TM/sr_band3"
                                   "LANDSAT_5/TM/toa_band3"
                                   "LANDSAT_5/TM/sr_adjacent_cloud_qa"
                                   "LANDSAT_5/TM/sr_cloud_qa"))]
-        
+
         ;; "LANDSAT_7/ETM/sr_band3" "LANDSAT_7/ETM/toa_band3"
         (log/debug "Raw results from search:" raw)
         (log/debug "Raw type:" (type raw))

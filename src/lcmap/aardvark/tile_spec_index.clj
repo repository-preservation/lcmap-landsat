@@ -1,47 +1,45 @@
-(ns lcmap.aardvark.ubid
-  "ubid-index supports searching for ubids (universal band ids) given a
-   set of tokens that make up ubids.  The index can also be loaded from the
-   IWDS here, which should be an infrequent and manually initiated function."
+(ns lcmap.aardvark.tile-spec-index
+  "Search index for tile-spec ubids (universal band ids)."
   (:require [lcmap.aardvark.db :refer [db-session]]
             [lcmap.aardvark.config :refer [config]]
-            [lcmap.commons.string :refer [strip-both]]
+            [lcmap.commons.string :refer [strip]]
             [qbits.alia :as alia]
             [clojure.tools.logging :as log]
             [clojure.string :as str]
             [clojure.data.json :as json]
             [org.httpkit.client :as http]))
 
-(defn get-server-url
+(defn server-url
   "Returns the url to the search server"
   []
-  (strip-both "/" (get-in config [:search :url])))
+  (strip "/" (get-in config [:search :url])))
 
-(defn get-search-index-name
+(defn index-name
   "Returns the name of the search index"
   []
-  (strip-both "/" (get-in config [:search :ubid-index])))
+  (strip "/" (get-in config [:search :ubid-index])))
 
-(defn get-search-index-url
+(defn url
   "Returns the url to the search index"
   []
-  (str (get-server-url) "/" (get-search-index-name)))
+  (str (server-url) "/" (index-name)))
 
-(defn get-bulk-api-url
+(defn bulk-api-url
   "Returns the url to bulk api"
   []
-  (str (get-search-index-url) "/"
-       (strip-both "/" (get-in config [:search :ubid-index-type])) "/_bulk"))
+  (str (url) "/"
+       (strip "/" (get-in config [:search :ubid-index-type])) "/_bulk"))
 
-(defn get-search-api-url
+(defn search-api-url
   "Returns the url to the search api"
   []
-  (str (get-search-index-url) "/_search"))
+  (str (url) "/_search"))
 
-(defn get-ubids
+(defn universal-band-ids
   "Returns ubids, which are a sequence of slash separated strings
    such as LANDSAT_5/TM/sr_band1, or nil if none exist."
 
-  ([] (get-ubids (get-in config [:database :default-keyspace])))
+  ([] (universal-band-ids (get-in config [:database :default-keyspace])))
 
   ([db-keyspace]
    (let [query (str "select ubid from " db-keyspace ".tile_specs")
@@ -73,29 +71,29 @@
   [response]
   (get-in (json/read-str response)["error"]))
 
-(defn load-index!
-  "Loads index-payload into index-url"
+(defn load!
+  "Loads index-payload into index/url"
   ([]
    (let [payload (tags->index-payload
                   (ubid->tags
-                   (get-ubids
+                   (universal-band-ids
                     (get-in config [:database :default-keyspace]))))
-         bulk-url (get-bulk-api-url)]
+         bulk-url (bulk-api-url)]
      (log/debug "Loading payload:" payload " into bulk api at:" bulk-url)
-     (load-index! bulk-url payload)))
+     (load! bulk-url payload)))
 
-  ([index-url index-payload]
-   (let [{:keys [status headers body error] :as resp} @(http/post index-url
-                                                        {:body index-payload})
+  ([url payload]
+   (let [{:keys [status headers body error] :as resp} @(http/post url
+                                                        {:body payload})
          errors (or error (get-errors body))]
       (if errors
         (do (log/debug (str "load-index! errors:" errors)) errors)
         (do (log/debug (str "load-index! success:" body)) body)))))
 
-(defn clear-index!
-  "Clears the index specified by index-url"
+(defn clear!
+  "Clears the index specified by index/url"
   ([]
-   (clear-index! (get-search-index-url)))
+   (clear! (url)))
 
   ([index-url]
    (let [{:keys [status headers body error] :as resp} @(http/delete index-url)
@@ -108,10 +106,10 @@
   "Submits a supplied query to the ubid index, which should conform to the
    elasticsearch query syntax. Returns a clojure dictionary of the raw results"
  ([query]
-  (search (get-search-api-url) query))
+  (search (search-api-url) query))
 
- ([search-api-url query]
-  (let [full-url (str search-api-url "?q=" (http/url-encode query))
+ ([api-url query]
+  (let [full-url (str api-url "?q=" (http/url-encode query))
         {:keys [status headers body error] :as resp} @(http/get full-url)
         errors (or error (get-errors body))]
        (if errors
