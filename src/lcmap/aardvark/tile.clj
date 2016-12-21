@@ -79,7 +79,7 @@
    were acquired during a certain period of time."
   [{:keys [ubid x y acquired] :as tile}]
   (let [spec     (first (tile-spec/query {:ubid ubid}))
-        table    (:table_name spec)
+        table    (:name spec)
         [tx ty]  (snap x y spec)
         [t1 t2]  acquired
         where    (hayt/where [[= :ubid ubid]
@@ -100,8 +100,8 @@
   (let [params   (-> tile
                      (select-keys [:ubid :proj-x :proj-y :acquired :source :data])
                      (clojure.set/rename-keys {:proj-x :x :proj-y :y}))
-        table    (tile :table_name)]
-    (log/tracef "save tile to %s.%s: %s" table params)
+        table    (tile :name)]
+    (log/tracef "save tile to %s: %s" table params)
     (alia/execute db-session (hayt/insert table (hayt/values params)))))
 
 ;;; Tile supporting functions
