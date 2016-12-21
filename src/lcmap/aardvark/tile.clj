@@ -73,7 +73,8 @@
     [(long tx) (long ty)]))
 
 ;;; Database functions
-
+;; TODO - Remove spec/keyspace/table dynamicism
+;; TODO - Add IN clause for query, make ubids a vector instead of single value
 (defn find
   "Query DB for all tiles that match the UBID, contain (x,y), and
    were acquired during a certain period of time."

@@ -13,9 +13,14 @@
   (:require [mount.core :as mount]
             [clojure.edn :as edn]
             [clojure.tools.logging :as log]
-            [lcmap.aardvark.config :as config]
-            [lcmap.aardvark.state :as state])
+            [lcmap.aardvark.config :as config])
   (:gen-class))
+
+(defstate hook
+  :start (do
+           (log/debugf "registering shutdown handler")
+           (.addShutdownHook (Runtime/getRuntime)
+                             (Thread. #(mount/stop) "shutdown-handler"))))
 
 (defn args->cfg
   "Transform STDIN args (EDN) to data.

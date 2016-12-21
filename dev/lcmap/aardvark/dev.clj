@@ -4,7 +4,6 @@
    [clojure.java.io :as io]
    [clojure.edn :as edn]
    [mount.core :as mount]
-   [lcmap.aardvark.state :as state]
    [lcmap.aardvark.config :as config]
    [lcmap.aardvark.server :as server]
    [lcmap.aardvark.worker :as worker]
