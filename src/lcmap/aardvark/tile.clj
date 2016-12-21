@@ -73,14 +73,12 @@
     [(long tx) (long ty)]))
 
 ;;; Database functions
-;; TODO - Remove spec/keyspace/table dynamicism
 ;; TODO - Add IN clause for query, make ubids a vector instead of single value
 (defn find
   "Query DB for all tiles that match the UBID, contain (x,y), and
    were acquired during a certain period of time."
   [{:keys [ubid x y acquired] :as tile}]
   (let [spec     (first (tile-spec/query {:ubid ubid}))
-        keyspace (:keyspace_name spec)
         table    (:table_name spec)
         [tx ty]  (snap x y spec)
         [t1 t2]  acquired
@@ -91,7 +89,7 @@
                               [<= :acquired (str t2)]])]
     (if (nil? spec)
       (throw (ex-info (format "no tile-spec for %s" ubid) {})))
-    (log/debugf "find tile %s.%s: %s" keyspace table tile)
+    (log/debugf "find tile %s: %s" table tile)
     (alia/execute db-session (hayt/select table where))))
 
 (defn save
@@ -102,9 +100,8 @@
   (let [params   (-> tile
                      (select-keys [:ubid :proj-x :proj-y :acquired :source :data])
                      (clojure.set/rename-keys {:proj-x :x :proj-y :y}))
-        keyspace (tile :keyspace_name)
         table    (tile :table_name)]
-    (log/tracef "save tile to %s.%s: %s" keyspace table params)
+    (log/tracef "save tile to %s.%s: %s" table params)
     (alia/execute db-session (hayt/insert table (hayt/values params)))))
 
 ;;; Tile supporting functions
