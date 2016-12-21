@@ -19,13 +19,16 @@
 
 ;; RabbitMQ message handlers
 
+(declare worker-channel)
+
 (defn handle-delivery
   [ch metadata payload]
   (let [source (event/decode-message metadata payload)]
     (log/debugf "deliver: %s" metadata)
     (log/debugf "content: %s" source)
     (tile/process source)
-    (lb/ack ch (metadata :delivery-tag))))
+    (log/debugf "ack message")
+    (lb/ack worker-channel (metadata :delivery-tag))))
 
 (defn handle-consume
   [consumer-tag]
