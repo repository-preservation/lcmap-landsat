@@ -16,11 +16,8 @@
 
     (tile-spec/process L5 spec-opts)
 
-    (testing "retrieving ubids"
-      (is (not (= nil? (index/universal-band-ids)))))
-
     (testing "tokenizing ubids"
-      (is (not (= nil? (index/ubid->tags (index/universal-band-ids))))))
+      (is (not (= nil? (index/ubid->tags (tile-spec/universal-band-ids))))))
 
     (testing "clear the index"
       (let [out (index/clear!)

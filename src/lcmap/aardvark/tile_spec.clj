@@ -10,7 +10,8 @@
             [qbits.alia :as alia]
             [qbits.hayt :as hayt]
             [qbits.hayt.cql :as cql]
-            [schema.core :as schema])
+            [schema.core :as schema]
+            [lcmap.aardvark.config :refer [config]])
   (:refer-clojure :exclude [find]))
 
 (defstate gdal
@@ -107,3 +108,18 @@
       (process-scene dir opts)
       :done)
     :failed))
+
+(defn universal-band-ids
+  "Returns ubids, which are a sequence of slash separated strings
+       such as LANDSAT_5/TM/sr_band1, or nil if none exist."
+
+  ([] (universal-band-ids (get-in config [:database :default-keyspace])))
+
+  ([db-keyspace]
+   (let [query (str "select ubid from " db-keyspace ".tile_specs")
+         results (try (alia/execute db-session query)
+                      (catch Throwable t
+                        (log/debug
+                         (apply str (interpose "\n" (.getStackTrace t))))))
+         ubids (distinct (map :ubid results))]
+     ubids)))

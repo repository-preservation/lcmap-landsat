@@ -29,4 +29,7 @@
       (let [results (tile-spec/query {:ubid "LANDSAT_5/TM/sr_band1"})]
         (is (= 1 (count results)))
         (is (= "LANDSAT_5" (-> results first :satellite)))
-        (is (= "TM" (-> results first :instrument)))))))
+        (is (= "TM" (-> results first :instrument)))))
+    (testing "retrieving univeral band ids"
+      (tile-spec/process L5 spec-opts)
+      (is (not (= nil? (tile-spec/universal-band-ids)))))))
