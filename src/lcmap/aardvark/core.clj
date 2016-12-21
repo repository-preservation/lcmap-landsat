@@ -10,7 +10,7 @@
   See also:
   * `dev/lcmap/aardvark/dev.clj` for REPL-driven development.
   * `dev/resources/lcmap-landsat.edn` for configuration."
-  (:require [mount.core :as mount]
+  (:require [mount.core :refer [defstate] :as mount]
             [clojure.edn :as edn]
             [clojure.tools.logging :as log]
             [lcmap.aardvark.config :as config])
