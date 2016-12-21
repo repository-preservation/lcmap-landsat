@@ -22,16 +22,14 @@
     (testing "clear the index"
       (let [out (index/clear!)
             raw (index/search "tm")
-            err (get-in
-                 (first (get-in raw ["root_cause"])) ["type"])]
+            err (get-in (first (get-in raw ["root_cause"])) ["type"])]
         (is (= "index_not_found_exception" err))))
 
     (testing "load and search the index"
           ;; have to call _refresh after loading the index to open a new segment
           ;; Otherwise we'd have to wait 1 second for the results to be searchable
       (let [load-results (index/load!)
-            refresh-results (http/post
-                             (str (index/url) "/_refresh"))
+            refresh-results (http/post (str (index/url) "/_refresh"))
             refresh-status (:status @refresh-results)]
         (log/debug "ES Refresh Results:" refresh-status)
         (is (< 0 (count (index/search->ubids (index/search "tm")))))))

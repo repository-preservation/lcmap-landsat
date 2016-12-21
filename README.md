@@ -19,8 +19,14 @@ git submodule update
 Install docker-compose (make sure the version support docker-compose.yml version 2 formats).
 
 ```bash
-cd resources/dev
-docker-compose up
+# will run infrastructure as a daemon
+make docker-dev-up
+
+# Keeps processes in foreground, useful for troubleshooting
+make docker-dev-up-nodaemon
+
+# cleanly shut down daemons when done.
+make docker-dev-down
 ```
 
 Start a REPL.

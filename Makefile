@@ -17,10 +17,16 @@ docker-super-clean:
 docker-dev-up:
 	docker-compose -f dev/resources/docker-compose.yml up -d
 
+docker-dev-up-nodaemon:
+		docker-compose -f dev/resources/docker-compose.yml up
+
 docker-dev-down:
 	docker-compose -f dev/resources/docker-compose.yml down
 
 docker-test-up:
+	docker-compose -f test/resources/docker-compose.yml up -d
+
+docker-test-up-nodaemon:
 	docker-compose -f test/resources/docker-compose.yml up -d
 
 docker-test-down:
