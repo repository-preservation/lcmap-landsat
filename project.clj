@@ -45,8 +45,8 @@
                    :dependencies [[org.clojure/tools.namespace "0.3.0-alpha3"]
                                   [http-kit "2.2.0"]
                                   [http-kit.fake "0.2.2"]
-                                  [proto-repl "0.3.1"]
-]
+                                  [proto-repl "0.3.1"]]
+
                    :plugins [[lein-codox "0.10.0"]
                              [lein-ancient "0.6.10"]
                              [lein-kibit "0.1.2"]
@@ -59,4 +59,4 @@
   :main lcmap.aardvark.core
   :target-path "target/%s/"
   :compile-path "%s/classes"
-  :repl-options {:init-ns lcmap.aardvark.user})
+  :repl-options {:init-ns user})
