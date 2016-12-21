@@ -51,6 +51,7 @@
                              [jonase/eastwood "0.2.3"]]}
              :test {:resource-paths ["test" "test/resources" "resources" "data"]
                     :dependencies [[http-kit.fake "0.2.2"]]}
+             :repl {:resource-paths ["dev" "dev/resources" "resources" "data"]}
              :uberjar {:aot :all
                        :main lcmap.aardvark.core}}
   :main lcmap.aardvark.core
