@@ -7,15 +7,28 @@
 
 ;;; Problem building related functions.
 
+(defn lcmap-class? [element]
+  (clojure.string/includes? (.getClassName element) "lcmap"))
+
+(defn app-stack-trace [ex]
+  (let [elements (.getStackTrace ex)]
+    (filter lcmap-class? elements)))
+
 (defn detail+
   "Add ex-data to problem"
   [problematic exception]
+  ;; This isn't exactly how problems are supposed to
+  ;; be used; this should only really happen in
+  ;; development mode.
+  (log/debug "adding exception info to problem")
   (-> problematic
       (problem/make-instance exception)
-      (assoc :detail (ex-data exception))))
+      (assoc :detail (or (ex-data exception)
+                         (.getMessage exception))
+             :trace (map str (app-stack-trace exception)))))
 
 (defproblems lcmap-landsat-problems
-  [[clojure.lang.ExceptionInfo
+  [[java.lang.RuntimeException
     {:type "lcmap-landsat-default-problem"
      :title "LCMAP Landsat Problem"
      :status 500}
@@ -57,7 +70,7 @@
 (defn save-problem
   "Persist instance of a problem for subsequent retrieval."
   [problem]
-  (log/debug "Save problem to db")
+  (log/debugf "save problem to db: %s" problem)
   problem)
 
 (defn find-problem
@@ -69,11 +82,11 @@
 (defn transformer
   "Used with problem/wrap-problem to transform problem before
   building response."
-  [problem req]
+  [problem request]
+  (log/debug "transforming problem")
   (-> problem
-      (link-problem req)
-      (save-problem))
-  problem)
+      (save-problem)
+      (link-problem request)))
 
 (defn resource
   "Handlers for problem resource"
