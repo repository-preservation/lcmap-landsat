@@ -13,3 +13,15 @@ docker-up:
 docker-super-clean:
 	docker rm `docker ps -a -q`
 	docker rmi `docker images -q`
+
+docker-dev-up:
+	docker-compose -f dev/resources/docker-compose.yml up -d
+
+docker-dev-down:
+	docker-compose -f dev/resources/docker-compose.yml down
+
+docker-test-up:
+	docker-compose -f test/resources/docker-compose.yml up -d
+
+docker-test-down:
+	docker-compose -f test/resources/docker-compose.yml down
