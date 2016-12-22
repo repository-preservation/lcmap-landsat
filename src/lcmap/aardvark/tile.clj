@@ -67,9 +67,9 @@
    coordinate of the tile that contains it."
   [x y spec]
   (let [{:keys [tile_x tile_y shift_x shift_y]} spec
-        tx (- x (mod (+ x shift_x) tile_x))
-        ty (- y (mod (+ y shift_y) (- tile_y)))]
-    (log/debug "Snap: (%d,%d) to (%d,%d)" x y tx ty)
+        tx (+ shift_x (- x (mod x tile_x)))
+        ty (+ shift_y (- y (mod y (- tile_y))))]
+    (log/debug "snap using spec (%s): (%d,%d) to (%d,%d)" spec x y tx ty)
     [(long tx) (long ty)]))
 
 ;;; Database functions
