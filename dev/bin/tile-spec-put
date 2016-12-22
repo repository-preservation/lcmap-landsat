@@ -1,0 +1,8 @@
+#!/bin/bash
+
+curl --verbose \
+     -H "Accept: application/json, */*" \
+     -H "Content-Type: application/json" \
+     -X PUT \
+     --data "@test/resources/data/sample-tile-spec.json" \
+     http://localhost:5678/landsat/tile-spec/LANDSAT_5/TM/sr_band1

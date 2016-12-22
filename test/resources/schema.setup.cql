@@ -30,17 +30,16 @@ AND  COMPACTION = { 'class' :  'LeveledCompactionStrategy' };
 
 
 CREATE TABLE IF NOT EXISTS lcmap_landsat_test.tile_specs (
-    keyspace_name text,
-    table_name text,
-    projection text static,
-    tile_x int static,
-    tile_y int static,
+    name text,
+    ubid text,
+    wkt text static,
     pixel_x float static,
     pixel_y float static,
-    shift_x float static,
-    shift_y float static,
-    resample_method text static,
-    ubid text,
+    tile_x int,
+    tile_y int,
+    shift_x float,
+    shift_y float,
+    resample_method text,
     satellite text,
     instrument text,
     band_product text,
@@ -54,6 +53,6 @@ CREATE TABLE IF NOT EXISTS lcmap_landsat_test.tile_specs (
     data_scale float,
     data_type text,
     data_units text,
-    data_shape list<int> static,
+    data_shape list<int>,
     data_mask map<int, text>,
-    PRIMARY KEY ((keyspace_name, table_name), ubid));
+    PRIMARY KEY (name, ubid));

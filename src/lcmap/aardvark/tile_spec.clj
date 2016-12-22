@@ -20,10 +20,8 @@
            (gdal.core/init)))
 
 (def tile-spec-schema
-  {:keyspace_name schema/Str
-   :table_name schema/Str
-   :ubid schema/Str
-    schema/Keyword schema/Str})
+  {:ubid schema/Str
+   schema/Keyword schema/Any})
 
 (defn validate
   "Produce a map of errors if the tile-spec is invalid, otherwise nil."
@@ -57,8 +55,7 @@
 
 ;;; Worker related
 
-(def column-names [:keyspace_name :table_name
-                   :ubid :projection :satellite :instrument
+(def column-names [:name :ubid :wkt :satellite :instrument
                    :tile_x :tile_y :pixel_x :pixel_y :shift_x :shift_y
                    :band_product :band_category :band_name :band_long_name :band_short_name :band_spectrum
                    :data_fill :data_range :data_scale :data_type :data_units :data_shape :data_mask])
@@ -81,7 +78,7 @@
           tile_y  (int (* py dy))
           shift_x (int (mod rx pixel_x))
           shift_y (int (mod ry pixel_y))]
-      {:projection proj
+      {:wkt proj
        :pixel_x pixel_x
        :pixel_y pixel_y
        :tile_x tile_x

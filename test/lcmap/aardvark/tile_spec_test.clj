@@ -13,8 +13,7 @@
          :uri (-> "ESPA/CONUS/ARD/LE70460272000029-SC20160826120223.tar.gz" io/resource io/as-url str)
          :checksum "e1d2f9b28b1f55c13ee2a4b7c4fc52e7"})
 
-(def spec-opts {:keyspace_name "lcmap_landsat_test"
-                :table_name "conus"
+(def spec-opts {:name "conus"
                 :data_shape [128 128]})
 
 (deftest test-processing

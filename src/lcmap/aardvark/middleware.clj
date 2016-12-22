@@ -11,11 +11,7 @@
   a way that depends on request values; e.g. content-type."
   [handler req-tf res-tf]
   (fn [request]
-    (log/debug "req - wrap handler ...")
-    (let [request (req-tf request)
-          response (handler request)]
-      (log/debug "res - wrap handler ...")
-      (res-tf request response))))
+    (res-tf request (handler (req-tf request)))))
 
 (defn wrap-authenticate
   "Add Identity to request map"
