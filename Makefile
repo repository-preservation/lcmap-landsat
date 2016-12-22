@@ -1,3 +1,6 @@
+CONTAINERS=`docker ps -a -q`
+IMAGES=`docker images -q`
+
 build:
 	lein uberjar
 
@@ -10,15 +13,11 @@ docker-shell:
 docker-up:
 	docker run usgseros/lcmap-landsat:0.1.0-SNAPSHOT
 
-docker-super-clean:
-	docker rm `docker ps -a -q`
-	docker rmi `docker images -q`
-
 docker-dev-up:
 	docker-compose -f dev/resources/docker-compose.yml up -d
 
 docker-dev-up-nodaemon:
-		docker-compose -f dev/resources/docker-compose.yml up
+	docker-compose -f dev/resources/docker-compose.yml up
 
 docker-dev-down:
 	docker-compose -f dev/resources/docker-compose.yml down
@@ -31,3 +30,11 @@ docker-test-up-nodaemon:
 
 docker-test-down:
 	docker-compose -f test/resources/docker-compose.yml down
+
+docker-rm-all: docker-dev-down docker-test-down
+	@if [ -n "$(CONTAINERS)" ]; then \
+		docker rm $(CONTAINERS); fi;
+
+docker-rmi-all: docker-rm-all
+	@if [ -n "$(IMAGES)" ]; then \
+		docker rmi $(IMAGES); fi;

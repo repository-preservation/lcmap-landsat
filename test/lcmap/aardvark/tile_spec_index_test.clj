@@ -8,14 +8,13 @@
             [lcmap.aardvark.shared :as shared]
             [lcmap.aardvark.tile-spec :as tile-spec]
             [lcmap.aardvark.tile-spec-test :refer [L5 spec-opts]]
-
             [lcmap.aardvark.tile-spec-index :as index]))
 
 (deftest test-indexing
   (shared/with-system
 
     (tile-spec/process L5 spec-opts)
-
+    
     (testing "tokenizing ubids"
       (is (not (= nil? (index/ubid->tags (tile-spec/universal-band-ids))))))
 

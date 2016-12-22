@@ -116,10 +116,11 @@
   ([] (universal-band-ids (get-in config [:database :default-keyspace])))
 
   ([db-keyspace]
-   (let [query (str "select ubid from " db-keyspace ".tile_specs")
+   (let [query (hayt/select :tile_specs (hayt/columns :ubid))
          results (try (alia/execute db-session query)
-                      (catch Throwable t
-                        (log/debug
-                         (apply str (interpose "\n" (.getStackTrace t))))))
+                  (catch Throwable t
+                    (log/debug
+                     (apply str (interpose "\n" (.getStackTrace t))))
+                    (log/debug "Error running query:" (hayt/->raw query))))
          ubids (distinct (map :ubid results))]
      ubids)))
