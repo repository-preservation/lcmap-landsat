@@ -49,7 +49,14 @@
     (testing "get a non-existent tile-spec"
       (let [resp (req :get "http://localhost:5679/landsat/tile-spec/LANDSAT_5/TM/marklar"
                       :headers {"Accept" "application/json"})]
-        (is (= 404 (:status resp)))))))
+        (is (= 404 (:status resp)))))
+    (testing "post multiple tile-specs"
+      (let [tile-specs (slurp (io/resource "data/sample-tile-specs.json"))
+            resp (req :post "http://localhost:5679/landsat/tile-spec"
+                      :headers {"Content-Type" "application/json"
+                                "Accept" "application/json"}
+                      :body tile-specs)]
+            (is (= 200 (:status resp)))))))
 
 (deftest source-tests
   (with-system

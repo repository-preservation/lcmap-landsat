@@ -56,6 +56,14 @@
     {:status 200 :body results}
     {:status 404 :body nil}))
 
+(defn delete-tile-spec
+  "Deleting a tile-spec is not supported.
+
+  Supporting removal of a tile-spec is unusual and would make it
+  impossible to get tile data for those UBIDs."
+  [ubid]
+  {:status 501})
+
 (defn get-tile-specs
   "Get all tile-specs"
   []
@@ -64,9 +72,10 @@
 
 (defn post-tile-spec
   "Save or create all tile-specs"
-  [request]
-  ;; TBD -- not implemented yet.
-  {:status 501 :body nil})
+  [{body :body :as req}]
+  (log/debugf "creating multiple tile specs: %s" (count body))
+  (let [saved (map tile-spec/insert body)]
+    {:status 200 :body {:saved (count saved)}}))
 
 (defn put-tile-spec
   "Handle request for creating a tile-spec."
@@ -119,14 +128,15 @@
   "Handlers for landsat resource."
   []
   (wrap-handler
-   (context "/landsat" [:as request]
-     (GET  "/" [] {:body nil})
-     (ANY  "/" [] (allow "GET"))
-     (GET  "/source/:source-id" [source-id] (get-source source-id))
-     (PUT  "/source/:source-id" [source-id :as req] (put-source source-id request))
-     (GET  "/tiles" [] (get-tiles request))
-     (GET  "/tile-spec" [] (get-tile-specs))
-     (GET  "/tile-spec/:ubid{.+}" [ubid :as req] (get-tile-spec ubid req))
-     (PUT  "/tile-spec/:ubid{.+}" [ubid :as req] (put-tile-spec ubid req))
-     (POST "/tile-spec" [] (post-tile-spec request)))
+   (context "/landsat" request
+     (GET    "/" [] {:body nil})
+     (ANY    "/" [] (allow "GET"))
+     (GET    "/source/:source-id" [source-id] (get-source source-id))
+     (PUT    "/source/:source-id" [source-id :as req] (put-source source-id request))
+     (GET    "/tiles" [] (get-tiles request))
+     (GET    "/tile-spec" [] (get-tile-specs))
+     (POST   "/tile-spec" [] (post-tile-spec request))
+     (GET    "/tile-spec/:ubid{.+}" [ubid] (get-tile-spec ubid request))
+     (PUT    "/tile-spec/:ubid{.+}" [ubid] (put-tile-spec ubid request))
+     (DELETE "/tile-spec/:ubid{.+}" [ubid] (delete-tile-spec ubid)))
    prepare-with respond-with))
