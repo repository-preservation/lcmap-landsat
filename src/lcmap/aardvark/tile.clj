@@ -234,6 +234,7 @@
    (let [band-xf   (comp (map +spec)
                          (map +fill)
                          (map +locate)
+                         (map (fn [band] (assoc band :source (:id source))))
                          (filter conforms?))]
      (dorun (pmap #(process-band % source) (scene->bands scene-dir band-xf)))
      :done)))
