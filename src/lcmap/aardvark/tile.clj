@@ -224,9 +224,9 @@
                         (remove fill?))
           [xs ys] (:data_shape band)
           tiles   (dataset->tiles tile-xf dataset xs ys)]
-      (progress source "band-start" (format "ubid: %s" (:ubid band)))
+      (progress source "band-start" (:ubid band))
       (dorun (pmap process-tile tiles))
-      (progress source "band-done" (format "ubid: %s" (:ubid band))))))
+      (progress source "band-done" (:ubid band)))))
 
 (defn process-scene
   "Saves all bands in dir referenced by path."
