@@ -13,22 +13,29 @@
 
 (defn checksum
   ""
-  [source]
-  (let [path (source :uri)
-        expected (source :checksum)]
-    (-> path
-        (io/as-url)
-        (io/as-file)
-        (digest/md5))))
+  [uri]
+  (-> uri
+      (io/as-url)
+      (io/as-file)
+      (digest/md5)))
 
-(defn checksum!
+(defn verify
+  "Compare expected and actual MD5 checksum of URI.
+
+  Raise an exception if different, otherwise return uri."
+  [uri expected]
+  (let [actual (checksum uri)]
+    (if (not= actual expected)
+      (throw (ex-info "checksum failed" {:expected expected :actual actual :uri uri}))
+      uri)))
+
+(defn download
   ""
-  [source]
-  (let [actual (checksum source)
-        expected (:checksum source)]
-  (if (not= actual expected)
-    (throw (ex-info "checksum failed" {:expected expected :actual actual :path (:uri source)}))
-    source)))
+  [uri file]
+  (with-open [in (io/input-stream uri)
+              out (io/output-stream file)]
+    (io/copy in out))
+  file)
 
 (defn entries
   "Lazily retrieve a list of archive entries."
@@ -74,19 +81,25 @@
    dest))
 
 (defmacro with-temp
-  "Temporarily uncompress and unarchive file at path.
-
-  Provide a binding for the temporary directory to use in body."
-  [[binding path] & body]
-  `(let [tf# (fs/temp-file "lcmap-")
-         td# (fs/temp-dir "lcmap-")]
+  ""
+  [binding & body]
+  `(let [temp# (fs/temp-file "lcmap.landsat-")]
      (try
-      (log/debug "uncompressing" ~path "to" (.getAbsolutePath td#))
-      (uncompress ~path tf#)
-      (unarchive tf# td#)
-      (let [~binding td#]
+      (log/debugf "created temp-file: %s" (.getAbsolutePath temp#))
+      (let [~binding temp#]
         (do ~@body))
       (finally
-        (log/debug "cleaning up" td#)
-        (fs/delete tf#)
-        (fs/delete-dir td#)))))
+        (log/debug "removing temp-file: %s" (.getAbsolutePath temp#))
+        (fs/delete temp#)))))
+
+(defmacro with-temp-dir
+  ""
+  [binding & body]
+  `(let [temp# (fs/temp-file-dir "lcmap.landsat-")]
+     (try
+      (log/debugf "created temp-file: %s" (.getAbsolutePath temp#))
+      (let [~binding temp#]
+        (do ~@body))
+      (finally
+        (log/debug "removing temp-file: %s" (.getAbsolutePath temp#))
+        (fs/delete-dir temp#)))))

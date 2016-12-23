@@ -17,6 +17,7 @@
             [lcmap.aardvark.util :as util]
             [lcmap.aardvark.middleware :refer [wrap-handler]]
             [langohr.basic :as lb]
+            [me.raynes.fs :as fs]
             [mount.core :as mount :refer [defstate]]
             [qbits.alia :as alia]
             [qbits.hayt :as hayt]
@@ -249,13 +250,27 @@
   * fail
   "
   [{:keys [id checksum uri] :as source}]
-  (activity source "check")
-  (util/checksum! source)
-  (activity source "stage")
-  (util/with-temp [dir uri]
-    (process-scene dir source))
-  (activity source "done")
-  :done)
+  (let [download-file   (fs/temp-file "lcmap-")
+        uncompress-file (fs/temp-file "lcmap-")
+        unarchive-file  (fs/temp-dir  "lcmap-")]
+    (try
+      (-> uri
+          (util/download download-file)
+          (util/verify checksum)
+          (util/uncompress uncompress-file)
+          (util/unarchive unarchive-file)
+          (process-scene source))
+      :done
+      (finally
+        (fs/delete-dir unarchive-file)
+        (fs/delete uncompress-file)
+        (fs/delete download-file)))))
+
+(comment "explain usage..."
+  (process {:id       "LE70460272000029"
+            :checksum "e1d2f9b28b1f55c13ee2a4b7c4fc52e7"
+            :uri      #_"http://localhost:3456/LE70460272000029-SC20160826120223.tar.gz"
+                      "file:/home/jmorton/Projects/lcmap/lcmap-landsat/data/ESPA/CONUS/ARD/LE70460272000029-SC20160826120223.tar.gz"}))
 
 ;;; Error handlers
 
@@ -286,5 +301,5 @@
 (dire/with-handler! #'process
   clojure.lang.ExceptionInfo
   (fn [e & [source]]
-    (progress source "fail" (ex-data e))
+    (progress source "fail" (:msg (ex-data e)))
     :fail))
