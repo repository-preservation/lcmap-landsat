@@ -131,8 +131,8 @@
    (context "/landsat" request
      (GET    "/" [] {:body nil})
      (ANY    "/" [] (allow "GET"))
-     (GET    "/source/:source-id" [source-id] (get-source source-id))
-     (PUT    "/source/:source-id" [source-id] (put-source source-id request))
+     (GET    "/source/:source-id{.+}" [source-id] (get-source source-id))
+     (PUT    "/source/:source-id{.+}" [source-id] (put-source source-id request))
      (GET    "/tiles" [] (get-tiles request))
      (GET    "/tile-spec" [] (get-tile-specs))
      (POST   "/tile-spec" [] (post-tile-spec request))
