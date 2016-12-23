@@ -30,7 +30,7 @@
 (defn put-source
   "Handle request for creating a source and produce a response."
   [source-id {params :params :as req}]
-  (let [source (merge {:id source-id :state_name "created"} params)]
+  (let [source (merge {:id source-id :progress_name "created"} params)]
     (or (some->> (source/validate source)
                  (assoc {:status 403} :body))
         (some->> (source/search source-id)

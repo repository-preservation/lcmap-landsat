@@ -12,7 +12,7 @@
             [lcmap.aardvark.db :as db :refer [db-session]]
             [lcmap.aardvark.espa :as espa]
             [lcmap.aardvark.event :as event]
-            [lcmap.aardvark.source :as source :refer [activity]]
+            [lcmap.aardvark.source :as source :refer [progress]]
             [lcmap.aardvark.tile-spec :as tile-spec]
             [lcmap.aardvark.util :as util]
             [lcmap.aardvark.middleware :refer [wrap-handler]]
@@ -223,9 +223,9 @@
                         (remove fill?))
           [xs ys] (:data_shape band)
           tiles   (dataset->tiles tile-xf dataset xs ys)]
-      (activity (merge source {:ubid (band :ubid)}) "band-start")
+      (progress source "band-start" (format "ubid: %s" (:ubid band)))
       (dorun (pmap process-tile tiles))
-      (activity (merge source {:ubid (band :ubid)}) "band-done"))))
+      (progress source "band-done" (format "ubid: %s" (:ubid band))))))
 
 (defn process-scene
   "Saves all bands in dir referenced by path."
@@ -262,29 +262,29 @@
 (dire/with-handler! #'process
   org.apache.commons.compress.compressors.CompressorException
   (fn [e & [source]]
-    (activity source "fail" "could not decompress source")
+    (progress source "fail" "could not decompress source")
     :fail))
 
 (dire/with-handler! #'process
   java.io.FileNotFoundException
   (fn [e & [source]]
-    (activity source "fail" "could not find file")
+    (progress source "fail" "could not find file")
     :fail))
 
 (dire/with-handler! #'process
   java.net.MalformedURLException
   (fn [e & [source]]
-    (activity source "fail" "malformed URL")
+    (progress source "fail" "malformed URL")
     :fail))
 
 (dire/with-handler! #'process
   java.lang.IllegalArgumentException
   (fn [e & [source]]
-    (activity source "fail" "invalid ESPA metadata")
+    (progress source "fail" "invalid ESPA metadata")
     :fail))
 
 (dire/with-handler! #'process
   clojure.lang.ExceptionInfo
   (fn [e & [source]]
-    (activity source "fail" (.getMessage e))
+    (progress source "fail" (ex-data e))
     :fail))
