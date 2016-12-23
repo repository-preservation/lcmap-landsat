@@ -255,23 +255,19 @@
         uncompress-file (fs/temp-file "lcmap-")
         unarchive-file  (fs/temp-dir  "lcmap-")]
     (try
+      (progress source "scene-start")
       (-> uri
           (util/download download-file)
           (util/verify checksum)
           (util/uncompress uncompress-file)
           (util/unarchive unarchive-file)
           (process-scene source))
+      (progress source "scene-finish")
       :done
       (finally
         (fs/delete-dir unarchive-file)
         (fs/delete uncompress-file)
         (fs/delete download-file)))))
-
-(comment "explain usage..."
-  (process {:id       "LE70460272000029"
-            :checksum "e1d2f9b28b1f55c13ee2a4b7c4fc52e7"
-            :uri      #_"http://localhost:3456/LE70460272000029-SC20160826120223.tar.gz"
-                      "file:/home/jmorton/Projects/lcmap/lcmap-landsat/data/ESPA/CONUS/ARD/LE70460272000029-SC20160826120223.tar.gz"}))
 
 ;;; Error handlers
 
