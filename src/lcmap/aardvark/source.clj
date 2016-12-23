@@ -21,9 +21,9 @@
   {:id schema/Str
    :uri schema/Str
    :checksum schema/Str
-   (schema/optional-key :state_at) schema/Any
-   (schema/optional-key :state_name) schema/Str
-   (schema/optional-key :state_desc) schema/Str})
+   (schema/optional-key :progress_at) schema/Any
+   (schema/optional-key :progress_name) schema/Str
+   (schema/optional-key :progress_desc) schema/Str})
 
 (defn search
   "Query DB for source."
@@ -61,18 +61,19 @@
 (defn insert-and-publish
   "Create a source and publish a message."
   [source]
-  (let [source+ (merge source {:state_at (time/now)
-                               :state_name "queue"})]
+  (let [source+ (merge source {:progress_at (time/now)
+                               :progress_name "queue"})]
     (io!
      (insert source+)
      (publish source+))))
 
-(defn activity
+(defn progress
   "Insert source row with state information."
   ([source name desc]
-   (let [source+ (merge source {:state_at (time/now)
-                                :state_name name
-                                :state_desc desc})]
+   (let [source+ (merge source {:progress_at (time/now)
+                                :progress_name name
+                                :progress_desc desc})]
+     (log/infof "progress: %s %s - %s %s" (source :id) (source :uri) name desc)
      (insert source+)))
   ([source name]
-   (activity source name nil)))
+   (progress source name nil)))

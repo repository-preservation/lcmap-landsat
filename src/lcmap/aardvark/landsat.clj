@@ -30,7 +30,7 @@
 (defn put-source
   "Handle request for creating a source and produce a response."
   [source-id {params :params :as req}]
-  (let [source (merge {:id source-id :state_name "created"} params)]
+  (let [source (merge {:id source-id :progress_name "created"} params)]
     (or (some->> (source/validate source)
                  (assoc {:status 403} :body))
         (some->> (source/search source-id)
@@ -131,8 +131,8 @@
    (context "/landsat" request
      (GET    "/" [] {:body nil})
      (ANY    "/" [] (allow "GET"))
-     (GET    "/source/:source-id" [source-id] (get-source source-id))
-     (PUT    "/source/:source-id" [source-id :as req] (put-source source-id request))
+     (GET    "/source/:source-id{.+}" [source-id] (get-source source-id))
+     (PUT    "/source/:source-id{.+}" [source-id] (put-source source-id request))
      (GET    "/tiles" [] (get-tiles request))
      (GET    "/tile-spec" [] (get-tile-specs))
      (POST   "/tile-spec" [] (post-tile-spec request))

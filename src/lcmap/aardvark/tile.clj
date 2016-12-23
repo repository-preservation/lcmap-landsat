@@ -12,11 +12,12 @@
             [lcmap.aardvark.db :as db :refer [db-session]]
             [lcmap.aardvark.espa :as espa]
             [lcmap.aardvark.event :as event]
-            [lcmap.aardvark.source :as source :refer [activity]]
+            [lcmap.aardvark.source :as source :refer [progress]]
             [lcmap.aardvark.tile-spec :as tile-spec]
             [lcmap.aardvark.util :as util]
             [lcmap.aardvark.middleware :refer [wrap-handler]]
             [langohr.basic :as lb]
+            [me.raynes.fs :as fs]
             [mount.core :as mount :refer [defstate]]
             [qbits.alia :as alia]
             [qbits.hayt :as hayt]
@@ -223,9 +224,9 @@
                         (remove fill?))
           [xs ys] (:data_shape band)
           tiles   (dataset->tiles tile-xf dataset xs ys)]
-      (activity (merge source {:ubid (band :ubid)}) "band-start")
+      (progress source "band-start" (:ubid band))
       (dorun (pmap process-tile tiles))
-      (activity (merge source {:ubid (band :ubid)}) "band-done"))))
+      (progress source "band-done" (:ubid band)))))
 
 (defn process-scene
   "Saves all bands in dir referenced by path."
@@ -233,6 +234,7 @@
    (let [band-xf   (comp (map +spec)
                          (map +fill)
                          (map +locate)
+                         (map (fn [band] (assoc band :source (:id source))))
                          (filter conforms?))]
      (dorun (pmap #(process-band % source) (scene->bands scene-dir band-xf)))
      :done)))
@@ -249,42 +251,52 @@
   * fail
   "
   [{:keys [id checksum uri] :as source}]
-  (activity source "check")
-  (util/checksum! source)
-  (activity source "stage")
-  (util/with-temp [dir uri]
-    (process-scene dir source))
-  (activity source "done")
-  :done)
+  (let [download-file   (fs/temp-file "lcmap-")
+        uncompress-file (fs/temp-file "lcmap-")
+        unarchive-file  (fs/temp-dir  "lcmap-")]
+    (try
+      (progress source "scene-start")
+      (-> uri
+          (util/download download-file)
+          (util/verify checksum)
+          (util/uncompress uncompress-file)
+          (util/unarchive unarchive-file)
+          (process-scene source))
+      (progress source "scene-finish")
+      :done
+      (finally
+        (fs/delete-dir unarchive-file)
+        (fs/delete uncompress-file)
+        (fs/delete download-file)))))
 
 ;;; Error handlers
 
 (dire/with-handler! #'process
   org.apache.commons.compress.compressors.CompressorException
   (fn [e & [source]]
-    (activity source "fail" "could not decompress source")
+    (progress source "fail" "could not decompress source")
     :fail))
 
 (dire/with-handler! #'process
   java.io.FileNotFoundException
   (fn [e & [source]]
-    (activity source "fail" "could not find file")
+    (progress source "fail" "could not find file")
     :fail))
 
 (dire/with-handler! #'process
   java.net.MalformedURLException
   (fn [e & [source]]
-    (activity source "fail" "malformed URL")
+    (progress source "fail" "malformed URL")
     :fail))
 
 (dire/with-handler! #'process
   java.lang.IllegalArgumentException
   (fn [e & [source]]
-    (activity source "fail" "invalid ESPA metadata")
+    (progress source "fail" "invalid ESPA metadata")
     :fail))
 
 (dire/with-handler! #'process
   clojure.lang.ExceptionInfo
   (fn [e & [source]]
-    (activity source "fail" (.getMessage e))
+    (progress source "fail" (:msg (ex-data e)))
     :fail))

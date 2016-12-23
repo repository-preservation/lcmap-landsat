@@ -6,11 +6,11 @@ CREATE TABLE IF NOT EXISTS lcmap_landsat_test.sources (
     id text,
     uri text static,
     checksum text static,
-    state_at timestamp,
-    state_name text,
-    state_desc text,
+    progress_at timestamp,
+    progress_name text,
+    progress_desc text,
     ubid text,
-    PRIMARY KEY (id, state_at)
+    PRIMARY KEY (id, progress_at)
 )
 WITH COMPRESSION = { 'sstable_compression' : 'LZ4Compressor' }
 AND  COMPACTION = { 'class' :  'LeveledCompactionStrategy' };
