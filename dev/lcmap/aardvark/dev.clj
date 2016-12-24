@@ -24,8 +24,7 @@
          :checksum "2e8f29fb6cc66d5162a043a9a2c7eba5"})
 
 (def tile-spec-opts {:data_shape [128 128]
-                     :keyspace_name "lcmap_landsat_dev"
-                     :table_name "conus"})
+                     :name "conus"})
 
 (defn load-tile-spec []
   (tile-spec/process L5 tile-spec-opts)
