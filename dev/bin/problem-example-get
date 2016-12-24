@@ -1,0 +1,5 @@
+#!/bin/bash
+
+curl \
+  -H "Accept: application/json, */*" \
+  "http://localhost:5678/landsat/problem/example"

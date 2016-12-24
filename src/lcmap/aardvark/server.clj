@@ -35,15 +35,13 @@
   "Build a middleware wrapped handler for app. This approach makes
   dependencies (components) available to handling functions."
   []
-  (context "/" request
-       (-> (routes (landsat/resource)
-                   (problem/resource))
-        (wrap-accept)
-        (wrap-authorize)
-        (wrap-authenticate)
-        (wrap-keyword-params)
-        (wrap-params)
-        (wrap-problem problem/transformer))))
+  (-> (landsat/resource)
+      (wrap-accept)
+      (wrap-authorize)
+      (wrap-authenticate)
+      (wrap-keyword-params)
+      (wrap-params)
+      (wrap-problem problem/transformer)))
 
 ;;; Server-related state
 

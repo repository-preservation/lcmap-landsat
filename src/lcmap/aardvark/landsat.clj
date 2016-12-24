@@ -129,7 +129,7 @@
   []
   (wrap-handler
    (context "/landsat" request
-     (GET    "/" [] {:body nil})
+     (GET    "/" [] {:body "base landsat resource"})
      (ANY    "/" [] (allow "GET"))
      (GET    "/source/:source-id{.+}" [source-id] (get-source source-id))
      (PUT    "/source/:source-id{.+}" [source-id] (put-source source-id request))
@@ -138,5 +138,7 @@
      (POST   "/tile-spec" [] (post-tile-spec request))
      (GET    "/tile-spec/:ubid{.+}" [ubid] (get-tile-spec ubid request))
      (PUT    "/tile-spec/:ubid{.+}" [ubid] (put-tile-spec ubid request))
-     (DELETE "/tile-spec/:ubid{.+}" [ubid] (delete-tile-spec ubid)))
+     (DELETE "/tile-spec/:ubid{.+}" [ubid] (delete-tile-spec ubid))
+     (GET    "/problem" [] {:status 200 :body "problem resource"})
+     (GET    "/problem/example" [] (throw (java.lang.RuntimeException. "odd"))))
    prepare-with respond-with))
