@@ -26,7 +26,7 @@ docker-test-up:
 	docker-compose -f test/resources/docker-compose.yml up -d
 
 docker-test-up-nodaemon:
-	docker-compose -f test/resources/docker-compose.yml up -d
+	docker-compose -f test/resources/docker-compose.yml up
 
 docker-test-down:
 	docker-compose -f test/resources/docker-compose.yml down
