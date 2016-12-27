@@ -27,7 +27,6 @@
     (log/debugf "deliver: %s" metadata)
     (log/debugf "content: %s" source)
     (tile/process source)
-    (log/debugf "ack message")
     (lb/ack worker-channel (metadata :delivery-tag))))
 
 (defn handle-consume

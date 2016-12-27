@@ -2,6 +2,7 @@
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [digest]
+            [clj-http.client :as client]
             [me.raynes.fs :as fs])
   (:import [org.apache.commons.compress.archivers
             ArchiveInputStream ArchiveStreamFactory]
@@ -29,13 +30,23 @@
       (throw (ex-info "checksum failed" {:expected expected :actual actual :uri uri}))
       uri)))
 
-(defn download
-  ""
+(defmulti download
+  (fn [uri file]
+    (.getProtocol (io/as-url uri))))
+
+(defmethod download "file"
   [uri file]
   (with-open [in (io/input-stream uri)
               out (io/output-stream file)]
     (io/copy in out))
-  file)
+  (io/file file))
+
+(defmethod download "http"
+  [uri file]
+  (with-open [in (:body (client/get uri {:as :stream}))
+              out (io/output-stream file)]
+    (io/copy in out))
+  (io/file file))
 
 (defn entries
   "Lazily retrieve a list of archive entries."
