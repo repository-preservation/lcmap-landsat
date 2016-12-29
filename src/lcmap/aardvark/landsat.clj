@@ -1,11 +1,14 @@
 (ns lcmap.aardvark.landsat
-  "Resources and representations."
+  "Resources and representations.
+
+  This namespace contains all route definitions."
   (:require [camel-snake-kebab.core :refer [->snake_case_keyword]]
             [camel-snake-kebab.extras :refer [transform-keys]]
             [cheshire.core :as json]
             [clojure.tools.logging :as log]
             [clojure.string :as str]
             [compojure.core :refer :all]
+            [net.cgrand.enlive-html :as html]
             [ring.util.accept :refer [accept]]
             [lcmap.aardvark.source :as source]
             [lcmap.aardvark.tile :as tile]
@@ -109,6 +112,18 @@
 
 ;;; Response entity transformers.
 
+(html/deftemplate source-html "public/source.html"
+  [entity]
+  [:h1]     (html/content (:title entity))
+  [:#about] (html/content (:about entity))
+  [:#debug] (html/content (json/encode entity)))
+
+(defn to-html
+  "Encode response body as HTML."
+  [response]
+  (log/debug "responding with HTML")
+  (update response :body source-html))
+
 (defn to-json
   "Encode response body as JSON."
   [response]
@@ -116,11 +131,13 @@
   (update response :body json/encode))
 
 (def supported-types (accept "application/json" to-json
-                             "*/*" to-json))
+                             "text/html" to-html
+                             "*/*" to-html))
 
 (defn respond-with
   ""
   [request response]
+  (log/debug "building response")
   (supported-types request response))
 
 ;;; Routes
@@ -132,6 +149,7 @@
    (context "/landsat" request
      (GET    "/" [] {:body "base landsat resource"})
      (ANY    "/" [] (allow "GET"))
+     (GET    "/source" [] {:body {:title "this"} :status 200})
      (GET    "/source/:source-id{.+}" [source-id] (get-source source-id))
      (PUT    "/source/:source-id{.+}" [source-id] (put-source source-id request))
      (GET    "/tiles" [] (get-tiles request))
@@ -141,5 +159,5 @@
      (PUT    "/tile-spec/:ubid{.+}" [ubid] (put-tile-spec ubid request))
      (DELETE "/tile-spec/:ubid{.+}" [ubid] (delete-tile-spec ubid))
      (GET    "/problem" [] {:status 200 :body "problem resource"})
-     (GET    "/problem/example" [] (throw (java.lang.RuntimeException. "odd"))))
+     (GET    "/problem/example" [] (throw (ex-info "example problem" {:reason "just a test"}))))
    prepare-with respond-with))
