@@ -83,6 +83,7 @@
   [{:keys [ubids x y acquired] :as tile}]
   {:pre [(vector? ubids) (integer? x) (integer? y)]}
   (let [fubid    (first ubids)
+        ;;spec     (first (some #(when (not (nil? (tile-spec/query :ubid %)))) %) ubids)
         spec     (first (tile-spec/query {:ubid fubid}))
         table    (:name spec)
         [tx ty]  (snap x y spec)
@@ -92,6 +93,8 @@
                               [= :y ty]
                               [>= :acquired (str t1)]
                               [<= :acquired (str t2)]])]
+    (if (nil? spec)
+      (throw (ex-info (format "no tile-spec for %s" fubid) {})))
     (log/debugf "find tile %s: %s" table tile)
     (alia/execute db-session (hayt/select table where))))
 
