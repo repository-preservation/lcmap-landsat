@@ -24,6 +24,9 @@
             [schema.core :as schema])
   (:refer-clojure :exclude [find time]))
 
+;; use this to turn assertions off when not needed (post troubleshooting)
+;; (set! *assert* true)
+
 ;;; GDAL requires initialization in order to read files.
 
 (defstate gdal
@@ -74,22 +77,21 @@
     [(long tx) (long ty)]))
 
 ;;; Database functions
-;; TODO - Add IN clause for query, make ubids a vector instead of single value
 (defn find
-  "Query DB for all tiles that match the UBID, contain (x,y), and
+  "Query DB for all tiles that match the UBIDs, contain (x,y), and
    were acquired during a certain period of time."
-  [{:keys [ubid x y acquired] :as tile}]
-  (let [spec     (first (tile-spec/query {:ubid ubid}))
+  [{:keys [ubids x y acquired] :as tile}]
+  {:pre [(vector? ubids) (integer? x) (integer? y)]}
+  (let [fubid    (first ubids)
+        spec     (first (tile-spec/query {:ubid fubid}))
         table    (:name spec)
         [tx ty]  (snap x y spec)
         [t1 t2]  acquired
-        where    (hayt/where [[= :ubid ubid]
+        where    (hayt/where [[:in :ubid ubids]
                               [= :x tx]
                               [= :y ty]
                               [>= :acquired (str t1)]
                               [<= :acquired (str t2)]])]
-    (if (nil? spec)
-      (throw (ex-info (format "no tile-spec for %s" ubid) {})))
     (log/debugf "find tile %s: %s" table tile)
     (alia/execute db-session (hayt/select table where))))
 

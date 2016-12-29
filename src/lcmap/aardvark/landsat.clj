@@ -41,7 +41,7 @@
 (defn get-tiles
   "Get tiles containing point for given UBID and ISO8601 time range."
   [{{:keys [:ubid :x :y :acquired]} :params :as req}]
-  (let [tile+    {:ubid ubid
+  (let [tile+    {:ubids [ubid]
                   :x (Integer/parseInt x)
                   :y (Integer/parseInt y)
                   :acquired (clojure.string/split acquired #"/")}

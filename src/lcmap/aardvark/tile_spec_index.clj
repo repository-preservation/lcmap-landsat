@@ -37,10 +37,10 @@
   (str (url) "/_search"))
 
 (defn ubid->tags
-  "Extracts tags from a sequence of ubids and returns a sequence with the
-  ubid as the first element and resulting tags as the rest."
+  "Extracts tags from a sequence of ubids and returns a map with the
+  ubid and tags."
   [ubids]
-  (map #(conj (seq (str/split % #"/|_")) %) ubids))
+  (map #(assoc {} :ubid % :tags (str/split % #"/|_")) ubids))
 
 (defn tags->index-payload
   "Creates a bulk index payload from a sequence of tags"
@@ -49,7 +49,7 @@
     (apply str
            (map #(str
                   (json/write-str {"index" {"_retry_on_conflict" 3}}) "\n"
-                  (json/write-str {"ubid" (first %) "tags" (rest %)}) "\n")
+                  (json/write-str {"ubid" (:ubid %) "tags" (:tags %)}) "\n")
                 tags))))
 
 (defn- get-errors
@@ -66,8 +66,7 @@
      (load! bulk-url payload)))
 
   ([url payload]
-   (let [{:keys [status headers body error] :as resp} @(http/post url
-                                                                  {:body payload})
+   (let [{:keys [body error] :as resp} @(http/post url {:body payload})
          errors (or error (get-errors body))]
      (if errors
        (do (log/debug (str "load! errors:" errors)) errors)
