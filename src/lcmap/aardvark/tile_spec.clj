@@ -3,7 +3,6 @@
   (:require [clojure.tools.logging :as log]
             [gdal.core]
             [gdal.dataset]
-            [lcmap.aardvark.db :as db :refer [db-session]]
             [lcmap.aardvark.espa :as espa]
             [lcmap.aardvark.util :as util]
             [me.raynes.fs :as fs]
@@ -12,6 +11,7 @@
             [qbits.hayt :as hayt]
             [qbits.hayt.cql :as cql]
             [schema.core :as schema]
+            [lcmap.aardvark.db :as db]
             [lcmap.aardvark.config :refer [config]])
   (:refer-clojure :exclude [find]))
 
@@ -34,24 +34,27 @@
   "Retrieve all tile-specs."
   []
   (log/tracef "retrieve all tile-specs")
-  (alia/execute db-session
-                (hayt/select :tile_specs)))
+  (db/execute (hayt/select :tile_specs)))
 
 (defn query
   "Find tile-spec in DB."
-  [params]
-  (log/tracef "search for tile-spec: %s" params)
-  (alia/execute db-session
-                (hayt/select :tile_specs
-                   (hayt/where params)
-                   (hayt/allow-filtering))))
+  ([params]
+   (log/tracef "search for tile-spec: %s" params)
+   (db/execute (hayt/select :tile_specs
+                            (hayt/where params)
+                            (hayt/allow-filtering))))
+  ([columns params]
+   (db/execute (hayt/select :tile_specs
+                            (apply hayt/columns columns)
+                            (hayt/where params)
+                            (hayt/allow-filtering)))))
 
 (defn insert
   "Create tile-spec in DB."
   [tile-spec]
   (log/tracef "insert tile-spec: %s" tile-spec)
-  (alia/execute db-session
-                (hayt/insert :tile_specs (hayt/values tile-spec)))
+  (db/execute (hayt/insert :tile_specs
+                           (hayt/values tile-spec)))
   tile-spec)
 
 ;;; Worker related
@@ -125,10 +128,10 @@
 
   ([db-keyspace]
    (let [query (hayt/select :tile_specs (hayt/columns :ubid))
-         results (try (alia/execute db-session query)
-                  (catch Throwable t
-                    (log/debug
-                     (apply str (interpose "\n" (.getStackTrace t))))
-                    (log/debug "Error running query:" (hayt/->raw query))))
+         results (try (db/execute query)
+                      (catch Throwable t
+                        (log/debug
+                         (apply str (interpose "\n" (.getStackTrace t))))
+                        (log/debug "Error running query:" (hayt/->raw query))))
          ubids (distinct (map :ubid results))]
      ubids)))
