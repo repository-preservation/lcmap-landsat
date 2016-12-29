@@ -11,7 +11,8 @@
   [& body]
   `(let [cfg# (edn/read-string (slurp (io/resource "lcmap-landsat.edn")))]
      (log/debugf "starting test system with config: %s" cfg#)
-     (mount/start (mount/with-args {:config cfg#}))
+     (mount/start-without #'lcmap.aardvark.worker/worker-consumer
+                          (mount/with-args {:config cfg#}))
      (try
        (do ~@body)
        (finally
