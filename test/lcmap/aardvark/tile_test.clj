@@ -60,8 +60,8 @@
 
 (deftest find
   (with-system
-    (map #(tile-spec/process % tile-spec-opts) [L5 L7])
-    (map #(tile/process %) [L5 L7])
+    (doall (map #(tile-spec/process % tile-spec-opts) [L5 L7]))
+    (doall (map #(tile/process %) [L5 L7]))
     (testing "Test a single ubid"
       (is (= 1 (count (tile/find (merge space-time one-ubid))))))
     (testing "Test two ubids"
