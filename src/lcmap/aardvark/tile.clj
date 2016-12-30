@@ -9,7 +9,7 @@
             [gdal.band]
             [gdal.dataset]
             [lcmap.aardvark.config :refer [config]]
-            [lcmap.aardvark.db :as db :refer [db-session]]
+            [lcmap.aardvark.db :as db]
             [lcmap.aardvark.espa :as espa]
             [lcmap.aardvark.event :as event]
             [lcmap.aardvark.source :as source :refer [progress]]
@@ -19,10 +19,12 @@
             [langohr.basic :as lb]
             [me.raynes.fs :as fs]
             [mount.core :as mount :refer [defstate]]
-            [qbits.alia :as alia]
             [qbits.hayt :as hayt]
             [schema.core :as schema])
   (:refer-clojure :exclude [find time]))
+
+;; use this to turn assertions off when not needed (post troubleshooting)
+;; (set! *assert* true)
 
 ;;; GDAL requires initialization in order to read files.
 
@@ -74,24 +76,28 @@
     [(long tx) (long ty)]))
 
 ;;; Database functions
-;; TODO - Add IN clause for query, make ubids a vector instead of single value
 (defn find
-  "Query DB for all tiles that match the UBID, contain (x,y), and
+  "Query DB for all tiles that match the UBIDs, contain (x,y), and
    were acquired during a certain period of time."
-  [{:keys [ubid x y acquired] :as tile}]
-  (let [spec     (first (tile-spec/query {:ubid ubid}))
-        table    (:name spec)
-        [tx ty]  (snap x y spec)
-        [t1 t2]  acquired
-        where    (hayt/where [[= :ubid ubid]
-                              [= :x tx]
-                              [= :y ty]
-                              [>= :acquired (str t1)]
-                              [<= :acquired (str t2)]])]
-    (if (nil? spec)
-      (throw (ex-info (format "no tile-spec for %s" ubid) {})))
-    (log/debugf "find tile %s: %s" table tile)
-    (alia/execute db-session (hayt/select table where))))
+  [{:keys [ubids x y acquired] :as tiles}]
+  {:pre [(vector? ubids) (integer? x) (integer? y)]}
+  (if-let [spec (first (tile-spec/query
+                        [:name :tile_x :tile_y :shift_x :shift_y]
+                        [[:in :ubid ubids]]))]
+
+    (let [table    (:name spec)
+          [tx ty]  (snap x y spec)
+          [t1 t2]  acquired
+          where    (hayt/where [[:in :ubid ubids]
+                                [= :x tx]
+                                [= :y ty]
+                                [>= :acquired (str t1)]
+                                [<= :acquired (str t2)]])]
+      (log/debugf "Finding tile(s) %s: %s" table tiles)
+      (db/execute (hayt/select table where)))
+
+    (do (log/warnf "No tile-specs found for %s" ubids)
+        (sequence []))))
 
 (defn save
   "Save a tile. This function should be used for all saving that needs
@@ -103,7 +109,7 @@
                      (clojure.set/rename-keys {:proj-x :x :proj-y :y}))
         table    (tile :name)]
     (log/tracef "save tile to %s: %s" table params)
-    (alia/execute db-session (hayt/insert table (hayt/values params)))))
+    (db/execute (hayt/insert table (hayt/values params)))))
 
 ;;; Tile supporting functions
 
@@ -112,7 +118,7 @@
    only one tile-spec will be found. If multiple tile-specs exists, behavior
    is undefined."
   [band]
-  (log/debugf "using db-session %s to find tile-spec for %s" db-session (:ubid band))
+  (log/debugf "looking for tile-spec for %s" (:ubid band))
   (let [spec (first (tile-spec/query {:ubid (:ubid band)}))]
     (if (nil? spec)
       (throw (ex-info (format "no tile-spec for %s" (:ubid band))))

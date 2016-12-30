@@ -7,6 +7,9 @@
             [lcmap.aardvark.tile-spec :as tile-spec]
             [lcmap.aardvark.util :as util]))
 
+(def tile-spec-opts {:data_shape [128 128]
+                     :name "conus"})
+
 (def L5 {:id  "LT50460272000005"
          :uri (-> "ESPA/CONUS/ARD/LT50460272000005-SC20160826121722.tar.gz" io/resource io/as-url str)
          :checksum "9aa16eac2b9b8a20301ad091ceb9f3f4"})
@@ -29,6 +32,9 @@
 
 (deftest landsat-worker-support
   (with-system
+
+    (doall (map #(tile-spec/process % tile-spec-opts) [L5 L7]))
+
     (testing "a Landsat 5 archive"
       (is (= :done (tile/process L5))))
     (testing "a Landsat 7 archive"
@@ -41,3 +47,26 @@
       (is (= :fail (tile/process corrupt-source))))
     (testing "an archive that isn't ESPA output"
       (is (= :fail (tile/process corrupt-source))))))
+
+
+(def space-time {:x -2062080 :y 2952960 :acquired ["2000-01-05" "2000-01-30"]})
+(def one-ubid {:ubids ["LANDSAT_7/ETM/toa_qa"]})
+(def two-ubid {:ubids ["LANDSAT_7/ETM/toa_qa"
+                       "LANDSAT_5/TM/sr_band1"]})
+(def bad-ubid {:ubids ["Not a ubid"]})
+(def mux-ubid {:ubids ["Not a ubid"
+                       "LANDSAT_7/ETM/toa_qa"
+                       "LANDSAT_5/TM/sr_band1"]})
+
+(deftest find
+  (with-system
+    (doall (map #(tile-spec/process % tile-spec-opts) [L5 L7]))
+    (doall (map #(tile/process %) [L5 L7]))
+    (testing "Test a single ubid"
+      (is (= 1 (count (tile/find (merge space-time one-ubid))))))
+    (testing "Test two ubids"
+      (is (= 2 (count (tile/find (merge space-time two-ubid))))))
+    (testing "Test no valid ubid supplied"
+      (is (= 0 (count (tile/find (merge space-time bad-ubid))))))
+    (testing "Test bad ubid mixed with valid ubids"
+      (is (= 2 (count (tile/find (merge space-time mux-ubid))))))))

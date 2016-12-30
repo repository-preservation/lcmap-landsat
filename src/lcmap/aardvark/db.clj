@@ -12,6 +12,10 @@
             [mount.core :refer [defstate] :as mount]
             [qbits.alia :as alia]))
 
+;; Declare vars so that functions can be defined that refer to them
+;; in a more clear way.
+(declare db-cluster db-schema db-session)
+
 (defn cql->stmts
   "Convert file containing CQL statements into a vector.
 
@@ -48,10 +52,6 @@
     ;; ...results in an empty collection of statements
     []))
 
-;; Declare vars so that functions can be defined that refer to them
-;; in a more clear way.
-(declare db-cluster db-schema db-session)
-
 (defn db-cluster-start
   "Open cluster connection.
 
@@ -61,8 +61,8 @@
   See also `db-session`."
   []
   (let [db-cfg (:database config)]
-           (log/debugf "starting db with: %s" db-cfg)
-           (apply alia/cluster (select-keys db-cfg [:contact-points]))))
+    (log/debugf "starting db with: %s" db-cfg)
+    (apply alia/cluster (select-keys db-cfg [:contact-points]))))
 
 (defn db-cluster-stop
   "Shutdown cluster connection."
@@ -104,3 +104,10 @@
 (defstate db-session
   :start (db-session-start)
   :stop  (db-session-stop))
+
+;; TODO - Add Dire error handling.
+(defn execute
+  "Executes the supplied query."
+  [query]
+  (log/debugf "Executing query:%s" query)
+  (alia/execute db-session query))

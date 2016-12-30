@@ -50,8 +50,8 @@
   :start (let [queue-name (get-in config [:worker :queue :name])]
            (log/debugf "creating worker queue: %s" queue-name)
            (lq/declare worker-channel queue-name {:durable true
-                                                      :exclusive false
-                                                      :auto-delete false})))
+                                                  :exclusive false
+                                                  :auto-delete false})))
 
 (defstate worker-binding
   :start (let [dest     (get-in config [:worker :queue :name])
