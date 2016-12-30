@@ -85,7 +85,6 @@
                         [:name :tile_x :tile_y :shift_x :shift_y]
                         [[:in :ubid ubids]]))]
 
-         ;; run this logic if spec is not nil
          (let [table    (:name spec)
                [tx ty]  (snap x y spec)
                [t1 t2]  acquired
@@ -94,12 +93,11 @@
                                      [= :y ty]
                                      [>= :acquired (str t1)]
                                      [<= :acquired (str t2)]])]
-           (do (log/debugf "Finding tile(s) %s: %s" table tiles)
-               (db/execute (hayt/select table where))))
+           (log/debugf "Finding tile(s) %s: %s" table tiles)
+           (db/execute (hayt/select table where)))
 
-         ;; if spec is nil, warn and return empty result
-         (do (log/warnf "No tile-specs found for %s" ubids)
-             (sequence []))))
+   (do (log/warnf "No tile-specs found for %s" ubids)
+       (sequence []))))
 
 (defn save
   "Save a tile. This function should be used for all saving that needs

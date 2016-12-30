@@ -106,11 +106,9 @@
   :start (db-session-start)
   :stop  (db-session-stop))
 
-
 ;; TODO - Add Dire error handling.
 (defn execute
   "Executes the supplied query."
   [query]
-
   (log/debugf "Executing query:%s" query)
   (alia/execute db-session query))
