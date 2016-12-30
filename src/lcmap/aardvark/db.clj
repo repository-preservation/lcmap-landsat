@@ -52,7 +52,6 @@
     ;; ...results in an empty collection of statements
     []))
 
-
 (defn db-cluster-start
   "Open cluster connection.
 
@@ -62,8 +61,8 @@
   See also `db-session`."
   []
   (let [db-cfg (:database config)]
-           (log/debugf "starting db with: %s" db-cfg)
-           (apply alia/cluster (select-keys db-cfg [:contact-points]))))
+    (log/debugf "starting db with: %s" db-cfg)
+    (apply alia/cluster (select-keys db-cfg [:contact-points]))))
 
 (defn db-cluster-stop
   "Shutdown cluster connection."

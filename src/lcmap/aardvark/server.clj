@@ -36,8 +36,8 @@
   dependencies (components) available to handling functions."
   []
   (context "/" request
-       (-> (routes (landsat/resource)
-                   (problem/resource))
+    (-> (routes (landsat/resource)
+                (problem/resource))
         (wrap-accept)
         (wrap-authorize)
         (wrap-authenticate)

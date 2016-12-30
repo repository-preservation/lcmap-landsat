@@ -5,9 +5,8 @@
             [me.raynes.fs :as fs])
   (:import [org.apache.commons.compress.archivers
             ArchiveInputStream ArchiveStreamFactory]
-          [org.apache.commons.compress.compressors
+           [org.apache.commons.compress.compressors
             CompressorInputStream CompressorStreamFactory]))
-
 
 ;;; Archive handling utilities
 
@@ -85,21 +84,21 @@
   [binding & body]
   `(let [temp# (fs/temp-file "lcmap.landsat-")]
      (try
-      (log/debugf "created temp-file: %s" (.getAbsolutePath temp#))
-      (let [~binding temp#]
-        (do ~@body))
-      (finally
-        (log/debug "removing temp-file: %s" (.getAbsolutePath temp#))
-        (fs/delete temp#)))))
+       (log/debugf "created temp-file: %s" (.getAbsolutePath temp#))
+       (let [~binding temp#]
+         (do ~@body))
+       (finally
+         (log/debug "removing temp-file: %s" (.getAbsolutePath temp#))
+         (fs/delete temp#)))))
 
 (defmacro with-temp-dir
   ""
   [binding & body]
   `(let [temp# (fs/temp-file-dir "lcmap.landsat-")]
      (try
-      (log/debugf "created temp-file: %s" (.getAbsolutePath temp#))
-      (let [~binding temp#]
-        (do ~@body))
-      (finally
-        (log/debug "removing temp-file: %s" (.getAbsolutePath temp#))
-        (fs/delete-dir temp#)))))
+       (log/debugf "created temp-file: %s" (.getAbsolutePath temp#))
+       (let [~binding temp#]
+         (do ~@body))
+       (finally
+         (log/debug "removing temp-file: %s" (.getAbsolutePath temp#))
+         (fs/delete-dir temp#)))))

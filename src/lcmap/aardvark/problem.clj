@@ -92,5 +92,5 @@
   "Handlers for problem resource"
   []
   (context "/problems" request
-   (ANY "/" [] (problem/as-json problem/default-problems))
-   (ANY "/example" [] (throw (ex-info "Some Clojure exception info" {})))))
+    (ANY "/" [] (problem/as-json problem/default-problems))
+    (ANY "/example" [] (throw (ex-info "Some Clojure exception info" {})))))

@@ -33,7 +33,7 @@
 (deftest landsat-worker-support
   (with-system
 
-    (map #(tile-spec/process % tile-spec-opts) [L5 L7])
+    (doall (map #(tile-spec/process % tile-spec-opts) [L5 L7]))
 
     (testing "a Landsat 5 archive"
       (is (= :done (tile/process L5))))
