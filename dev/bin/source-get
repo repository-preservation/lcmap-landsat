@@ -1,6 +1,6 @@
 #!/bin/bash
 
 curl -v \
-     -H "Accept: application/json, */*" \
+     -H "Accept: text/html, */*" \
      -X GET \
-     http://localhost:5678/landsat/source/LT50470282005313PAC01
+     http://localhost:5678/landsat/source/LT50460282003221-SC20160826121438.tar.gz

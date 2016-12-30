@@ -112,17 +112,46 @@
 
 ;;; Response entity transformers.
 
-(html/deftemplate source-html "public/source.html"
+(defn prep-for-html [source]
+  (-> source
+      (update :progress_at str)
+      (update :progress_name str)
+      (update :progress_desc str)))
+
+(html/defsnippet nav-html "public/source.html"
+  [:nav]
   [entity]
-  [:h1]     (html/content (:title entity))
-  [:#about] (html/content (:about entity))
-  [:#debug] (html/content (json/encode entity)))
+  identity)
+
+(html/defsnippet header-html "public/source.html"
+  [:header]
+  [entity]
+  [:#id] (html/content (-> entity first :id)))
+
+(html/defsnippet footer-html "public/source.html"
+  [:footer]
+  [entity]
+  [:pre] (html/content (json/generate-string entity {:pretty true})))
+
+(html/defsnippet source-html "public/source.html"
+  [:.source]
+  [entity]
+  [:#id] (html/content (-> entity first :id))
+  [:.source-progress] (html/clone-for [x entity]
+                                      [html/any-node] (html/replace-vars (prep-for-html x))))
+
+(html/deftemplate app-html "public/source.html"
+  [entity]
+  [:nav]         (html/content (nav-html entity))
+  [:header]      (html/content (header-html entity))
+  [:content]     (html/content (source-html entity))
+  [:footer]      (html/content (footer-html entity)))
 
 (defn to-html
   "Encode response body as HTML."
   [response]
   (log/debug "responding with HTML")
-  (update response :body source-html))
+  (update response :body app-html))
 
 (defn to-json
   "Encode response body as JSON."
@@ -131,8 +160,7 @@
   (update response :body json/encode))
 
 (def supported-types (accept "application/json" to-json
-                             "text/html" to-html
-                             "*/*" to-html))
+                             "text/html" to-html))
 
 (defn respond-with
   ""

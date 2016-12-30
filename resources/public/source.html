@@ -13,21 +13,62 @@
     <meta property="og:url" content="">
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/icon.png" />
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="/css/starter-template.css">
   </head>
+
   <body>
-    <div class="wrapper">
-      <header></header>
-      <main>
-        <h1>Title. Replace it.</h1>
-        <p id="about"></p>
-        <pre id="debug">
-          Debug text.
-        </pre>
-      </main>
-      <footer></footer>
-    </div>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">LCMAP Landsat REST API</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="#search">Search</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <section class="container">
+      <header>
+        <h2 id="id">${id}</h2>
+        <p>About this content.</p>
+      </header>
+      <content class="source">
+        <h3>Progress</h3>
+        <table id="sources" class="table">
+          <tr>
+            <th>When</th>
+            <th>What</th>
+            <th></th>
+          </tr>
+          <tr class="source-progress">
+            <td><time datetime="progress_at">${progress_at}</time></td>
+            <td>${progress_name}</td>
+            <td>${progress_desc}</td>
+          </tr>
+        </table>
+      </content>
+      <footer>
+        <div class="debug">
+          <h3>Debug</h3>
+          <pre>
+            Debug text.
+          </pre>
+        </div>
+      </footer
+    </section>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
   </body>
