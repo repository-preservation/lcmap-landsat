@@ -80,7 +80,7 @@
   "Query DB for all tiles that match the UBIDs, contain (x,y), and
    were acquired during a certain period of time."
   [{:keys [ubids x y acquired] :as tiles}]
-  {:pre [(vector? ubids) (integer? x) (integer? y)]}
+  {:pre [(vector? ubids) (integer? x) (integer? y) (every? some? acquired)]}
   (if-let [spec (first (tile-spec/query
                         [:name :tile_x :tile_y :shift_x :shift_y]
                         [[:in :ubid ubids]]))]
@@ -92,6 +92,7 @@
                                 [= :x tx]
                                 [= :y ty]
                                 [>= :acquired (str t1)]
+                                ;; TODO: check t2 for nil before using.
                                 [<= :acquired (str t2)]])]
       (log/debugf "Finding tile(s) %s: %s" table tiles)
       (db/execute (hayt/select table where)))

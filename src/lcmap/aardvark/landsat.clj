@@ -4,12 +4,13 @@
             [camel-snake-kebab.extras :refer [transform-keys]]
             [cheshire.core :as json]
             [clojure.tools.logging :as log]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [compojure.core :refer :all]
             [ring.util.accept :refer [accept]]
             [lcmap.aardvark.source :as source]
             [lcmap.aardvark.tile :as tile]
             [lcmap.aardvark.tile-spec :as tile-spec]
+            [lcmap.aardvark.util :refer [vectorize]]
             [lcmap.aardvark.middleware :refer [wrap-handler]]))
 
 ;;; Response producing functions
@@ -17,7 +18,7 @@
 (defn allow [& verbs]
   (log/debug "explaining allow verbs")
   {:status 405
-   :headers {"Allow" (clojure.string/join "," verbs)}})
+   :headers {"Allow" (str/join "," verbs)}})
 
 (defn get-source
   "Search for a source and produce a response map."
@@ -41,10 +42,10 @@
 (defn get-tiles
   "Get tiles containing point for given UBID and ISO8601 time range."
   [{{:keys [:ubid :x :y :acquired]} :params :as req}]
-  (let [tile+    {:ubids [ubid]
+  (let [tile+    {:ubids (vectorize ubid)
                   :x (Integer/parseInt x)
                   :y (Integer/parseInt y)
-                  :acquired (clojure.string/split acquired #"/")}
+                  :acquired (str/split acquired #"/")}
         tiles (tile/find tile+)]
     (log/debugf "GET /landsat/tiles")
     {:status 200 :body tiles}))
