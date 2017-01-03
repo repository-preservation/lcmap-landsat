@@ -34,6 +34,13 @@
        (alia/execute db-session)
        (seq)))
 
+(defn sample
+  ""
+  []
+  (->> (hayt/select :sources (hayt/limit 5))
+       (alia/execute db-session)
+       (seq)))
+
 (defn validate
   "Produce a map of errors if the job is invalid, otherwise nil."
   [source]
