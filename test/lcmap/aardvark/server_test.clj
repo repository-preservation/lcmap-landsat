@@ -25,12 +25,17 @@
     (testing "get tiles as JSON"
       (let [resp (req :get "http://localhost:5679/landsat/tiles"
                       :headers {"Accept" "application/json"}
-                      :form-params {:x 0 :y 0 :ubid "LANDSAT_5/TM/sr_band1" :acquired "2000-01-01/2005-01-01"})]
+                      :form-params {:x 0 :y 0
+                                    :ubid ["LANDSAT_5/TM/sr_band1"
+                                           "LANDSAT_5/TM/sr_band2"]
+                                    :acquired "2000-01-01/2005-01-01"})]
         (is (= 200 (:status resp)))))
     (testing "get tiles as an unsupported type"
       (let [resp (req :get "http://localhost:5679/landsat/tiles"
                       :headers {"Accept" "application/foo"}
-                      :form-params {:x 0 :y 0 :ubid "LANDSAT_5/TM/sr_band1" :acquired "2000-01-01/2005-01-01"})]
+                      :form-params {:x 0 :y 0
+                                    :ubid "LANDSAT_5/TM/sr_band1"
+                                    :acquired "2000-01-01/2005-01-01"})]
         (is (= 406 (:status resp)))))))
 
 (deftest landsat-tile-spec-resource
