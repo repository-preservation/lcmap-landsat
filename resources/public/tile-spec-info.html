@@ -41,41 +41,20 @@
 
     <section class="container">
       <header>
-        <h2 id="id">${id}</h2>
-        <p>About this content.</p>
+        <h2 id="id">
+          Tile Specification for <span id="ubid">UBID</span>
+        </h2>
       </header>
-      <content class="source">
-        <h3>Progress</h3>
-        <table id="sources" class="table">
-          <tr>
-            <th>When</th>
-            <th>What</th>
-            <th></th>
-          </tr>
-          <tr class="source-progress">
-            <td><time datetime="progress_at">${progress_at}</time></td>
-            <td>${progress_name}</td>
-            <td>${progress_desc}</td>
-          </tr>
-        </table>
-      </content>
       <content class="tile-spec">
-        <span>${tile_x}</span>
+        <h3>Tile Dimensions</h3>
+        <pre class="geom"></pre>
+        <h3>Well-Known Text (Projection)</h3>
+        <pre class="wkt"></pre>
+        <h3>Data Fields</h3>
+        <pre class="data"></pre>
+        <h3>Band Fields</h3>
+        <pre class="band"></pre>
       </content>
-      <content class="tile-specs">
-        <span class="count"></span>
-        <ol>
-          <li><a href="/tile-spec/${ubid}">UBID</a></li>
-        </ol>
-      </content>
-      <footer>
-        <div class="debug">
-          <h3>Debug</h3>
-          <pre>
-            Debug text.
-          </pre>
-        </div>
-      </footer>
     </section>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>

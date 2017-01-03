@@ -5,7 +5,8 @@
             [clojure.tools.logging :as log]
             [clojure.string :as string]
             [clojure.spec :as spec]
-            [net.cgrand.enlive-html :as html]))
+            [net.cgrand.enlive-html :as html]
+            [camel-snake-kebab.core :as csk]))
 
 (defn prep-for-html
   ""
@@ -86,12 +87,29 @@
 (html/deftemplate tile-spec-list "public/tile-spec-list.html"
   [tile-specs]
   [:nav] (html/content (nav))
-  [:h2] (html/content "Sources")
   [:table :> :tr] (html/clone-for [tile-spec tile-specs]
-                                  [:a] (html/content (:ubid tile-spec))))
+                                  [:a] (html/content (:ubid tile-spec))
+                                  [:a] (html/set-attr :href (str "/landsat/tile-spec/" (:ubid tile-spec)))))
+
+(def geom-fields [:tile_x :tile_y :shift_x :shift_y :pixel_x :pixel_y])
+
+(def data-fields [:data_fill :data_range :data_scale :data_type :data_units :data_shape :data_mask])
+
+(def band-fields [:band_product :band_category :band_name :band_long_name :band_short_name :band_spectrum])
+
+(defn describe-tile-spec
+  ""
+  [tile-specs]
+  (format "%s %s %s" (select-keys tile-specs [:satellite :instrument :sensor])))
 
 (html/deftemplate tile-spec-info "public/tile-spec-info.html"
   [tile-spec]
   [:nav] (html/content (nav))
-  [:h2] (html/content "Sources")
-  [:content :.list] (html/content "Info for tile-spec"))
+  [:h2 :#ubid] (html/content (:ubid tile-spec))
+  [:pre.wkt]  (html/content (:wkt tile-spec))
+  [:pre.geom] (html/content (json/encode (select-keys tile-spec geom-fields)
+                                         {:pretty true}))
+  [:pre.data] (html/content (json/encode (select-keys tile-spec data-fields)
+                                         {:pretty true}))
+  [:pre.band] (html/content (json/encode (select-keys tile-spec band-fields)
+                                         {:pretty true})))
