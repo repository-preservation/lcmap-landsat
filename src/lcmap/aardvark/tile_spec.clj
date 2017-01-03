@@ -32,9 +32,13 @@
 
 (defn all
   "Retrieve all tile-specs."
-  []
-  (log/tracef "retrieve all tile-specs")
-  (db/execute (hayt/select :tile_specs)))
+  ([]
+   (log/tracef "retrieve all tile-specs")
+   (db/execute (hayt/select :tile_specs)))
+
+  ([columns]
+   (db/execute (hayt/select :tile_specs
+                (apply hayt/columns columns)))))
 
 (defn query
   "Find tile-spec in DB."
@@ -123,15 +127,5 @@
 (defn universal-band-ids
   "Returns ubids, which are a sequence of slash separated strings
        such as LANDSAT_5/TM/sr_band1, or nil if none exist."
-
-  ([] (universal-band-ids (get-in config [:database :default-keyspace])))
-
-  ([db-keyspace]
-   (let [query (hayt/select :tile_specs (hayt/columns :ubid))
-         results (try (db/execute query)
-                      (catch Throwable t
-                        (log/debug
-                         (apply str (interpose "\n" (.getStackTrace t))))
-                        (log/debug "Error running query:" (hayt/->raw query))))
-         ubids (distinct (map :ubid results))]
-     ubids)))
+ []
+ (distinct (map #(:ubid %) (all [:ubid]))))

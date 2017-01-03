@@ -66,7 +66,7 @@
      (load! bulk-url payload)))
 
   ([url payload]
-   (let [{:keys [body error] :as resp} @(http/post url {:body payload})
+   (let [{:keys [status headers body error] :as resp} @(http/post url {:body payload})
          errors (or error (get-errors body))]
      (if errors
        (do (log/debug (str "load! errors:" errors)) errors)
