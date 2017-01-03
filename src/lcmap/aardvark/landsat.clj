@@ -24,10 +24,10 @@
    :headers {"Allow" (str/join "," verbs)}})
 
 (defn sample-source
-  "Retrie some random sources"
+  "Retrieve some random sources"
   []
   (log/debugf "summarizing sources")
-  {:status 200 :body (source/sample)})
+  {:status 200 :body (source/sample 10)})
 
 (defn get-source
   "Search for a source and produce a response map."
@@ -149,7 +149,7 @@
      (GET    "/" []
              (with-meta {:status 200}
                {:template html/default}))
-     (GET    "/source/" []
+     (GET    "/sources" []
              (with-meta (sample-source)
                {:template html/source-list}))
      (GET    "/source/:source-id{.+}" [source-id]
@@ -158,13 +158,13 @@
      (PUT    "/source/:source-id{.+}" [source-id]
              (with-meta (put-source source-id request)
                {:template html/source-info}))
-     (GET    "/tile/" []
+     (GET    "/tiles" []
              (with-meta (get-tiles request)
                {:template html/tile-list}))
      (GET    "/tile/:id" [id]
              (with-meta {:body "coming soon"}
-               {:template html/tile-info})
-     (GET    "/tile-spec/" []
+               {:template html/tile-info}))
+     (GET    "/tile-specs" []
              (with-meta (get-tile-specs)
                {:template html/tile-spec-list}))
      (POST   "/tile-spec/" []

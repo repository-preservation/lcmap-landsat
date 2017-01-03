@@ -36,8 +36,10 @@
 
 (defn sample
   ""
-  []
-  (->> (hayt/select :sources (hayt/limit 5))
+  [n]
+  (->> (hayt/select :sources
+                    (hayt/columns (hayt/distinct* :id))
+                    (hayt/limit n))
        (alia/execute db-session)
        (seq)))
 
