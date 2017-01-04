@@ -1,5 +1,5 @@
 #!/bin/bash
 
-curl -H "Accept: application/html, */*" \
+curl -H "Accept: application/json, */*" \
      -X GET \
      http://localhost:5678/landsat/tile-spec/LANDSAT_5/TM/sr_band1
