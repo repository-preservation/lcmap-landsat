@@ -149,6 +149,9 @@
      (GET    "/" []
              (with-meta {:status 200}
                {:template html/default}))
+     (ANY    "/" []
+             (with-meta (allow ["GET"])
+               {:template html/default}))
      (GET    "/sources" []
              (with-meta (sample-source)
                {:template html/source-list}))
@@ -158,18 +161,27 @@
      (PUT    "/source/:source-id{.+}" [source-id]
              (with-meta (put-source source-id request)
                {:template html/source-info}))
+     (ANY    "/source" []
+             (with-meta (allow ["GET" "PUT"])
+               {:template html/default}))
      (GET    "/tiles" []
              (with-meta (get-tiles request)
                {:template html/tile-list}))
      (GET    "/tile/:id" [id]
              (with-meta {:body "coming soon"}
                {:template html/tile-info}))
+     (ANY    "/tile" []
+             (with-meta (allow ["GET"])
+               {:template html/default}))
      (GET    "/tile-specs" []
              (with-meta (get-tile-specs)
                {:template html/tile-spec-list}))
-     (POST   "/tile-spec/" []
+     (POST   "/tile-specs" []
              (with-meta (post-tile-spec request)
                {:template html/tile-spec-list}))
+     (ANY    "/tile-specs" []
+             (with-meta (allow ["GET" "POST"])
+               {:template html/default}))
      (GET    "/tile-spec/:ubid{.+}" [ubid]
              (with-meta (get-tile-spec ubid request)
                {:template html/tile-spec-info}))
@@ -179,6 +191,9 @@
      (DELETE "/tile-spec/:ubid{.+}" [ubid]
              (with-meta (delete-tile-spec ubid)
                {:template html/tile-spec-info}))
+     (ANY    "/tile-spec/:ubid{.+}" []
+             (with-meta (allow ["GET" "PUT"])
+               {:template html/default}))
      (GET    "/problem/" []
              {:status 200 :body "problem resource"}))
    prepare-with respond-with))
