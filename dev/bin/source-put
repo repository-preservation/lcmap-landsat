@@ -1,10 +1,10 @@
 #!/bin/bash
 
-FILE_URI="uri=file:///$(pwd)/test/resources/data/landsat.tar.gz"
+FILE_URI="http://localhost:3456/LE70460272000029-SC20160826120223.tar.gz"
 
 curl -v \
      -X PUT \
      -H "Accept: application/json, */*" \
-     -d $FILE_URI \
-     -d 'checksum=c7aae8568ee8be9347373dd44d7e14c4' \
-     http://localhost:5678/landsat/source/LT50470282005313PAC01
+     -d "uri=$FILE_URI" \
+     -d 'checksum=e1d2f9b28b1f55c13ee2a4b7c4fc52e7' \
+     http://localhost:5678/landsat/source/LE70460272000029-SC20160826120223.tar.gz

@@ -1,5 +1,7 @@
 (ns lcmap.aardvark.landsat
-  "Resources and representations."
+  "Resources and representations.
+
+  This namespace contains all route definitions."
   (:require [camel-snake-kebab.core :refer [->snake_case_keyword]]
             [camel-snake-kebab.extras :refer [transform-keys]]
             [cheshire.core :as json]
@@ -7,6 +9,7 @@
             [clojure.string :as str]
             [compojure.core :refer :all]
             [ring.util.accept :refer [accept]]
+            [lcmap.aardvark.html :as html]
             [lcmap.aardvark.source :as source]
             [lcmap.aardvark.tile :as tile]
             [lcmap.aardvark.tile-spec :as tile-spec]
@@ -19,6 +22,12 @@
   (log/debug "explaining allow verbs")
   {:status 405
    :headers {"Allow" (str/join "," verbs)}})
+
+(defn sample-source
+  "Retrieve some random sources"
+  []
+  (log/debugf "summarizing sources")
+  {:status 200 :body (source/sample 10)})
 
 (defn get-source
   "Search for a source and produce a response map."
@@ -109,6 +118,13 @@
 
 ;;; Response entity transformers.
 
+(defn to-html
+  "Encode response body as HTML."
+  [response]
+  (log/debug "responding with HTML")
+  (let [template-fn (:template (meta response) html/default)]
+    (update response :body template-fn)))
+
 (defn to-json
   "Encode response body as JSON."
   [response]
@@ -116,7 +132,7 @@
   (update response :body json/encode))
 
 (def supported-types (accept "application/json" to-json
-                             "*/*" to-json))
+                             "text/html" to-html))
 
 (defn respond-with
   ""
@@ -130,16 +146,54 @@
   []
   (wrap-handler
    (context "/landsat" request
-     (GET    "/" [] {:body "base landsat resource"})
-     (ANY    "/" [] (allow "GET"))
-     (GET    "/source/:source-id{.+}" [source-id] (get-source source-id))
-     (PUT    "/source/:source-id{.+}" [source-id] (put-source source-id request))
-     (GET    "/tiles" [] (get-tiles request))
-     (GET    "/tile-spec" [] (get-tile-specs))
-     (POST   "/tile-spec" [] (post-tile-spec request))
-     (GET    "/tile-spec/:ubid{.+}" [ubid] (get-tile-spec ubid request))
-     (PUT    "/tile-spec/:ubid{.+}" [ubid] (put-tile-spec ubid request))
-     (DELETE "/tile-spec/:ubid{.+}" [ubid] (delete-tile-spec ubid))
-     (GET    "/problem" [] {:status 200 :body "problem resource"})
-     (GET    "/problem/example" [] (throw (java.lang.RuntimeException. "odd"))))
+     (GET    "/" []
+             (with-meta {:status 200}
+               {:template html/default}))
+     (ANY    "/" []
+             (with-meta (allow ["GET"])
+               {:template html/default}))
+     (GET    "/sources" []
+             (with-meta (sample-source)
+               {:template html/source-list}))
+     (GET    "/source/:source-id{.+}" [source-id]
+             (with-meta (get-source source-id)
+               {:template html/source-info}))
+     (PUT    "/source/:source-id{.+}" [source-id]
+             (with-meta (put-source source-id request)
+               {:template html/source-info}))
+     (ANY    "/source" []
+             (with-meta (allow ["GET" "PUT"])
+               {:template html/default}))
+     (GET    "/tiles" []
+             (with-meta (get-tiles request)
+               {:template html/tile-list}))
+     (GET    "/tile/:id" [id]
+             (with-meta {:body "coming soon"}
+               {:template html/tile-info}))
+     (ANY    "/tile" []
+             (with-meta (allow ["GET"])
+               {:template html/default}))
+     (GET    "/tile-specs" []
+             (with-meta (get-tile-specs)
+               {:template html/tile-spec-list}))
+     (POST   "/tile-specs" []
+             (with-meta (post-tile-spec request)
+               {:template html/tile-spec-list}))
+     (ANY    "/tile-specs" []
+             (with-meta (allow ["GET" "POST"])
+               {:template html/default}))
+     (GET    "/tile-spec/:ubid{.+}" [ubid]
+             (with-meta (get-tile-spec ubid request)
+               {:template html/tile-spec-info}))
+     (PUT    "/tile-spec/:ubid{.+}" [ubid]
+             (with-meta (put-tile-spec ubid request)
+               {:template html/tile-spec-info}))
+     (DELETE "/tile-spec/:ubid{.+}" [ubid]
+             (with-meta (delete-tile-spec ubid)
+               {:template html/tile-spec-info}))
+     (ANY    "/tile-spec/:ubid{.+}" []
+             (with-meta (allow ["GET" "PUT"])
+               {:template html/default}))
+     (GET    "/problem/" []
+             {:status 200 :body "problem resource"}))
    prepare-with respond-with))

@@ -3,6 +3,7 @@
             [clojure.tools.logging :as log]
             [clojure.java.io :as io]
             [lcmap.aardvark.config :as config]
+            [lcmap.aardvark.worker :as worker]
             [mount.core :as mount]
             [org.httpkit.client :as http]))
 

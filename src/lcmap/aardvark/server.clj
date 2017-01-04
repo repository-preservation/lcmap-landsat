@@ -23,7 +23,8 @@
             [ring.middleware.accept :refer [wrap-accept]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.params :refer [wrap-params]]
-            [ring.middleware.problem :refer [wrap-problem]])
+            [ring.middleware.problem :refer [wrap-problem]]
+            [ring.middleware.resource :refer [wrap-resource]])
   (:import [org.joda.time.DateTime]
            [org.apache.commons.codec.binary Base64]))
 
@@ -36,12 +37,13 @@
   dependencies (components) available to handling functions."
   []
   (-> (landsat/resource)
+      (wrap-resource "public")
       (wrap-accept)
       (wrap-authorize)
       (wrap-authenticate)
       (wrap-keyword-params)
       (wrap-params)
-      (wrap-problem problem/transformer)))
+      #_(wrap-problem problem/transformer)))
 
 ;;; Server-related state
 
