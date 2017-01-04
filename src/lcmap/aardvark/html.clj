@@ -1,10 +1,9 @@
 (ns lcmap.aardvark.html
-  ""
+  "Define templates for various resources."
   (:require [cheshire.core :as json]
             [clj-time.format :as time-fmt]
             [clojure.tools.logging :as log]
             [clojure.string :as string]
-            [clojure.spec :as spec]
             [net.cgrand.enlive-html :as html]
             [camel-snake-kebab.core :as csk]))
 
