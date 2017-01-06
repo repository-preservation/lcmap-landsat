@@ -72,6 +72,31 @@ Use `make docker-image` to build a Docker image that includes GDAL dependencies.
 
 [Docker images][2] are automatically built when all tests pass on Travis CI. You may either run the Docker image with additional command line parameters or, if you prefer, build an image using file based configuration.
 
+Example:
+```
+docker run -p 5679:5679 usgseros/lcmap-landsat:0.1.0-SNAPSHOT $(cat ~/landsat.edn)
+```
+
+Example config:
+```
+{:database  {:contact-points "172.17.0.1"
+             :default-keyspace "lcmap_landsat"}
+ :event     {:host "172.17.0.1"
+             :port 5672}
+ :http      {:port 5679
+             :join? false
+             :daemon? true}
+ :server    {:exchange "lcmap.landsat.server"
+             :queue "lcmap.landsat.server"}
+ :worker    {:exchange {:name "lcmap.landsat.worker"}
+             :queue    {:name "lcmap.landsat.worker"
+                        :bind [["lcmap.landsat.server" "ingest"]]}}
+ :search     {:url "http://172.17.0.1:9200"
+              :ubid-index "lcmap_landsat_ubids"
+              :ubid-index-type "ubid"
+              :max-result-size 10000}}
+```
+
 ### Links
 
 [1]: https://github.com/USGS-EROS/lcmap-landsat/blob/develop/resources/shared/lcmap-landsat.edn "Configuration File"

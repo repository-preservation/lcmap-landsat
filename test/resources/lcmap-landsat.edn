@@ -12,4 +12,5 @@
                         :bind [["test.lcmap.landsat.server" "ingest"]]}}
  :search     {:url "http://localhost:9200"
               :ubid-index "lcmap_landsat_test_ubids"
-              :ubid-index-type "ubid"}}
+              :ubid-index-type "ubid"
+              :max-result-size 10000}}

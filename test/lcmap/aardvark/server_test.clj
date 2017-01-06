@@ -2,6 +2,7 @@
   "Full integration test of server and worker."
   (:require [clojure.java.io :as io]
             [clojure.test :refer :all]
+            [clojure.tools.logging :as log]
             [lcmap.aardvark.server :as server]
             [lcmap.aardvark.shared :refer :all]))
 

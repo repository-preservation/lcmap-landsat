@@ -13,7 +13,8 @@
             [lcmap.aardvark.source :as source]
             [lcmap.aardvark.tile :as tile]
             [lcmap.aardvark.tile-spec :as tile-spec]
-            [lcmap.aardvark.util :refer [vectorize]]
+            [lcmap.aardvark.tile-spec-index :as index]
+            [lcmap.commons.collections :refer [vectorize]]
             [lcmap.aardvark.middleware :refer [wrap-handler]]))
 
 ;;; Response producing functions
@@ -84,7 +85,7 @@
   "Save or create all tile-specs"
   [{body :body :as req}]
   (log/debugf "creating multiple tile specs: %s" (count body))
-  (let [saved (map tile-spec/insert body)]
+  (let [saved (map #(index/index-spec! (tile-spec/insert %)) body)]
     {:status 200 :body {:saved (count saved)}}))
 
 (defn put-tile-spec
@@ -95,7 +96,15 @@
     (or (some->> (tile-spec/validate tile-spec)
                  (assoc {:status 403} :body))
         (some->> (tile-spec/insert tile-spec)
+                 (index/index-spec!)
                  (assoc {:status 202} :body)))))
+
+(defn get-ubids
+ "Search the ubids by tag"
+ [{{q :q :or {q "*"}} :params}]
+ (let [raw  (index/search q)
+       hits (map #(get-in % ["_source" "ubid"]) (get-in raw ["hits" "hits"]))]
+   {:status 200 :body hits}))
 
 ;;; Request entity transformers.
 
@@ -146,54 +155,17 @@
   []
   (wrap-handler
    (context "/landsat" request
-     (GET    "/" []
-             (with-meta {:status 200}
-               {:template html/default}))
-     (ANY    "/" []
-             (with-meta (allow ["GET"])
-               {:template html/default}))
-     (GET    "/sources" []
-             (with-meta (sample-source)
-               {:template html/source-list}))
-     (GET    "/source/:source-id{.+}" [source-id]
-             (with-meta (get-source source-id)
-               {:template html/source-info}))
-     (PUT    "/source/:source-id{.+}" [source-id]
-             (with-meta (put-source source-id request)
-               {:template html/source-info}))
-     (ANY    "/source" []
-             (with-meta (allow ["GET" "PUT"])
-               {:template html/default}))
-     (GET    "/tiles" []
-             (with-meta (get-tiles request)
-               {:template html/tile-list}))
-     (GET    "/tile/:id" [id]
-             (with-meta {:body "coming soon"}
-               {:template html/tile-info}))
-     (ANY    "/tile" []
-             (with-meta (allow ["GET"])
-               {:template html/default}))
-     (GET    "/tile-specs" []
-             (with-meta (get-tile-specs)
-               {:template html/tile-spec-list}))
-     (POST   "/tile-specs" []
-             (with-meta (post-tile-spec request)
-               {:template html/tile-spec-list}))
-     (ANY    "/tile-specs" []
-             (with-meta (allow ["GET" "POST"])
-               {:template html/default}))
-     (GET    "/tile-spec/:ubid{.+}" [ubid]
-             (with-meta (get-tile-spec ubid request)
-               {:template html/tile-spec-info}))
-     (PUT    "/tile-spec/:ubid{.+}" [ubid]
-             (with-meta (put-tile-spec ubid request)
-               {:template html/tile-spec-info}))
-     (DELETE "/tile-spec/:ubid{.+}" [ubid]
-             (with-meta (delete-tile-spec ubid)
-               {:template html/tile-spec-info}))
-     (ANY    "/tile-spec/:ubid{.+}" []
-             (with-meta (allow ["GET" "PUT"])
-               {:template html/default}))
-     (GET    "/problem/" []
-             {:status 200 :body "problem resource"}))
+     (GET    "/" [] {:body "base landsat resource"})
+     (ANY    "/" [] (allow "GET"))
+     (GET    "/source/:source-id{.+}" [source-id] (get-source source-id))
+     (PUT    "/source/:source-id{.+}" [source-id] (put-source source-id request))
+     (GET    "/tiles" [] (get-tiles request))
+     (GET    "/ubids" [] (get-ubids request))
+     (GET    "/tile-spec" [] (get-tile-specs))
+     (POST   "/tile-spec" [] (post-tile-spec request))
+     (GET    "/tile-spec/:ubid{.+}" [ubid] (get-tile-spec ubid request))
+     (PUT    "/tile-spec/:ubid{.+}" [ubid] (put-tile-spec ubid request))
+     (DELETE "/tile-spec/:ubid{.+}" [ubid] (delete-tile-spec ubid))
+     (GET    "/problem" [] {:status 200 :body "problem resource"})
+     (GET    "/problem/example" [] (throw (java.lang.RuntimeException. "odd"))))
    prepare-with respond-with))

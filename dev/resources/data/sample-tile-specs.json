@@ -1,0 +1,33 @@
+[{
+  "name": "conus",
+  "ubid": "LANDSAT_5/TM/sr_band1",
+  "wkt": "PROJCS[\"Albers\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Albers_Conic_Equal_Area\"],PARAMETER[\"standard_parallel_1\",29.5],PARAMETER[\"standard_parallel_2\",45.5],PARAMETER[\"latitude_of_center\",23],PARAMETER[\"longitude_of_center\",-96],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]]",
+  "satellite": "LANDSAT_5",
+  "instrument": "TM",
+  "band_name": "sr_band1",
+  "band_short_name": "LT5SR",
+  "band_long_name": "band 1 surface reflectance - test data",
+  "band_category": "image",
+  "data_mask": {},
+  "band_product": "sr_refl",
+  "band_spectrum": [],
+  "data_scale": 0.0001,
+  "data_shape": [
+    128,
+    128
+  ],
+  "data_fill": -9999,
+  "data_type": "INT16",
+  "data_units": null,
+  "data_range": [
+    -2000,
+    16000
+  ],
+  "pixel_x":  30,
+  "pixel_y": -30,
+  "shift_x":   0,
+  "shift_y":   0,
+  "tile_x": 3840,
+  "tile_y": 3840,
+  "resample_method": null
+}]

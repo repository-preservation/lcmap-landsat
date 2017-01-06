@@ -37,7 +37,7 @@
                  [org.clojure/core.memoize "0.5.8"]
                  [org.clojure/data.xml "0.1.0-beta1"]
                  [org.clojure/data.zip "0.1.2"]
-                 [gov.usgs.eros/lcmap-commons "1.0.0"]
+                 [gov.usgs.eros/lcmap-commons "1.0.1-SNAPSHOT"]
                  ;; needed to make indexing calls to elasticsearch
                  [http-kit "2.2.0"]]
 
