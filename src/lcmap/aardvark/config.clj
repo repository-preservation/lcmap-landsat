@@ -33,7 +33,8 @@
 
 (def search {:url schema/Str
              :ubid-index schema/Str
-             :ubid-index-type schema/Str})
+             :ubid-index-type schema/Str
+             :max-result-size schema/Num})
 
 (def root-cfg
   {:event event

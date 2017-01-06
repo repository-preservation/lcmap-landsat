@@ -14,9 +14,9 @@
   (shared/with-system
 
     (tile-spec/process L5 spec-opts)
-    
+
     (testing "tokenizing ubids"
-      (is (not (= nil? (index/ubid->tags (tile-spec/universal-band-ids))))))
+      (is (not (= nil? (index/ubid->tags (index/universal-band-ids))))))
 
     (testing "clear the index"
       (let [out (index/clear!)
@@ -27,9 +27,9 @@
     (testing "load and search the index"
           ;; have to call _refresh after loading the index to open a new segment
           ;; Otherwise we'd have to wait 1 second for the results to be searchable
-      (let [load-results (index/load!)
+      (let [load-results    (index/load!)
             refresh-results (http/post (str (index/url) "/_refresh"))
-            refresh-status (:status @refresh-results)]
+            refresh-status  (:status @refresh-results)]
         (log/debug "ES Refresh Results:" refresh-status)
         (is (< 0 (count (index/search->ubids (index/search "tm")))))))
 

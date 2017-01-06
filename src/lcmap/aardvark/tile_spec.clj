@@ -61,6 +61,7 @@
                            (hayt/values tile-spec)))
   tile-spec)
 
+
 ;;; Worker related
 
 (def column-names [:name :ubid :wkt :satellite :instrument
@@ -123,9 +124,3 @@
         (fs/delete-dir unarchive-file)
         (fs/delete uncompress-file)
         (fs/delete download-file)))))
-
-(defn universal-band-ids
-  "Returns ubids, which are a sequence of slash separated strings
-       such as LANDSAT_5/TM/sr_band1, or nil if none exist."
- []
- (distinct (map #(:ubid %) (all [:ubid]))))

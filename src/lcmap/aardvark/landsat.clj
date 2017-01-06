@@ -10,6 +10,7 @@
             [lcmap.aardvark.source :as source]
             [lcmap.aardvark.tile :as tile]
             [lcmap.aardvark.tile-spec :as tile-spec]
+            [lcmap.aardvark.tile-spec-index :as index]
             [lcmap.aardvark.util :refer [vectorize]]
             [lcmap.aardvark.middleware :refer [wrap-handler]]))
 
@@ -75,7 +76,7 @@
   "Save or create all tile-specs"
   [{body :body :as req}]
   (log/debugf "creating multiple tile specs: %s" (count body))
-  (let [saved (map tile-spec/insert body)]
+  (let [saved (map #(index/index-spec! (tile-spec/insert %)) body)]
     {:status 200 :body {:saved (count saved)}}))
 
 (defn put-tile-spec
@@ -86,7 +87,15 @@
     (or (some->> (tile-spec/validate tile-spec)
                  (assoc {:status 403} :body))
         (some->> (tile-spec/insert tile-spec)
+                 (index/index-spec!)
                  (assoc {:status 202} :body)))))
+
+(defn get-ubids
+ "Search the ubids by tag"
+ [{{q :q :or {q "*"}} :params}]
+ (let [raw  (index/search q)
+       hits (map #(get-in % ["_source" "ubid"]) (get-in raw ["hits" "hits"]))]
+   {:status 200 :body hits}))
 
 ;;; Request entity transformers.
 
@@ -135,6 +144,7 @@
      (GET    "/source/:source-id{.+}" [source-id] (get-source source-id))
      (PUT    "/source/:source-id{.+}" [source-id] (put-source source-id request))
      (GET    "/tiles" [] (get-tiles request))
+     (GET    "/ubids" [] (get-ubids request))
      (GET    "/tile-spec" [] (get-tile-specs))
      (POST   "/tile-spec" [] (post-tile-spec request))
      (GET    "/tile-spec/:ubid{.+}" [ubid] (get-tile-spec ubid request))

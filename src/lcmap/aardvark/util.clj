@@ -117,6 +117,6 @@
 (defn vectorize
   "Guarantees value is a vector."
   [value]
-  (if (not (vector? value))
-      (conj [] value)
-      value))
+  (cond (vector? value) value
+        (sequential? value)(into [] value)
+        :else (conj [] value)))
