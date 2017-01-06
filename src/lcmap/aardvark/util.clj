@@ -113,10 +113,3 @@
        (finally
          (log/debug "removing temp-file: %s" (.getAbsolutePath temp#))
          (fs/delete-dir temp#)))))
-
-(defn vectorize
-  "Guarantees value is a vector."
-  [value]
-  (cond (vector? value) value
-        (sequential? value)(into [] value)
-        :else (conj [] value)))

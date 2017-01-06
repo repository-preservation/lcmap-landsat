@@ -11,7 +11,7 @@
             [lcmap.aardvark.tile :as tile]
             [lcmap.aardvark.tile-spec :as tile-spec]
             [lcmap.aardvark.tile-spec-index :as index]
-            [lcmap.aardvark.util :refer [vectorize]]
+            [lcmap.commons.collections :refer [vectorize]]
             [lcmap.aardvark.middleware :refer [wrap-handler]]))
 
 ;;; Response producing functions

@@ -4,7 +4,7 @@
             [lcmap.aardvark.es :as es]
             [lcmap.aardvark.tile-spec :as tile-spec]
             [lcmap.commons.string :refer [strip]]
-            [lcmap.aardvark.util :refer [vectorize]]
+            [lcmap.commons.collections :refer [vectorize]]
             [clojure.tools.logging :as log]
             [clojure.string :as str]
             [clojure.data.json :as json]
