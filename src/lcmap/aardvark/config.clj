@@ -22,6 +22,10 @@
             schema/Keyword schema/Str})
 
 (def database {:contact-points [schema/Str]
+               (schema/optional-key :port) schema/Num
+               (schema/optional-key :credentials)
+                                    {:user schema/Str
+                                     :password schema/Str}
                :default-keyspace schema/Str})
 
 (def server {:exchange schema/Str
