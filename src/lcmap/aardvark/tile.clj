@@ -16,6 +16,7 @@
             [lcmap.aardvark.tile-spec :as tile-spec]
             [lcmap.aardvark.util :as util]
             [lcmap.aardvark.middleware :refer [wrap-handler]]
+            [lcmap.commons.tile :refer [snap]]
             [langohr.basic :as lb]
             [me.raynes.fs :as fs]
             [mount.core :as mount :refer [defstate]]
@@ -62,18 +63,6 @@
     (log/debugf "creating tiles for %s. step-x: %s, step-y: %s" band step-x step-y)
     (for [[x y xs ys] (steps band step-x step-y)]
       (->Tile x y (gdal.band/read-raster-direct band x y xs ys)))))
-
-;;; Helper functions
-
-(defn snap
-  "Transform an arbitrary projection system coordinate (x,y) into the
-   coordinate of the tile that contains it."
-  [x y spec]
-  (let [{:keys [tile_x tile_y shift_x shift_y]} spec
-        tx (+ shift_x (- x (mod x tile_x)))
-        ty (+ shift_y (- y (mod y (- tile_y))))]
-    (log/debug "snap using spec (%s): (%d,%d) to (%d,%d)" spec x y tx ty)
-    [(long tx) (long ty)]))
 
 ;;; Database functions
 (defn find
