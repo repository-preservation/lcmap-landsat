@@ -21,6 +21,13 @@
                       :headers {"Accept" "application/foo"})]
         (is (= 406 (:status resp)))))))
 
+(deftest landsat-health-resource
+  (with-system
+    (testing "health check"
+      (let [resp (req :get "http://localhost:5679/landsat/health"
+                            :headers {"Accept" "*/*"})]
+        (is (= 200 (:status resp)))))))
+
 (deftest landsat-tile-resource
   (with-system
     (testing "get tiles as JSON"

@@ -39,7 +39,11 @@
                  [org.clojure/data.zip "0.1.2"]
                  [gov.usgs.eros/lcmap-commons "1.0.1-SNAPSHOT"]
                  ;; needed to make indexing calls to elasticsearch
-                 [http-kit "2.2.0"]]
+                 [http-kit "2.2.0"]
+                 ;; health check support
+                 [metrics-clojure-ring "2.8.0"]
+                 [metrics-clojure-jvm "2.8.0"]
+                 [metrics-clojure-health "2.8.0"]]
 
   :profiles {:dev {:resource-paths ["dev" "dev/resources" "resources" "data"]
                    :dependencies [[org.clojure/tools.namespace "0.3.0-alpha3"]

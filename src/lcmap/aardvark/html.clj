@@ -61,6 +61,14 @@
                                [:a] (html/content (:id source))
                                [:a] (html/set-attr :href (str "/landsat/source/" (:id source)))))
 
+(html/deftemplate status-list "public/status.html"
+  [services]
+  [:nav] (html/content (nav))
+  [:tbody :tr] (html/clone-for [[svc-name status] services]
+                               [:.healthy] (html/content (-> status :healthy str))
+                               [:.service] (html/content (name svc-name))
+                               [:.message] (html/content (-> status :message str))))
+
 (defn describe-tiles
   ""
   [tiles]

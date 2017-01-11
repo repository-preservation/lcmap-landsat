@@ -43,7 +43,7 @@
       (wrap-authenticate)
       (wrap-keyword-params)
       (wrap-params)
-      #_(wrap-problem problem/transformer)))
+      (wrap-problem problem/transformer)))
 
 ;;; Server-related state
 
