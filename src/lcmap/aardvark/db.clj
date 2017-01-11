@@ -62,7 +62,7 @@
   []
   (let [db-cfg (:database config)]
     (log/debugf "starting db with: %s" db-cfg)
-    (apply alia/cluster (select-keys db-cfg [:contact-points]))))
+    (apply alia/cluster (select-keys db-cfg [:contact-points :credentials]))))
 
 (defn db-cluster-stop
   "Shutdown cluster connection."
