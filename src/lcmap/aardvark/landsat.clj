@@ -149,9 +149,9 @@
       (update :body json/encode)
       (assoc-in [:headers "Content-Type"] "application/json")))
 
-(def supported-types (accept "text/html" to-html
+(def supported-types (accept :default to-json
                              "application/json" to-json
-                             "*/*" to-json))
+                             "text/html" to-html))
 
 (defn respond-with
   ""
