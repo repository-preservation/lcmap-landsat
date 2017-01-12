@@ -15,11 +15,7 @@
       (let [resp (req :put "http://localhost:5679/landsat")]
         (is (= 405 (:status resp))))
       (let [resp (req :delete "http://localhost:5679/landsat")]
-        (is (= 405 (:status resp)))))
-    (testing "search for unsupported type"
-      (let [resp (req :get "http://localhost:5679/landsat"
-                      :headers {"Accept" "application/foo"})]
-        (is (= 406 (:status resp)))))))
+        (is (= 405 (:status resp)))))))
 
 (deftest landsat-health-resource
   (with-system
@@ -44,7 +40,8 @@
                       :form-params {:x 0 :y 0
                                     :ubid "LANDSAT_5/TM/sr_band1"
                                     :acquired "2000-01-01/2005-01-01"})]
-        (is (= 406 (:status resp)))))))
+        (is (= 200 (:status resp)))
+        (is (= "application/json" (get-in resp [:headers :content-type])))))))
 
 (deftest landsat-tile-spec-resource
   (with-system
