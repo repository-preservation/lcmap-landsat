@@ -85,8 +85,8 @@
           pixel_y (int py)
           tile_x  (int (* px dx))
           tile_y  (int (* py dy))
-          shift_x (int (mod rx pixel_x))
-          shift_y (int (mod ry pixel_y))]
+          shift_x (int (mod rx tile_x))
+          shift_y (int (mod ry tile_y))]
       {:wkt proj
        :pixel_x pixel_x
        :pixel_y pixel_y
