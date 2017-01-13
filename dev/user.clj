@@ -1,5 +1,6 @@
 (ns user
   (:require
+   [cheshire.core :as json]
    [clojure.tools.namespace.repl :refer [refresh refresh-all]]
    [clojure.java.io :as io]
    [clojure.edn :as edn]
@@ -20,12 +21,17 @@
          :uri (-> "ESPA/CONUS/ARD/LE70460272000029-SC20160826120223.tar.gz" io/resource io/as-url str)
          :checksum "e1d2f9b28b1f55c13ee2a4b7c4fc52e7"})
 
-(def tile-spec-opts {:data_shape [128 128]
+(def tile-spec-opts {:data_shape [100 100]
                      :name "conus"})
 
 (defn load-tile-spec []
   (tile-spec/process L5 tile-spec-opts)
   (tile-spec/process L7 tile-spec-opts))
+
+(defn dump-tile-spec [path]
+  (let [sorted (map (fn [kvs] (into (sorted-map) kvs)) (tile-spec/all))
+        output (json/generate-string {:pretty true})]
+    (spit path output)))
 
 (defn load-tiles []
   (tile/process L5)
