@@ -21,7 +21,7 @@
          :uri (-> "ESPA/CONUS/ARD/LE70460272000029-SC20160826120223.tar.gz" io/resource io/as-url str)
          :checksum "e1d2f9b28b1f55c13ee2a4b7c4fc52e7"})
 
-(def tile-spec-opts {:data_shape [100 100]
+(def tile-spec-opts {:data_shape [128 128]
                      :name "conus"})
 
 (defn load-tile-spec []
