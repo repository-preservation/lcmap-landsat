@@ -1,5 +1,6 @@
 (ns user
   (:require
+   [cheshire.core :as json]
    [clojure.tools.namespace.repl :refer [refresh refresh-all]]
    [clojure.java.io :as io]
    [clojure.edn :as edn]
@@ -26,6 +27,11 @@
 (defn load-tile-spec []
   (tile-spec/process L5 tile-spec-opts)
   (tile-spec/process L7 tile-spec-opts))
+
+(defn dump-tile-spec [path]
+  (let [sorted (map (fn [kvs] (into (sorted-map) kvs)) (tile-spec/all))
+        output (json/generate-string {:pretty true})]
+    (spit path output)))
 
 (defn load-tiles []
   (tile/process L5)

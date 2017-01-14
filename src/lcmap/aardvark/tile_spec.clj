@@ -53,26 +53,26 @@
                             (hayt/where params)
                             (hayt/allow-filtering)))))
 
-(defn insert
-  "Create tile-spec in DB."
-  [tile-spec]
-  (log/tracef "insert tile-spec: %s" tile-spec)
-  (db/execute (hayt/insert :tile_specs
-                           (hayt/values tile-spec)))
-  tile-spec)
-
-
-;;; Worker related
-
 (def column-names [:name :ubid :wkt :satellite :instrument
                    :tile_x :tile_y :pixel_x :pixel_y :shift_x :shift_y
                    :band_product :band_category :band_name :band_long_name :band_short_name :band_spectrum
-                   :data_fill :data_range :data_scale :data_type :data_units :data_shape :data_mask])
+                   :data_fill :data_range :data_scale :data_type
+                   :data_units :data_shape #_:data_mask])
 
 (defn relevant
   "Use to eliminate potentially invalid columns names."
   [tile-spec]
   (select-keys tile-spec column-names))
+
+(defn insert
+  "Create tile-spec in DB."
+  [tile-spec]
+  (log/tracef "insert tile-spec: %s" tile-spec)
+  (->> (relevant tile-spec)
+       (hayt/values)
+       (hayt/insert :tile_specs)
+       (db/execute))
+  tile-spec)
 
 (defn dataset->spec
   "Deduce tile spec properties from band's dataset at file_path and band's data_shape"
@@ -91,7 +91,7 @@
        :pixel_x pixel_x
        :pixel_y pixel_y
        :tile_x tile_x
-       :tile_y tile_x
+       :tile_y tile_y
        :shift_x shift_x
        :shift_y shift_y})))
 
