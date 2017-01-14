@@ -47,6 +47,13 @@
     (io/copy in out))
   (io/file file))
 
+(defmethod download "https"
+  [uri file]
+  (with-open [in (:body (client/get uri {:as :stream}))
+              out (io/output-stream file)]
+    (io/copy in out))
+  (io/file file))
+
 (defn entries
   "Lazily retrieve a list of archive entries."
   [archive]
