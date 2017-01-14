@@ -1,7 +1,9 @@
 (ns lcmap.aardvark.landsat
   "Resources and representations.
 
-  This namespace contains all route definitions."
+  This namespace contains all route definitions and functions
+  transforming/validating requests. Other namespaces handle
+  implementation details related to persistence and messaging."
   (:require [camel-snake-kebab.core :refer [->snake_case_keyword]]
             [camel-snake-kebab.extras :refer [transform-keys]]
             [cheshire.core :as json]
@@ -20,27 +22,32 @@
 
 ;;; Response producing functions
 
-(defn allow [& verbs]
-  (log/debug "explaining allow verbs")
+(defn allow
+  "Indicate allowed verbs."
+  [& verbs]
+  (log/debugf "explaining allow verbs")
   {:status 405
    :headers {"Allow" (str/join "," verbs)}})
 
-(defn check-health []
+(defn check-health
+  "Indicate status of backing services."
+  []
+  (log/debugf "checking app health")
   (let [service-status (health/health-status)]
     (if (every? (fn [[_ {is :healthy}]] is) service-status)
       {:status 200 :body service-status}
       {:status 503 :body service-status})))
 
 (defn sample-source
-  "Retrieve some random sources"
+  "Retrieve some random sources."
   []
   (log/debugf "summarizing sources")
   {:status 200 :body (source/sample 10)})
 
 (defn get-source
-  "Search for a source and produce a response map."
+  "Search for source by ID."
   [source-id]
-  (log/debugf "lookup source: %s" source-id)
+  (log/debugf "get source: %s" source-id)
   (if-let [result (seq (source/search source-id))]
     {:status 200 :body result}
     {:status 404 :body []}))
@@ -48,6 +55,7 @@
 (defn put-source
   "Handle request for creating a source and produce a response."
   [source-id {params :params :as req}]
+  (log/debugf "find or create source '%s' with %s" source-id params)
   (let [source (merge {:id source-id :progress_name "created"} params)]
     (or (some->> (source/validate source)
                  (assoc {:status 403} :body))
@@ -58,18 +66,19 @@
 
 (defn get-tiles
   "Get tiles containing point for given UBID and ISO8601 time range."
-  [{{:keys [:ubid :x :y :acquired]} :params :as req}]
+  [{{:keys [:ubid :x :y :acquired] :as params} :params :as req}]
   (let [tile+    {:ubids (vectorize ubid)
                   :x (Integer/parseInt x)
                   :y (Integer/parseInt y)
                   :acquired (str/split acquired #"/")}
         tiles (tile/find tile+)]
-    (log/debugf "GET /landsat/tiles")
+    (log/debugf "get tiles: %s" )
     {:status 200 :body tiles}))
 
 (defn get-tile-spec
   "Search for a source and produce a response map."
   [ubid {params :params :as req}]
+  (log/debug "get tile-spec for '%s' with %s" ubid params)
   (if-let [results (first (tile-spec/query (merge {:ubid ubid} params)))]
     {:status 200 :body results}
     {:status 404 :body nil}))
@@ -83,22 +92,23 @@
   {:status 501})
 
 (defn get-tile-specs
-  "Get all tile-specs"
+  "Get all tile-specs."
   []
+  (log/debugf "get all tile-specs")
   (let [results (tile-spec/all)]
     {:status 200 :body results}))
 
 (defn post-tile-spec
-  "Save or create all tile-specs"
+  "Create or update all tile-specs"
   [{body :body :as req}]
-  (log/debugf "creating multiple tile specs: %s" (count body))
+  (log/debugf "create or update %s tile specs" (count body))
   (let [saved (map #(index/index-spec! (tile-spec/insert %)) body)]
     {:status 200 :body {:saved (count saved)}}))
 
 (defn put-tile-spec
-  "Handle request for creating a tile-spec."
+  "Create or update a tile-spec."
   [ubid {body :body :as req}]
-  (log/debugf "tile-spec: %s = %s" ubid body)
+  (log/debugf "create or update tile-spec '%s' with %s" ubid body)
   (let [tile-spec (merge {:ubid ubid} body)]
     (or (some->> (tile-spec/validate tile-spec)
                  (assoc {:status 403} :body))
@@ -107,27 +117,28 @@
                  (assoc {:status 202} :body)))))
 
 (defn get-ubids
- "Search the ubids by tag"
- [{{q :q :or {q "*"}} :params}]
- (let [raw  (index/search q)
-       hits (map #(get-in % ["_source" "ubid"]) (get-in raw ["hits" "hits"]))]
-   {:status 200 :body hits}))
+  "Search the ubids by tag."
+  [{{q :q :or {q "*"}} :params}]
+  (log/debug "retrieve all tile-specs")
+  (let [raw  (index/search q)
+        hits (map #(get-in % ["_source" "ubid"]) (get-in raw ["hits" "hits"]))]
+    {:status 200 :body hits}))
 
 ;;; Request entity transformers.
 
 (defn decode-json
-  ""
+  "Transform request entity from JSON into a data structure."
   [body]
-  (log/debug "req - decoding as JSON")
+  (log/debug "decode JSON request body")
   (->> body
        (slurp)
        (json/decode)
        (transform-keys ->snake_case_keyword)))
 
 (defn prepare-with
-  "Request transform placeholder."
+  "Transform request entity into data structure."
   [request]
-  (log/debugf "req - prepare body: %s" (get-in request [:headers]))
+  (log/debugf "decode %s request body" (get-in request [:headers "content-type"]))
   (if (= "application/json" (get-in request [:headers "content-type"]))
     (update request :body decode-json)
     request))
@@ -135,26 +146,35 @@
 ;;; Response entity transformers.
 
 (defn to-html
-  "Encode response body as HTML."
+  "Transform response body into HTML."
   [response]
   (log/debug "responding with HTML")
   (let [template-fn (:template (meta response) html/default)]
     (update response :body template-fn)))
 
 (defn to-json
-  "Encode response body as JSON."
+  "Transform response body into JSON."
   [response]
   (log/debug "responding with json")
   (-> response
       (update :body json/encode)
       (assoc-in [:headers "Content-Type"] "application/json")))
 
+;; This is a list of supported types. By default a response will be
+;; produced as JSON, even if no accept media-ranges are provided.
+;; Even though this isn't technically correct, it's good-enough for
+;; the time being. It might be better to handle and empty accept header
+;; differently than an accept header that only request unsupported
+;; content-types.
+;;
+;; This uses a utility function provided by ring-accept instead
+;; of a macro so that debugging is somewhat easier.
 (def supported-types (accept :default to-json
                              "application/json" to-json
                              "text/html" to-html))
 
 (defn respond-with
-  ""
+  "Transform a data structure into a suitable representation."
   [request response]
   (supported-types request response))
 
