@@ -60,26 +60,6 @@
            (log/debugf "stopping Jetty")
            (.stop server)))
 
-;; The exchange to which the server publishes messages. This
-;; is used to indirectly notify the worker of events that will
-;; result in processing data.
-
-(defstate server-exchange
-  :start (let [exchange-name (get-in config [:server :exchange])]
-           (log/debugf "creating server exchange: %s" exchange-name)
-           (le/declare amqp-channel exchange-name "topic" {:durable true})))
-
-;; The queue from which the server might eventually consume
-;; messages. There are currently no bindings or consumers,
-;; this is really just a placeholder.
-
-(defstate server-queue
-  :start (let [queue-name (get-in config [:server :queue])]
-           (log/debugf "creating server queue: %s" queue-name)
-           (lq/declare event/amqp-channel queue-name {:durable true
-                                                      :exclusive false
-                                                      :auto-delete false})))
-
 ;; Encoders; turn objects into strings suitable for JSON responses.
 
 (defn iso8601-encoder

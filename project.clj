@@ -50,7 +50,8 @@
                    :dependencies [[org.clojure/tools.namespace "0.3.0-alpha3"]
                                   [http-kit "2.2.0"]
                                   [http-kit.fake "0.2.2"]
-                                  [proto-repl "0.3.1"]]
+                                  [proto-repl "0.3.1"]
+                                  [org.slf4j/slf4j-log4j12 "1.7.21"]]
 
                    :plugins [[lein-codox "0.10.0"]
                              [lein-ancient "0.6.10"]

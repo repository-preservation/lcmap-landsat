@@ -56,10 +56,5 @@
             (log/info "Starting mount components...")
             (mount/start (mount/with-args {:config cfg}))))
       (catch Exception e
-        (log/fatalf e "Could not start landsat... exiting"))
-      (finally
-        (try
-          (mount/stop)
-          (catch Exception e
-            (log/errorf e "Error stopping mount... exiting")))
+        (log/fatalf e "Could not start landsat... exiting")
         (System/exit 1)))))
