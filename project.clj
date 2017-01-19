@@ -43,13 +43,15 @@
                  ;; health check support
                  [metrics-clojure-ring "2.8.0"]
                  [metrics-clojure-jvm "2.8.0"]
-                 [metrics-clojure-health "2.8.0"]]
+                 [metrics-clojure-health "2.8.0"]
+                 [listora/again "0.1.0"]]
 
   :profiles {:dev {:resource-paths ["dev" "dev/resources" "resources" "data"]
                    :dependencies [[org.clojure/tools.namespace "0.3.0-alpha3"]
                                   [http-kit "2.2.0"]
                                   [http-kit.fake "0.2.2"]
-                                  [proto-repl "0.3.1"]]
+                                  [proto-repl "0.3.1"]
+                                  [org.slf4j/slf4j-log4j12 "1.7.21"]]
 
                    :plugins [[lein-codox "0.10.0"]
                              [lein-ancient "0.6.10"]

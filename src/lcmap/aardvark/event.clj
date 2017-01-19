@@ -12,6 +12,8 @@
             [langohr.core :as rmq]
             [langohr.basic :as lb]
             [langohr.channel :as lch]
+            [langohr.exchange :as le]
+            [langohr.queue :as lq]
             [lcmap.aardvark.config :refer [config]]
             [mount.core :refer [args defstate stop] :as mount]))
 
@@ -64,10 +66,45 @@
     (log/debugf "stopping RabbitMQ channel")
     (lch/close amqp-channel)
     (catch com.rabbitmq.client.AlreadyClosedException e
-      (log/errorf "failed to stop RabbitMQ channel"))
+      (log/warnf "failed to stop RabbitMQ channel"))
     (finally
       nil)))
 
 (defstate amqp-channel
   :start (start-amqp-channel)
   :stop  (stop-amqp-channel))
+
+(defstate configure-amqp-channel
+  :start (do (lb/qos amqp-channel 1) true))
+
+(defstate exchanges
+  :start (let [configs (get-in config [:event :exchanges])]
+           (doseq [exchange configs]
+             (log/debugf "Creating Exchange: %s" (:name exchange))
+             (le/declare amqp-channel
+                         (:name exchange)
+                         (:type exchange)
+                         (:opts exchange)))
+           configs))
+
+(defstate queues
+  :start (let [configs (get-in config [:event :queues])]
+           (doseq [queue configs]
+             (log/debugf "Creating Queue: %s" (:name queue))
+             (lq/declare amqp-channel (:name queue) (:opts queue)))
+           configs))
+
+(defstate bindings
+  :start (let [exchanges_state exchanges
+               queues_state    queues
+               configs         (get-in config [:event :bindings])]
+           (doseq [binder configs]
+             (log/debugf "Binding %s to %s with opts %s"
+                         (:exchange binder)
+                         (:queue binder)
+                         (:opts binder))
+             (lq/bind amqp-channel
+                      (:queue binder)
+                      (:exchange binder)
+                      (:opts binder)))
+           configs))

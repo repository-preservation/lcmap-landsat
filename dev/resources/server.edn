@@ -1,12 +1,30 @@
 {:database  {:contact-points "localhost"
              :default-keyspace "lcmap_landsat_dev"}
- :event     {:host "localhost"
-             :port 5672}
+ :event     {
+             :host "localhost"
+             :port 5672
+             :queues [{:name "dev.lcmap.landsat.server.queue"
+                       :opts {:durable true
+                              :exclusive false
+                              :auto-delete false}}
+                      {:name "dev.lcmap.landsat.worker.queue"
+                       :opts {:durable true
+                              :exclusive false
+                              :auto-delete false}}]
+             :exchanges [{:name "dev.lcmap.landsat.server.exchange"
+                          :type "topic"
+                          :opts {:durable true}}
+                         {:name "dev.lcmap.landsat.worker.exchange"
+                          :type "topic"
+                          :opts {:durable true}}]
+             :bindings [{:exchange "dev.lcmap.landsat.server.exchange"
+                         :queue "dev.lcmap.landsat.worker.queue"
+                         :opts {:routing-key "ingest"}}]}
  :http      {:port 5678
              :join? false
              :daemon? true}
- :server    {:exchange "dev.lcmap.landsat.server"
-             :queue "dev.lcmap.landsat.server"}
+ :server    {:exchange "dev.lcmap.landsat.server.exchange"
+             :queue "dev.lcmap.landsat.server.queue"}
  :search    {:url "http://localhost:9200"
              :ubid-index "lcmap_landsat_dev_ubids"
              :ubid-index-type "ubid"

@@ -1,6 +1,6 @@
-{:database  {:contact-points "localhost"
+{:database  {:contact-points "172.17.0.1"
              :default-keyspace "lcmap_landsat_test"}
- :event     {:host "localhost"
+ :event     {:host "172.17.0.1"
              :port 5672
              :queues [{:name "test.lcmap.landsat.server.queue"
                        :opts {:durable true
@@ -26,7 +26,7 @@
              :queue    "test.lcmap.landsat.server.queue"}
  :worker    {:exchange "test.lcmap.landsat.worker.exchange"
              :queue    "test.lcmap.landsat.worker.queue"}
- :search     {:url "http://localhost:9200"
+ :search     {:url "http://172.17.0.1:9200"
               :ubid-index "lcmap_landsat_test_ubids"
               :ubid-index-type "ubid"
               :max-result-size 10000}}
