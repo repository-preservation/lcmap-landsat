@@ -7,7 +7,29 @@
 
 LCMAP Landsat data ingest, inventory &amp; distribution.
 
-## Development
+### Usage
+Retrieve data.  Any number of ubids may be specified.
+```bash
+# Using httpie
+user@machine:~$ http http://host:port/landsat/tiles
+                     ?x=-2013585
+                     &y=3095805
+                     &acquired=2000-01-01/2017-01-01
+                     &ubid=LANDSAT_8/OLI_TIRS/sr_band1
+                     &ubid=LANDSAT_8/OLI_TIRS/sr_band2
+                     &ubid=LANDSAT_8/OLI_TIRS/sr_band3
+```
+
+Search for ubids.  ?q= parameter uses [ElasticSearch QueryStringSyntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+```bash
+user@machine:~$ http http://host:port/landsat/ubids
+                     ?q=((landsat AND 8) AND sr AND (band1 OR band2 OR band3))
+```
+
+lcmap-landsat honors HTTP ```Accept``` headers for both ```application/json```
+and ```text/html```.  The default is json.
+
+### Developing
 
 Initialize submodules (to get dev/test data).
 
@@ -45,8 +67,6 @@ will start a server (using Jetty) and a worker.
 
 A [FAQ][3] is available for common development & test issues.
 
-## Building and Running
-
 
 ### Building
 
@@ -82,19 +102,35 @@ Example config:
 {:database  {:contact-points "172.17.0.1"
              :default-keyspace "lcmap_landsat"}
  :event     {:host "172.17.0.1"
-             :port 5672}
+             :port 5672
+             :queues [{:name "lcmap.landsat.server.queue"
+                       :opts {:durable true
+                              :exclusive false
+                              :auto-delete false}}
+                      {:name "lcmap.landsat.worker.queue"
+                       :opts {:durable true
+                              :exclusive false
+                              :auto-delete false}}]
+             :exchanges [{:name "lcmap.landsat.server.exchange"
+                          :type "topic"
+                          :opts {:durable true}}
+                         {:name "lcmap.landsat.worker.exchange"
+                          :type "topic"
+                          :opts {:durable true}}]
+             :bindings [{:exchange "lcmap.landsat.server.exchange"
+                         :queue "lcmap.landsat.worker.queue"
+                         :opts {:routing-key "ingest"}}]}
  :http      {:port 5679
              :join? false
              :daemon? true}
- :server    {:exchange "lcmap.landsat.server"
-             :queue "lcmap.landsat.server"}
- :worker    {:exchange {:name "lcmap.landsat.worker"}
-             :queue    {:name "lcmap.landsat.worker"
-                        :bind [["lcmap.landsat.server" "ingest"]]}}
+ :server    {:exchange "lcmap.landsat.server.exchange"
+             :queue    "lcmap.landsat.server.queue"}
+ :worker    {:exchange "lcmap.landsat.worker.exchange"
+             :queue    "lcmap.landsat.worker.queue"}
  :search     {:url "http://172.17.0.1:9200"
               :ubid-index "lcmap_landsat_ubids"
               :ubid-index-type "ubid"
-              :max-result-size 10000}}
+              :max-result-size 10000}}              
 ```
 
 ### Links
