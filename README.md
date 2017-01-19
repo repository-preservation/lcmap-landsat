@@ -98,7 +98,7 @@ docker run -p 5679:5679 usgseros/lcmap-landsat:0.1.0-SNAPSHOT $(cat ~/landsat.ed
 ```
 
 Example config:
-```
+```edn
 {:database  {:contact-points "172.17.0.1"
              :default-keyspace "lcmap_landsat"}
  :event     {:host "172.17.0.1"
