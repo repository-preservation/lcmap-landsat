@@ -10,7 +10,8 @@
   See also:
   * `dev/lcmap/aardvark/dev.clj` for REPL-driven development.
   * `dev/resources/lcmap-landsat.edn` for configuration."
-  (:require [mount.core :refer [defstate] :as mount]
+  (:require [again.core :as again]
+            [mount.core :refer [defstate] :as mount]
             [clojure.edn :as edn]
             [clojure.tools.logging :as log]
             [lcmap.aardvark.config :as config])
@@ -32,6 +33,8 @@
        (clojure.string/join " ")
        (clojure.edn/read-string)))
 
+(def retry-strategy (again/max-retries 10 (again/constant-strategy 5000)))
+
 (defn -main
   "Start the server, worker, or both."
   [& args]
@@ -43,4 +46,20 @@
     (when (get-in cfg [:worker])
       (log/info "AMQP worker mode enabled")
       (require 'lcmap.aardvark.worker))
-    (mount/start (mount/with-args {:config cfg}))))
+
+    ;;; Retry and try catch are to wait for system resources to become
+    ;;; available.
+    (try
+      (again/with-retries retry-strategy
+        (do (log/info "Stopping mount components")
+            (mount/stop)
+            (log/info "Starting mount components...")
+            (mount/start (mount/with-args {:config cfg}))))
+      (catch Exception e
+        (log/fatalf e "Could not start landsat... exiting"))
+      (finally
+        (try
+          (mount/stop)
+          (catch Exception e
+            (log/errorf e "Error stopping mount... exiting")))
+        (System/exit 1)))))

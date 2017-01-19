@@ -39,7 +39,10 @@
   :start (let [channel (lch/open event/amqp-connection)]
            (lb/qos channel 1)
            channel)
-  :stop (lch/close worker-channel))
+  :stop (try
+          (when (and worker-channel (lch/open? worker-channel))
+            (lch/close worker-channel))
+          (catch Exception e (log/warn e "Could not close worker-channel"))))
 
 (defstate worker-exchange
   :start (let [exchange-name (get-in config [:worker :exchange :name])]

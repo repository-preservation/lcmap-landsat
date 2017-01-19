@@ -43,7 +43,8 @@
                  ;; health check support
                  [metrics-clojure-ring "2.8.0"]
                  [metrics-clojure-jvm "2.8.0"]
-                 [metrics-clojure-health "2.8.0"]]
+                 [metrics-clojure-health "2.8.0"]
+                 [listora/again "0.1.0"]]
 
   :profiles {:dev {:resource-paths ["dev" "dev/resources" "resources" "data"]
                    :dependencies [[org.clojure/tools.namespace "0.3.0-alpha3"]
