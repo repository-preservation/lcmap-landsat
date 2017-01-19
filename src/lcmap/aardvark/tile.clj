@@ -221,7 +221,7 @@
           [xs ys] (:data_shape band)
           tiles   (dataset->tiles tile-xf dataset xs ys)]
       (progress source "band-start" (:ubid band))
-      (dorun (pmap process-tile tiles))
+      (dorun (map process-tile tiles))
       (progress source "band-done" (:ubid band)))))
 
 (defn process-scene
@@ -232,7 +232,7 @@
                          (map +locate)
                          (map (fn [band] (assoc band :source (:id source))))
                          (filter conforms?))]
-     (dorun (pmap #(process-band % source) (scene->bands scene-dir band-xf)))
+     (dorun (map #(process-band % source) (scene->bands scene-dir band-xf)))
      :done)))
 
 (defn process
