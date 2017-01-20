@@ -3,6 +3,7 @@
   (:require [clojure.java.io :as io]
             [clojure.core.memoize :as memoize]
             [clojure.set]
+            [clojure.stacktrace :as stacktrace]
             [clojure.tools.logging :as log]
             [dire.core :as dire]
             [gdal.core]
@@ -261,7 +262,9 @@
       (progress source "scene-finish")
       :done
       (catch clojure.lang.ExceptionInfo ex
-          (progress source "fail" (:msg (ex-data ex))))
+        (log/errorf "scene-fail: %s" (stacktrace/root-cause ex))
+        (progress source "fail" (.getMessage ex))
+        :fail)
       (finally
         (fs/delete-dir unarchive-file)
         (fs/delete uncompress-file)
