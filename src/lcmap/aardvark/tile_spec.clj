@@ -53,11 +53,11 @@
                             (hayt/where params)
                             (hayt/allow-filtering)))))
 
-(def column-names [:name :ubid :wkt :satellite :instrument
+(def column-names [:name :ubid :tags :wkt :satellite :instrument
                    :tile_x :tile_y :pixel_x :pixel_y :shift_x :shift_y
                    :band_product :band_category :band_name :band_long_name :band_short_name :band_spectrum
                    :data_fill :data_range :data_scale :data_type
-                   :data_units :data_shape #_:data_mask])
+                   :data_units :data_shape :data_mask])
 
 (defn relevant
   "Use to eliminate potentially invalid columns names."
