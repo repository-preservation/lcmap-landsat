@@ -111,7 +111,7 @@
   (log/debugf "looking for tile-spec for %s" (:ubid band))
   (let [spec (first (tile-spec/query {:ubid (:ubid band)}))]
     (if (nil? spec)
-      (throw (ex-info (format "no tile-spec for %s" (:ubid band))))
+      (throw (ex-info (format "no tile-spec for %s" (:ubid band)) {}))
       (merge band spec))))
 
 (defn int16-fill
@@ -260,6 +260,8 @@
           (process-scene source))
       (progress source "scene-finish")
       :done
+      (catch clojure.lang.ExceptionInfo ex
+          (progress source "fail" (:msg (ex-data ex))))
       (finally
         (fs/delete-dir unarchive-file)
         (fs/delete uncompress-file)
@@ -290,6 +292,12 @@
   (fn [e & [source]]
     (progress source "fail" "invalid ESPA metadata")
     :fail))
+
+(dire/with-handler! #'process
+  clojure.lang.ExceptionInfo
+  (fn [e & [source]]
+    (progress source "fail" (:msg (ex-data e)))
+    :error))
 
 (dire/with-handler! #'process
   clojure.lang.ExceptionInfo

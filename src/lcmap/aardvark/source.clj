@@ -82,7 +82,7 @@
    (let [source+ (merge source {:progress_at (time/now)
                                 :progress_name name
                                 :progress_desc desc})]
-     (log/infof "progress: %s %s - %s %s" (source :id) (source :uri) name desc)
+     (log/infof "%s %s: %s" (source :id) name desc)
      (insert source+)))
   ([source name]
    (progress source name nil)))
