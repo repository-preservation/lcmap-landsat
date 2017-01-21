@@ -45,13 +45,6 @@
 
 (deftest landsat-tile-spec-resource
   (with-system
-    (testing "put a tile-spec as JSON"
-      (let [tile-spec (slurp (io/resource "data/sample-tile-spec.json"))
-            resp (req :put "http://localhost:5679/landsat/tile-spec/LANDSAT_5/TM/sr_band1"
-                      :headers {"Content-Type" "application/json"
-                                "Accept" "application/json"}
-                      :body tile-spec)]
-        (is (= 202 (:status resp)))))
     (testing "get an existing tile-spec"
       (let [resp (req :get "http://localhost:5679/landsat/tile-spec/LANDSAT_5/TM/sr_band1"
                       :headers {"Accept" "application/json"})]
@@ -60,7 +53,16 @@
       (let [resp (req :get "http://localhost:5679/landsat/tile-spec/LANDSAT_5/TM/marklar"
                       :headers {"Accept" "application/json"})]
         (is (= 404 (:status resp)))))
-    (testing "post multiple tile-specs"
+    ;; Disabled pending authorization and authentication.
+    #_(testing "put a tile-spec as JSON"
+      (let [tile-spec (slurp (io/resource "data/sample-tile-spec.json"))
+            resp (req :put "http://localhost:5679/landsat/tile-spec/LANDSAT_5/TM/sr_band1"
+                      :headers {"Content-Type" "application/json"
+                                "Accept" "application/json"}
+                      :body tile-spec)]
+        (is (= 202 (:status resp)))))
+    ;; Disabled pending authorization and authentication.
+    #_(testing "post multiple tile-specs"
       (let [tile-specs (slurp (io/resource "data/sample-tile-specs.json"))
             resp (req :post "http://localhost:5679/landsat/tile-spec"
                       :headers {"Content-Type" "application/json"
