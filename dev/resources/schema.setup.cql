@@ -30,6 +30,7 @@ AND  COMPACTION = { 'class' :  'LeveledCompactionStrategy' };
 CREATE TABLE IF NOT EXISTS lcmap_landsat_dev.tile_specs (
     name text,
     ubid text,
+    tags set<text>, 
     wkt text static,
     pixel_x float static,
     pixel_y float static,

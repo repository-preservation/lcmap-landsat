@@ -9,6 +9,83 @@
 
 ;; transformation functions
 
+(def ubid-tags
+  "Mapping of ubids to tags"
+  {"LANDSAT_4/TM/sr_band1"         #{"blue"}
+   "LANDSAT_4/TM/sr_band2"         #{"green"}
+   "LANDSAT_4/TM/sr_band3"         #{"red"}
+   "LANDSAT_4/TM/sr_band4"         #{"nir"}
+   "LANDSAT_4/TM/sr_band5"         #{"swir"}
+   "LANDSAT_4/TM/sr_band6"         #{"thermal"}
+   "LANDSAT_4/TM/sr_band7"         #{"swir2"}
+   "LANDSAT_4/TM/sr_cfmask"        #{"qa"}
+   "LANDSAT_5/TM/sr_band1"         #{"blue"}
+   "LANDSAT_5/TM/sr_band2"         #{"green"}
+   "LANDSAT_5/TM/sr_band3"         #{"red"}
+   "LANDSAT_5/TM/sr_band4"         #{"nir"}
+   "LANDSAT_5/TM/sr_band5"         #{"swir"}
+   "LANDSAT_5/TM/sr_band6"         #{"thermal"}
+   "LANDSAT_5/TM/sr_band7"         #{"swir2"}
+   "LANDSAT_5/TM/sr_cfmask"        #{"qa"}
+   "LANDSAT_7/ETM/sr_band1"        #{"blue"}
+   "LANDSAT_7/ETM/sr_band2"        #{"green"}
+   "LANDSAT_7/ETM/sr_band3"        #{"red"}
+   "LANDSAT_7/ETM/sr_band4"        #{"nir"}
+   "LANDSAT_7/ETM/sr_band5"        #{"swir"}
+   "LANDSAT_7/ETM/sr_band6"        #{"thermal"}
+   "LANDSAT_7/ETM/sr_band7"        #{"swir2"}
+   "LANDSAT_7/ETM/sr_cfmask"       #{"qa"}
+   "LANDSAT_8/OLI_TIRS/sr_band1"   #{"coastal" "aerosol" "plurpal"}
+   "LANDSAT_8/OLI_TIRS/sr_band2"   #{"blue"}
+   "LANDSAT_8/OLI_TIRS/sr_band3"   #{"green"}
+   "LANDSAT_8/OLI_TIRS/sr_band4"   #{"red"}
+   "LANDSAT_8/OLI_TIRS/sr_band5"   #{"nir"}
+   "LANDSAT_8/OLI_TIRS/sr_band6"   #{"swir1"}
+   "LANDSAT_8/OLI_TIRS/sr_band7"   #{"swir2"}
+   "LANDSAT_8/OLI_TIRS/sr_band8"   #{"pan"}
+   "LANDSAT_8/OLI_TIRS/sr_band9"   #{"cirrus"}
+   "LANDSAT_8/OLI_TIRS/sr_band10"  #{"tirs1 thermal"}
+   "LANDSAT_8/OLI_TIRS/sr_band11"  #{"tirs2 thermal"}
+   "LANDSAT_8/OLI_TIRS/sr_cfmask"  #{"qa"}
+   "LANDSAT_4/TM/toa_band1"        #{"blue"}
+   "LANDSAT_4/TM/toa_band2"        #{"green"}
+   "LANDSAT_4/TM/toa_band3"        #{"red"}
+   "LANDSAT_4/TM/toa_band4"        #{"nir"}
+   "LANDSAT_4/TM/toa_band5"        #{"swir"}
+   "LANDSAT_4/TM/toa_band6"        #{"thermal"}
+   "LANDSAT_4/TM/toa_band7"        #{"swir2"}
+   "LANDSAT_4/TM/toa_cfmask"       #{"qa"}
+   "LANDSAT_5/TM/toa_band1"        #{"blue"}
+   "LANDSAT_5/TM/toa_band2"        #{"green"}
+   "LANDSAT_5/TM/toa_band3"        #{"red"}
+   "LANDSAT_5/TM/toa_band4"        #{"nir"}
+   "LANDSAT_5/TM/toa_band5"        #{"swir"}
+   "LANDSAT_5/TM/toa_band6"        #{"thermal"}
+   "LANDSAT_5/TM/toa_band7"        #{"swir2"}
+   "LANDSAT_5/TM/toa_cfmask"       #{"qa"}
+   "LANDSAT_7/ETM/toa_band1"       #{"blue"}
+   "LANDSAT_7/ETM/toa_band2"       #{"green"}
+   "LANDSAT_7/ETM/toa_band3"       #{"red"}
+   "LANDSAT_7/ETM/toa_band4"       #{"nir"}
+   "LANDSAT_7/ETM/toa_band5"       #{"swir"}
+   "LANDSAT_7/ETM/toa_band6"       #{"thermal"}
+   "LANDSAT_7/ETM/toa_band7"       #{"swir2"}
+   "LANDSAT_7/ETM/toa_cfmask"      #{"qa"}
+   "LANDSAT_8/OLI_TIRS/toa_band1"  #{"coastal" "aerosol" "plurpal"}
+   "LANDSAT_8/OLI_TIRS/toa_band2"  #{"blue"}
+   "LANDSAT_8/OLI_TIRS/toa_band3"  #{"green"}
+   "LANDSAT_8/OLI_TIRS/toa_band4"  #{"red"}
+   "LANDSAT_8/OLI_TIRS/toa_band5"  #{"nir"}
+   "LANDSAT_8/OLI_TIRS/toa_band6"  #{"swir1"}
+   "LANDSAT_8/OLI_TIRS/toa_band7"  #{"swir2"}
+   "LANDSAT_8/OLI_TIRS/toa_band8"  #{"pan"}
+   "LANDSAT_8/OLI_TIRS/toa_band9"  #{"cirrus"}
+   "LANDSAT_8/OLI_TIRS/toa_band10" #{"tirs1 thermal"}
+   "LANDSAT_8/OLI_TIRS/toa_band11" #{"tirs2 thermal"}
+   "LANDSAT_8/OLI_TIRS/toa_cfmask" #{"qa"}})
+
+
+
 (defn +acquired
   [scene band]
   (assoc band :acquired (scene :acquired)))
@@ -44,6 +121,11 @@
   "Add UBID to band."
   [scene band]
   (assoc band :ubid (ubid scene band)))
+
+(defn +tags
+  "Add tags to band."
+  [scene band]
+  (assoc band :tags (get ubid-tags (ubid scene band))))
 
 ;; XML parsing functions
 
@@ -157,5 +239,6 @@
                     (map #(+path dir %))
                     (map #(+source scene %))
                     (map #(+ubid scene %))
+                    (map #(+tags scene %))
                     (map #(assoc % :global_metadata scene)))
               bands)))
