@@ -1,5 +1,5 @@
 (ns lcmap.aardvark.tile-spec-index
-  "Search index for tile-spec ubids (universal band ids)."
+  "Search index for tile-specs"
   (:require [lcmap.aardvark.config :refer [config]]
             [lcmap.aardvark.es :as es]
             [lcmap.aardvark.tile-spec :as tile-spec]
@@ -26,7 +26,7 @@
   (str (server-url) "/" (index-name)))
 
 (defn bulk-api-url
-  "Returns the url to bulk api"
+  "Returns the url to the bulk api"
   []
   (str (url) "/"
        (strip "/" (get-in config [:search :ubid-index-type])) "/_bulk"))
@@ -37,7 +37,7 @@
   (str (url) "/_search"))
 
 (defn +tags
-  "Creates additional tags from a ubid"
+  "Appends additional tags to a tile-spec"
   [tile-spec]
   (let [ubid-tags (str/split (:ubid tile-spec) #"/|_")]
     (if (> (count ubid-tags) 1)
@@ -45,19 +45,19 @@
       tile-spec)))
 
 (defn index-entry
-   "Creates an index entry."
+   "Converts a tile-spec to an index entry."
   [tile-spec]
   (str (json/write-str {"index" {"_retry_on_conflict" 3}}) "\n"
        (json/write-str tile-spec) "\n"))
 
 (defn clear
-  "Clears the tile-spec-index"
+  "Clears the tile-spec index"
   []
   (es/clear! (url)))
 
 (defn search
-  "Submits a supplied query to the ubid index, which should conform to the
-   elasticsearch query syntax. Returns a clojure dictionary of the raw results"
+  "Submits a query to the index.  Query should conform to elasticsearch
+   querystring query syntax. Returns map of raw results"
   ([query]
    (search (search-api-url) query))
 
@@ -65,13 +65,13 @@
    (es/search api-url query (get-in config [:search :max-result-size]))))
 
 (defn result
-  "Returns sequence of tile-specs from search results"
+  "Extracts tile-specs from search results"
   [search-results]
   (map #(get % "_source")
        (get-in search-results ["hits" "hits"])))
 
 (defn save
-  "Create index entry(s) in ES"
+  "Saves tile-specs to the ElasticSearch index."
   [tile-specs]
   (log/debugf "creating index entry(s) for %s" tile-specs)
   (es/load! (bulk-api-url)
