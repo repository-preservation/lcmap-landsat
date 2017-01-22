@@ -72,7 +72,7 @@
                   :y (Integer/parseInt y)
                   :acquired (str/split acquired #"/")}
         tiles (tile/find tile+)]
-    (log/debugf "get tiles: %s" )
+    (log/debugf "get tiles: %s")
     {:status 200 :body tiles}))
 
 (defn get-tile-spec

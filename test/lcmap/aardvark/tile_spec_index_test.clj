@@ -15,8 +15,8 @@
 
     (tile-spec/process L5 spec-opts)
 
-    (testing "tokenizing ubids"
-      (is (not (= nil? (index/ubid->tags (index/universal-band-ids))))))
+    (testing "+tags"
+      (is (not (= nil? (index/+tags (first (tile-spec/all)))))))
 
     (testing "clear the index"
       (let [out (index/clear!)
@@ -27,25 +27,27 @@
     (testing "load and search the index"
           ;; have to call _refresh after loading the index to open a new segment
           ;; Otherwise we'd have to wait 1 second for the results to be searchable
-      (let [load-results    (index/load!)
+      (let [load-results    (index/index-spec! (tile-spec/all))
             refresh-results (http/post (str (index/url) "/_refresh"))
             refresh-status  (:status @refresh-results)]
         (log/debug "ES Refresh Results:" refresh-status)
-        (is (< 0 (count (index/search->ubids (index/search "tm")))))))
+        (is (< 0 (count (index/results (index/search "tm")))))))
 
     (testing "index search"
       (let [raw (index/search "((tm AND cloud) OR band3) AND NOT shadow AND 5")
-            results (index/search->ubids raw)
-            expected (seq (vector "LANDSAT_5/TM/sr_band3"
-                                  "LANDSAT_5/TM/toa_band3"
-                                  "LANDSAT_5/TM/sr_adjacent_cloud_qa"
-                                  "LANDSAT_5/TM/sr_cloud_qa"))]
+            results (index/results raw)
+            expected-ubids (seq (vector "LANDSAT_5/TM/sr_cloud_qa"
+                                        "LANDSAT_5/TM/sr_adjacent_cloud_qa"
+                                        "LANDSAT_5/TM/cfmask_conf"
+                                        "LANDSAT_5/TM/cfmask"
+                                        "LANDSAT_5/TM/sr_band3"
+                                        "LANDSAT_5/TM/toa_band3"))]
 
         ;; "LANDSAT_7/ETM/sr_band3" "LANDSAT_7/ETM/toa_band3"
-        (log/debug "Raw results from search:" raw)
-        (log/debug "Raw type:" (type raw))
-        (log/debug "Intermediate:" (get-in raw ["hits"]))
+        (log/trace "Raw results from search:" raw)
+        (log/trace "Raw type:" (type raw))
+        (log/trace "Intermediate:" (get-in raw ["hits"]))
         (log/debug "Formatted results from search:" results)
         (is (not (= nil? results)))
         (is (seq? results))
-        (is (= (sort results) (sort expected)))))))
+        (is (= (sort expected-ubids) (sort (map #(get % "ubid") results))))))))
