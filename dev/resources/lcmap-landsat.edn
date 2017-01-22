@@ -28,7 +28,7 @@
              :queue "dev.lcmap.landsat.server.queue"}
  :worker    {:exchange "dev.lcmap.landsat.worker.exchange"
              :queue    "dev.lcmap.landsat.worker.queue"}
- :search     {:url "http://localhost:9200"
-              :ubid-index "lcmap_landsat_dev_ubids"
-              :ubid-index-type "ubid"
+ :search     {:index-url      "http://localhost:9200/tile-specs"
+              :bulk-api-url   "http://localhost:9200/tile-specs/dev/_bulk"
+              :search-api-url "http://localhost:9200/tile-specs/_search"
               :max-result-size 10000}}

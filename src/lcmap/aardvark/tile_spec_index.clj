@@ -3,43 +3,11 @@
   (:require [lcmap.aardvark.config :refer [config]]
             [lcmap.aardvark.es :as es]
             [lcmap.aardvark.tile-spec :as tile-spec]
-            [lcmap.commons.string :refer [strip]]
             [lcmap.commons.collections :refer [vectorize]]
             [clojure.tools.logging :as log]
             [clojure.string :as str]
             [clojure.data.json :as json]
             [org.httpkit.client :as http]))
-
-(defn server-url
-  "Returns the url to the search server"
-  []
-  (log/tracef "returning the server-url")
-  (strip "/" (get-in config [:search :url])))
-
-(defn index-name
-  "Returns the name of the search index"
-  []
-  (log/tracef "returning the index-name")
-  (strip "/" (get-in config [:search :ubid-index])))
-
-(defn url
-  "Returns the url to the search index"
-  []
-  (log/debugf "returning the search index url")
-  (str (server-url) "/" (index-name)))
-
-(defn bulk-api-url
-  "Returns the url to the bulk api"
-  []
-  (log/debugf "returning the bulk api url")
-  (str (url) "/"
-       (strip "/" (get-in config [:search :ubid-index-type])) "/_bulk"))
-
-(defn search-api-url
-  "Returns the url to the search api"
-  []
-  (log/debugf "returning the search-api-url")
-  (str (url) "/_search"))
 
 (defn +tags
   "Appends additional tags to a tile-spec"
@@ -63,13 +31,13 @@
   "Clears the tile-spec index"
   []
   (log/infof "clearing the tile-spec index")
-  (es/clear! (url)))
+  (es/clear! (get-in config [:search :index-url])))
 
 (defn search
   "Submits a query to the index.  Query should conform to elasticsearch
    querystring query syntax. Returns map of raw results"
   ([query]
-   (search (search-api-url) query))
+   (search (get-in config [:search :search-api-url]) query))
 
   ([api-url query]
    (log/debugf "querying the index")
@@ -89,6 +57,6 @@
   [tile-specs]
   (log/infof "saving index entries")
   (log/tracef "====> for tile-spec: %s" tile-specs)
-  (es/load! (bulk-api-url)
+  (es/load! (get-in config [:search :bulk-api-url])
             (pmap #(->> % +tags index-entry) (vectorize tile-specs)))
   tile-specs)

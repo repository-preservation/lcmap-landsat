@@ -5,11 +5,12 @@
             [clojure.data.json :as json]
             [org.httpkit.client :as http]
             [clojure.tools.logging :as log]
+            [lcmap.aardvark.config :refer [config]]
             [lcmap.aardvark.shared :as shared]
             [lcmap.aardvark.tile-spec :as tile-spec]
             [lcmap.aardvark.tile-spec-test :refer [L5 spec-opts]]
             [lcmap.aardvark.tile-spec-index :as index]))
-
+            
 (deftest test-indexing
   (shared/with-system
 
@@ -28,7 +29,8 @@
           ;; have to call _refresh after loading the index to open a new segment
           ;; Otherwise we'd have to wait 1 second for the results to be searchable
       (let [load-results    (index/save (tile-spec/all))
-            refresh-results (http/post (str (index/url) "/_refresh"))
+            refresh-results (http/post (str (get-in config [:search :index-url])
+                                            "/_refresh"))
             refresh-status  (:status @refresh-results)]
         (log/debug "ES Refresh Results:" refresh-status)
         (is (< 0 (count (index/result (index/search "tm")))))))

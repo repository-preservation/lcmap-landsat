@@ -32,8 +32,8 @@
 (def database {:contact-points [schema/Str]
                (schema/optional-key :port) schema/Num
                (schema/optional-key :credentials)
-                                    {:user schema/Str
-                                     :password schema/Str}
+               {:user schema/Str
+                :password schema/Str}
                :default-keyspace schema/Str})
 
 (def server {:exchange schema/Str
@@ -42,9 +42,9 @@
 (def worker {:exchange schema/Str
              :queue schema/Str})
 
-(def search {:url schema/Str
-             :ubid-index schema/Str
-             :ubid-index-type schema/Str
+(def search {:index-url schema/Str
+             :bulk-api-url schema/Str
+             :search-api-url schema/Str
              :max-result-size schema/Num})
 
 (def root-cfg

@@ -127,10 +127,11 @@ Example config:
              :queue    "lcmap.landsat.server.queue"}
  :worker    {:exchange "lcmap.landsat.worker.exchange"
              :queue    "lcmap.landsat.worker.queue"}
- :search     {:url "http://172.17.0.1:9200"
-              :ubid-index "lcmap_landsat_ubids"
-              :ubid-index-type "ubid"
-              :max-result-size 10000}}              
+ :search     {:index-url      "http://localhost:9200/tile-specs"
+              :bulk-api-url   "http://localhost:9200/tile-specs/ops/_bulk"
+              :search-api-url "http://localhost:9200/tile-specs/_search"
+              :max-result-size 10000}}
+
 ```
 
 ### Links
