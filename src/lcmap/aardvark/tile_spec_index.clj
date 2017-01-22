@@ -50,7 +50,7 @@
   (str (json/write-str {"index" {"_retry_on_conflict" 3}}) "\n"
        (json/write-str tile-spec) "\n"))
 
-(defn clear!
+(defn clear
   "Clears the tile-spec-index"
   []
   (es/clear! (url)))
@@ -64,13 +64,13 @@
   ([api-url query]
    (es/search api-url query (get-in config [:search :max-result-size]))))
 
-(defn results
+(defn result
   "Returns sequence of tile-specs from search results"
   [search-results]
   (map #(get % "_source")
        (get-in search-results ["hits" "hits"])))
 
-(defn index-spec!
+(defn save
   "Create index entry(s) in ES"
   [tile-specs]
   (log/debugf "creating index entry(s) for %s" tile-specs)

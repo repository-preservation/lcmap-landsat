@@ -19,7 +19,7 @@
       (is (not (= nil? (index/+tags (first (tile-spec/all)))))))
 
     (testing "clear the index"
-      (let [out (index/clear!)
+      (let [out (index/clear)
             raw (index/search "tm")
             err (get-in (first (get-in raw ["root_cause"])) ["type"])]
         (is (= "index_not_found_exception" err))))
@@ -27,15 +27,15 @@
     (testing "load and search the index"
           ;; have to call _refresh after loading the index to open a new segment
           ;; Otherwise we'd have to wait 1 second for the results to be searchable
-      (let [load-results    (index/index-spec! (tile-spec/all))
+      (let [load-results    (index/save (tile-spec/all))
             refresh-results (http/post (str (index/url) "/_refresh"))
             refresh-status  (:status @refresh-results)]
         (log/debug "ES Refresh Results:" refresh-status)
-        (is (< 0 (count (index/results (index/search "tm")))))))
+        (is (< 0 (count (index/result (index/search "tm")))))))
 
     (testing "index search"
       (let [raw (index/search "((tm AND cloud) OR band3) AND NOT shadow AND 5")
-            results (index/results raw)
+            results (index/result raw)
             expected-ubids (seq (vector "LANDSAT_5/TM/sr_cloud_qa"
                                         "LANDSAT_5/TM/sr_adjacent_cloud_qa"
                                         "LANDSAT_5/TM/cfmask_conf"

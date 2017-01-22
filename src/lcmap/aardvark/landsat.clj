@@ -102,7 +102,7 @@
   "Create or update all tile-specs"
   [{body :body :as req}]
   (log/debugf "create or update %s tile specs" (count body))
-  (let [saved (map #(index/index-spec! (tile-spec/insert %)) body)]
+  (let [saved (map #(index/save (tile-spec/insert %)) body)]
     {:status 200 :body {:saved (count saved)}}))
 
 (defn put-tile-spec
@@ -113,16 +113,14 @@
     (or (some->> (tile-spec/validate tile-spec)
                  (assoc {:status 403} :body))
         (some->> (tile-spec/insert tile-spec)
-                 (index/index-spec!)
+                 (index/save)
                  (assoc {:status 202} :body)))))
 
 (defn get-ubids
   "Search the ubids by tag."
   [{{q :q :or {q "*"}} :params}]
   (log/debug "retrieve all tile-specs")
-  (let [raw  (index/search q)
-        hits (map #(get-in % ["_source" "ubid"]) (get-in raw ["hits" "hits"]))]
-    {:status 200 :body hits}))
+  {:status 200 :body (index/result (index/search q))})
 
 ;;; Request entity transformers.
 
