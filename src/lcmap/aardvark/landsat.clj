@@ -218,17 +218,11 @@
      (GET    "/tile-specs" []
              (with-meta (get-tile-specs)
                {:template html/tile-spec-list}))
-     (POST   "/tile-specs" []
-             (with-meta (post-tile-spec request)
-               {:template html/tile-spec-list}))
      (ANY    "/tile-specs" []
              (with-meta (allow ["GET" "POST"])
                {:template html/default}))
      (GET    "/tile-spec/:ubid{.+}" [ubid]
              (with-meta (get-tile-spec ubid request)
-               {:template html/tile-spec-info}))
-     (PUT    "/tile-spec/:ubid{.+}" [ubid]
-             (with-meta (put-tile-spec ubid request)
                {:template html/tile-spec-info}))
      (DELETE "/tile-spec/:ubid{.+}" [ubid]
              (with-meta (delete-tile-spec ubid)
@@ -236,6 +230,13 @@
      (ANY    "/tile-spec/:ubid{.+}" []
              (with-meta (allow ["GET" "PUT"])
                {:template html/default}))
+     ;; TODO: Enable after providing authentication/authorization.
+     #_(POST   "/tile-specs" []
+             (with-meta (post-tile-spec request)
+               {:template html/tile-spec-list}))
+     #_(PUT    "/tile-spec/:ubid{.+}" [ubid]
+             (with-meta (put-tile-spec ubid request)
+               {:template html/tile-spec-info}))
      (GET    "/ubids" []
              (with-meta (get-ubids request)
                {:template html/default}))
