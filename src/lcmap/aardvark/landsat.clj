@@ -72,7 +72,7 @@
                   :y (Integer/parseInt y)
                   :acquired (str/split acquired #"/")}
         tiles (tile/find tile+)]
-    (log/debugf "get tiles: %s" )
+    (log/debugf "get tiles: %s")
     {:status 200 :body tiles}))
 
 (defn get-tile-spec
@@ -102,7 +102,7 @@
   "Create or update all tile-specs"
   [{body :body :as req}]
   (log/debugf "create or update %s tile specs" (count body))
-  (let [saved (map #(index/index-spec! (tile-spec/insert %)) body)]
+  (let [saved (map #(index/save (tile-spec/insert %)) body)]
     {:status 200 :body {:saved (count saved)}}))
 
 (defn put-tile-spec
@@ -113,16 +113,14 @@
     (or (some->> (tile-spec/validate tile-spec)
                  (assoc {:status 403} :body))
         (some->> (tile-spec/insert tile-spec)
-                 (index/index-spec!)
+                 (index/save)
                  (assoc {:status 202} :body)))))
 
 (defn get-ubids
   "Search the ubids by tag."
   [{{q :q :or {q "*"}} :params}]
   (log/debug "retrieve all tile-specs")
-  (let [raw  (index/search q)
-        hits (map #(get-in % ["_source" "ubid"]) (get-in raw ["hits" "hits"]))]
-    {:status 200 :body hits}))
+  {:status 200 :body (index/result (index/search q))})
 
 ;;; Request entity transformers.
 
@@ -218,17 +216,11 @@
      (GET    "/tile-specs" []
              (with-meta (get-tile-specs)
                {:template html/tile-spec-list}))
-     (POST   "/tile-specs" []
-             (with-meta (post-tile-spec request)
-               {:template html/tile-spec-list}))
      (ANY    "/tile-specs" []
              (with-meta (allow ["GET" "POST"])
                {:template html/default}))
      (GET    "/tile-spec/:ubid{.+}" [ubid]
              (with-meta (get-tile-spec ubid request)
-               {:template html/tile-spec-info}))
-     (PUT    "/tile-spec/:ubid{.+}" [ubid]
-             (with-meta (put-tile-spec ubid request)
                {:template html/tile-spec-info}))
      (DELETE "/tile-spec/:ubid{.+}" [ubid]
              (with-meta (delete-tile-spec ubid)
@@ -236,6 +228,13 @@
      (ANY    "/tile-spec/:ubid{.+}" []
              (with-meta (allow ["GET" "PUT"])
                {:template html/default}))
+     ;; TODO: Enable after providing authentication/authorization.
+     #_(POST   "/tile-specs" []
+             (with-meta (post-tile-spec request)
+               {:template html/tile-spec-list}))
+     #_(PUT    "/tile-spec/:ubid{.+}" [ubid]
+             (with-meta (put-tile-spec ubid request)
+               {:template html/tile-spec-info}))
      (GET    "/ubids" []
              (with-meta (get-ubids request)
                {:template html/default}))

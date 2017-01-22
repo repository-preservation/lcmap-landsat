@@ -56,7 +56,8 @@
                    :plugins [[lein-codox "0.10.0"]
                              [lein-ancient "0.6.10"]
                              [lein-kibit "0.1.2"]
-                             [jonase/eastwood "0.2.3"]]}
+                             [jonase/eastwood "0.2.3"]
+                             [lein-cljfmt "0.5.6"]]}
              :test {:resource-paths ["test" "test/resources" "resources" "data"]
                     :dependencies [[http-kit.fake "0.2.2"]]}
              :repl {:resource-paths ["dev" "dev/resources" "resources" "data"]}
