@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# PLEASE NOTE: This will not work until authorization is supported,
+# allowing unauthorized users to create or update tile-specs could
+# impair people's ability to retrieve tile data.
+
 curl --verbose \
      -H "Accept: application/json" \
      -H "Content-Type: application/json" \
