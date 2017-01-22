@@ -15,18 +15,15 @@
   []
   (strip "/" (get-in config [:search :url])))
 
-
 (defn index-name
   "Returns the name of the search index"
   []
   (strip "/" (get-in config [:search :ubid-index])))
 
-
 (defn url
   "Returns the url to the search index"
   []
   (str (server-url) "/" (index-name)))
-
 
 (defn bulk-api-url
   "Returns the url to bulk api"
@@ -34,44 +31,24 @@
   (str (url) "/"
        (strip "/" (get-in config [:search :ubid-index-type])) "/_bulk"))
 
-
 (defn search-api-url
   "Returns the url to the search api"
   []
   (str (url) "/_search"))
 
-(defn universal-band-ids []
-  "Retrieves all tile-spec ubids"
-  (distinct (map #(:ubid %) (tile-spec/all [:ubid]))))
+(defn +tags
+  "Creates additional tags from a ubid"
+  [tile-spec]
+  (let [ubid-tags (str/split (:ubid tile-spec) #"/|_")]
+    (if (> (count ubid-tags) 1)
+      (update tile-spec :tags conj ubid-tags)
+      tile-spec)))
 
-(defn ubid->tags
-  "Extracts tags from a sequence of ubids and returns a map with the
-  ubid and tags."
-  [ubids]
-  (log/debugf "UBID Payload coming in:%s" ubids)
-  (map #(assoc {} :ubid % :tags (str/split % #"/|_")) (vectorize ubids)))
-
-
-(defn tags->index-payload
-  "Creates a bulk index payload from a sequence of tags"
-  [tags]
-  (let []
-    (apply str
-           (map #(str
-                  (json/write-str {"index" {"_retry_on_conflict" 3}}) "\n"
-                  (json/write-str {"ubid" (:ubid %) "tags" (:tags %)}) "\n")
-                tags))))
-
-(defn load!
-  "Loads index payload into index/url"
-  ([]
-   (load! (universal-band-ids)))
-
- ([ubids]
-  (log/debugf "UBIDS COMING INTO LOAD!:%s" ubids)
-  (let [payload (-> ubids ubid->tags tags->index-payload)]
-    (log/debug "Loading payload:" payload " into bulk api at:" (bulk-api-url))
-    (es/load! (bulk-api-url) payload))))
+(defn index-entry
+   "Creates an index entry."
+  [tile-spec]
+  (str (json/write-str {"index" {"_retry_on_conflict" 3}}) "\n"
+       (json/write-str tile-spec) "\n"))
 
 (defn clear!
   "Clears the tile-spec-index"
@@ -87,15 +64,16 @@
   ([api-url query]
    (es/search api-url query (get-in config [:search :max-result-size]))))
 
-(defn search->ubids
-  "Returns sequence of ubids from search results"
+(defn results
+  "Returns sequence of tile-specs from search results"
   [search-results]
-  (map #(get-in % ["_source" "ubid"])
+  (map #(get % "_source")
        (get-in search-results ["hits" "hits"])))
 
 (defn index-spec!
-  "Create index entry in ES"
-  [tile-spec]
-  (log/debugf "XXXX creating index entry for %s" tile-spec)
-  (load! (:ubid tile-spec))
-  tile-spec)
+  "Create index entry(s) in ES"
+  [tile-specs]
+  (log/debugf "creating index entry(s) for %s" tile-specs)
+  (es/load! (bulk-api-url)
+            (map #(->> % +tags index-entry) (vectorize tile-specs)))
+  tile-specs)
