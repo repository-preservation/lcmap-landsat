@@ -26,8 +26,15 @@ user@machine:~$ http http://host:port/landsat/tile-specs
 
 Search for tile-specs.  ?q= parameter uses [ElasticSearch QueryStringSyntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
 > By default, elastic search applies the query against all indexed fields.
-> Indiviual fields may also be searched directly by prepending the query
-> with the field name plus colon. Example: ?q=ubid:landsat_7 AND etm AND sr_band1
+> 
+> Individual fields may also be searched directly by prepending the query
+> with the field name plus colon. 
+> 
+> Example: ?q=ubid:landsat_7 AND etm AND sr_band1
+> 
+> UBIDS cannot be supplied as is to the ?q parameter, as they are tokens separate by a forward slash "/". This 
+> character denotes a regex expression in elastic search syntax.  See the QueryString query syntax guide above.
+> 
 
 ```bash
 user@machine:~$ http http://host:port/landsat/tile-specs
