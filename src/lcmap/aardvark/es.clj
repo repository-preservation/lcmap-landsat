@@ -41,3 +41,8 @@
            errors)
        (do (log/debug (str "search success:" body "full url:" full-url))
            (json/read-str body :key-fn keyword)))))
+
+(defn refresh!
+  "Refreshes the search index"
+  [refresh-url]
+  @(http/post refresh-url))

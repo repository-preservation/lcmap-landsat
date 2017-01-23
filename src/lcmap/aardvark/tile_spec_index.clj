@@ -47,6 +47,19 @@
   (log/spy :trace
            (map #(get % :_source)(get-in search-results [:hits :hits]))))
 
+(defn refresh
+  "Refreshes the search index"
+  []
+  (comment "This should be working but isn't.  Elasticsearch results
+            are not immediately available until they are flushed to disk.
+            Caller can either wait 1 second (per the docs) or call refresh
+            endpoint"
+           (es/refresh! (get-in config [:search :refresh-url])))
+  (log/tracef "Refreshing search index")
+  #_(Thread/sleep 1000)
+  (es/refresh! (get-in config [:search :refresh-url]))
+  true)
+
 (defn save
   "Saves tile-specs to the ElasticSearch index."
   [tile-specs]
@@ -54,4 +67,5 @@
   (log/spy :trace
            (es/load! (get-in config [:search :bulk-api-url])
                      (pmap #(->> % +tags index-entry) (vectorize tile-specs))))
+  (refresh)
   tile-specs)

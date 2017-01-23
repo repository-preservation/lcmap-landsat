@@ -8,13 +8,14 @@
             [lcmap.aardvark.config :refer [config]]
             [lcmap.aardvark.shared :as shared]
             [lcmap.aardvark.tile-spec :as tile-spec]
-            [lcmap.aardvark.tile-spec-test :refer [L5 spec-opts]]
-            [lcmap.aardvark.tile-spec-index :as index]))
+            [lcmap.aardvark.tile-spec-index :as index]
+            [lcmap.aardvark.tile-test :as tile-test :refer [L5 tile-spec-opts]]))
+
 
 (deftest test-indexing
   (shared/with-system
 
-    (tile-spec/process L5 spec-opts)
+    (tile-spec/process L5 tile-spec-opts)
 
     (testing "+tags"
       (is (not (= nil? (index/+tags (first (tile-spec/all)))))))
@@ -26,14 +27,8 @@
         (is (= "index_not_found_exception" err))))
 
     (testing "load and search the index"
-          ;; have to call _refresh after loading the index to open a new segment
-          ;; Otherwise we'd have to wait 1 second for the results to be searchable
-      (let [load-results    (index/save (tile-spec/all))
-            refresh-results (http/post (str (get-in config [:search :index-url])
-                                            "/_refresh"))
-            refresh-status  (:status @refresh-results)]
-        (log/debug "ES Refresh Results:" refresh-status)
-        (is (< 0 (count (index/result (index/search "tm")))))))
+        (tile-spec/process L5 tile-spec-opts)
+        (is (< 0 (count (index/result (index/search "tm"))))))
 
     (testing "index search"
       (let [raw (index/search "((tm AND cloud) OR band3) AND NOT shadow AND 5")
