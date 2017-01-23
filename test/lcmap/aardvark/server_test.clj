@@ -4,7 +4,9 @@
             [clojure.test :refer :all]
             [clojure.tools.logging :as log]
             [lcmap.aardvark.server :as server]
-            [lcmap.aardvark.shared :refer :all]))
+            [lcmap.aardvark.shared :refer :all]
+            [lcmap.aardvark.tile-spec :as tile-spec :as tile-spec]
+            [lcmap.aardvark.tile-spec-test :refer [L5 spec-opts]]))
 
 (deftest landsat-tests
   (with-system
@@ -53,6 +55,7 @@
                        :body tile-spec)]
          (is (= 202 (:status resp)))))
     (testing "get an existing tile-spec"
+      (tile-spec/process L5 spec-opts)
       (let [resp (req :get "http://localhost:5679/landsat/tile-spec/LANDSAT_5/TM/sr_band1"
                       :headers {"Accept" "application/json"})]
         (is (= 200 (:status resp)))))
