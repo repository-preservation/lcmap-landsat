@@ -103,7 +103,7 @@
   "Create or update all tile-specs"
   [{body :body :as req}]
   (log/debugf "create or update %s tile specs" (count body))
-  (let [saved (map #(index/save (tile-spec/insert %)) body)]
+  (let [saved (map #(tile-spec/save %) body)]
     {:status 200 :body {:saved (count saved)}}))
 
 (defn put-tile-spec
@@ -113,8 +113,7 @@
   (let [tile-spec (merge {:ubid ubid} body)]
     (or (some->> (tile-spec/validate tile-spec)
                  (assoc {:status 403} :body))
-        (some->> (tile-spec/insert tile-spec)
-                 (index/save)
+        (some->> (tile-spec/save tile-spec)
                  (assoc {:status 202} :body)))))
 
 ;;; Request entity transformers.

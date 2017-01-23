@@ -2,7 +2,6 @@
   "Search index for tile-specs"
   (:require [lcmap.aardvark.config :refer [config]]
             [lcmap.aardvark.es :as es]
-            [lcmap.aardvark.tile-spec :as tile-spec]
             [lcmap.commons.collections :refer [vectorize]]
             [clojure.tools.logging :as log]
             [clojure.string :as str]

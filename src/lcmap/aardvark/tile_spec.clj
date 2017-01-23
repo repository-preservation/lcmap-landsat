@@ -12,7 +12,8 @@
             [qbits.hayt.cql :as cql]
             [schema.core :as schema]
             [lcmap.aardvark.db :as db]
-            [lcmap.aardvark.config :refer [config]])
+            [lcmap.aardvark.config :refer [config]]
+            [lcmap.aardvark.tile-spec-index :as index])
   (:refer-clojure :exclude [find]))
 
 (defstate gdal
@@ -74,6 +75,13 @@
        (db/execute))
   tile-spec)
 
+(defn save
+  "Saves a tile-spec"
+  [tile-spec]
+  (->> tile-spec
+       (index/save)
+       (insert)))
+
 (defn dataset->spec
   "Deduce tile spec properties from band's dataset at file_path and band's data_shape"
   [path shape]
@@ -104,7 +112,7 @@
                       opts
                       band)
                (relevant)
-               (insert)))))
+               (save)))))
 
 (defn process
   "Generate tile-specs from an ESPA archive"
