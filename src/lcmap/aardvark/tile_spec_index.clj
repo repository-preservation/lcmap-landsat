@@ -46,7 +46,7 @@
   [search-results]
   (log/debugf "extracting tile-specs from search results")
   (log/spy :trace
-           (map #(get % "_source")(get-in search-results ["hits" "hits"]))))
+           (map #(get % :_source)(get-in search-results [:hits :hits]))))
 
 (defn save
   "Saves tile-specs to the ElasticSearch index."

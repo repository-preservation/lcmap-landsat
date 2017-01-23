@@ -78,10 +78,12 @@
 (defn get-tile-spec
   "Search for a source and produce a response map."
   [ubid {params :params :as req}]
-  (log/debug "get tile-spec for '%s' with %s" ubid params)
-  (if-let [results (first (tile-spec/query (merge {:ubid ubid} params)))]
-    {:status 200 :body results}
-    {:status 404 :body nil}))
+  (log/debugf "get tile-spec for '%s' with %s" ubid params)
+  (let [query  (str "ubid:" (str/replace ubid #"/" " AND "))
+        result (first (index/result (index/search query)))]
+    (if (= (:ubid result) ubid)
+      {:status 200 :body result}
+      {:status 404 :body nil})))
 
 (defn delete-tile-spec
   "Deleting a tile-spec is not supported.
@@ -92,11 +94,10 @@
   {:status 501})
 
 (defn get-tile-specs
-  "Get all tile-specs."
-  []
-  (log/debugf "get all tile-specs")
-  (let [results (tile-spec/all)]
-    {:status 200 :body results}))
+  "Get tile-specs."
+  [{{q :q :or {q "*"}} :params}]
+  (log/debug "get tile-specs")
+  {:status 200 :body (index/result (index/search q))})
 
 (defn post-tile-spec
   "Create or update all tile-specs"
@@ -115,12 +116,6 @@
         (some->> (tile-spec/insert tile-spec)
                  (index/save)
                  (assoc {:status 202} :body)))))
-
-(defn get-ubids
-  "Search the ubids by tag."
-  [{{q :q :or {q "*"}} :params}]
-  (log/debug "retrieve all tile-specs")
-  {:status 200 :body (index/result (index/search q))})
 
 ;;; Request entity transformers.
 
@@ -214,7 +209,7 @@
              (with-meta (allow ["GET"])
                {:template html/default}))
      (GET    "/tile-specs" []
-             (with-meta (get-tile-specs)
+             (with-meta (get-tile-specs request)
                {:template html/tile-spec-list}))
      (ANY    "/tile-specs" []
              (with-meta (allow ["GET" "POST"])
@@ -235,9 +230,6 @@
      #_(PUT    "/tile-spec/:ubid{.+}" [ubid]
              (with-meta (put-tile-spec ubid request)
                {:template html/tile-spec-info}))
-     (GET    "/ubids" []
-             (with-meta (get-ubids request)
-               {:template html/default}))
      (GET    "/problem/" []
              {:status 200 :body "problem resource"}))
    prepare-with respond-with))

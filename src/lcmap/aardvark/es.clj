@@ -8,7 +8,7 @@
 (defn- get-errors
   "Returns errors from json payload if one exists, nil otherwise"
   [response]
-  (get-in (json/read-str response) ["error"]))
+  (get-in (json/read-str response :key-fn keyword) [:error]))
 
 (defn load!
   "Loads payload into index at url"
@@ -40,4 +40,4 @@
        (do (log/debug (str "search error:" errors "full url:" full-url))
            errors)
        (do (log/debug (str "search success:" body "full url:" full-url))
-           (json/read-str body)))))
+           (json/read-str body :key-fn keyword)))))

@@ -10,7 +10,7 @@
             [lcmap.aardvark.tile-spec :as tile-spec]
             [lcmap.aardvark.tile-spec-test :refer [L5 spec-opts]]
             [lcmap.aardvark.tile-spec-index :as index]))
-            
+
 (deftest test-indexing
   (shared/with-system
 
@@ -22,7 +22,7 @@
     (testing "clear the index"
       (let [out (index/clear)
             raw (index/search "tm")
-            err (get-in (first (get-in raw ["root_cause"])) ["type"])]
+            err (get-in (first (get-in raw [:root_cause])) [:type])]
         (is (= "index_not_found_exception" err))))
 
     (testing "load and search the index"
@@ -48,8 +48,8 @@
         ;; "LANDSAT_7/ETM/sr_band3" "LANDSAT_7/ETM/toa_band3"
         (log/trace "Raw results from search:" raw)
         (log/trace "Raw type:" (type raw))
-        (log/trace "Intermediate:" (get-in raw ["hits"]))
+        (log/trace "Intermediate:" (get-in raw [:hits]))
         (log/debug "Formatted results from search:" results)
         (is (not (= nil? results)))
         (is (seq? results))
-        (is (= (sort expected-ubids) (sort (map #(get % "ubid") results))))))))
+        (is (= (sort expected-ubids) (sort (map #(get % :ubid) results))))))))
