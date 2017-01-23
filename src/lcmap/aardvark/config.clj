@@ -43,6 +43,7 @@
              :queue schema/Str})
 
 (def search {:index-url schema/Str
+             :refresh-url schema/Str
              :bulk-api-url schema/Str
              :search-api-url schema/Str
              :max-result-size schema/Num})

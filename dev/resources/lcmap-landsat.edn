@@ -29,6 +29,7 @@
  :worker    {:exchange "dev.lcmap.landsat.worker.exchange"
              :queue    "dev.lcmap.landsat.worker.queue"}
  :search     {:index-url      "http://localhost:9200/tile-specs"
+              :refresh-url    "http://localhost:9200/tile-specs/_refresh"
               :bulk-api-url   "http://localhost:9200/tile-specs/dev/_bulk"
               :search-api-url "http://localhost:9200/tile-specs/_search"
               :max-result-size 10000}}
