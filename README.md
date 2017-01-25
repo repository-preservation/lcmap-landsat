@@ -11,7 +11,7 @@ LCMAP Landsat data ingest, inventory &amp; distribution.
 Retrieve data.  Any number of ubids may be specified.
 ```bash
 # Using httpie
-user@machine:~$ http http://host:port/landsat/tiles
+user@machine:~$ http http://host:port/tiles
                      ?x=-2013585
                      &y=3095805
                      &acquired=2000-01-01/2017-01-01
@@ -21,7 +21,7 @@ user@machine:~$ http http://host:port/landsat/tiles
 ```
 Get all tile-specs.
 ```bash
-user@machine:~$ http http://host:port/landsat/tile-specs
+user@machine:~$ http http://host:port/tile-specs
 ```
 
 Search for tile-specs.  ?q= parameter uses [ElasticSearch QueryStringSyntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
@@ -37,7 +37,7 @@ Search for tile-specs.  ?q= parameter uses [ElasticSearch QueryStringSyntax](htt
 > 
 
 ```bash
-user@machine:~$ http http://host:port/landsat/tile-specs
+user@machine:~$ http http://host:port/tile-specs
                      ?q=((landsat AND 8) AND sr AND (band1 OR band2 OR band3))
 ```
 

@@ -176,7 +176,7 @@
   "Handlers for landsat resource."
   []
   (wrap-handler
-   (context "/landsat" request
+   (context "/" request
      (GET    "/" []
              (with-meta {:status 200}
                {:template html/default}))

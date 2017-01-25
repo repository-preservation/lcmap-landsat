@@ -59,7 +59,7 @@
   [:nav] (html/content (nav))
   [:tbody :tr] (html/clone-for [source sources]
                                [:a] (html/content (:id source))
-                               [:a] (html/set-attr :href (str "/landsat/source/" (:id source)))))
+                               [:a] (html/set-attr :href (str "/source/" (:id source)))))
 
 (html/deftemplate status-list "public/status.html"
   [services]
@@ -96,7 +96,7 @@
   [:nav] (html/content (nav))
   [:table :> :tr] (html/clone-for [tile-spec tile-specs]
                                   [:a] (html/content (:ubid tile-spec))
-                                  [:a] (html/set-attr :href (str "/landsat/tile-spec/" (:ubid tile-spec)))))
+                                  [:a] (html/set-attr :href (str "/tile-spec/" (:ubid tile-spec)))))
 
 (def geom-fields [:tile_x :tile_y :shift_x :shift_y :pixel_x :pixel_y])
 

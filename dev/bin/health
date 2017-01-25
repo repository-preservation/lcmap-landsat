@@ -1,4 +1,4 @@
 #!/bin/bash
 
 curl -H "Accept: application/json" \
-     --verbose http://localhost:5678/landsat/health
+     --verbose http://localhost:5678/health

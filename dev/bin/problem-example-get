@@ -2,4 +2,4 @@
 
 curl \
   -H "Accept: application/json, */*" \
-  "http://localhost:5678/landsat/problem/example"
+  "http://localhost:5678/problem/example"

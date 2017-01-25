@@ -7,4 +7,4 @@ curl -v \
      -H "Accept: application/json, */*" \
      -d "uri=$FILE_URI" \
      -d 'checksum=e1d2f9b28b1f55c13ee2a4b7c4fc52e7' \
-     http://localhost:5678/landsat/source/LE70460272000029-SC20160826120223.tar.gz
+     http://localhost:5678/source/LE70460272000029-SC20160826120223.tar.gz
