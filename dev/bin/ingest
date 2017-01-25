@@ -14,6 +14,6 @@ do
       -H "Accept: application/json, */*" \
       -d "uri=file://$uri" \
       -d "checksum=$check" \
-      http://localhost:5678/landsat/source/$scene
+      http://localhost:5678/source/$scene
 
 done

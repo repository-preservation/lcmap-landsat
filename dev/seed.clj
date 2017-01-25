@@ -13,7 +13,7 @@
    input format was not completely decided. Because this uses real
    data, it can take some time to download."
   (let [L8 (edn/read-string (slurp "data/tile-specs/L8.edn"))
-         L7 (edn/read-string (slurp "data/tile-specs/L7.edn"))
-         L5 (edn/read-string (slurp "data/tile-specs/L5.edn"))
-         L4 (edn/read-string (slurp "data/tile-specs/L4.edn"))]
+        L7 (edn/read-string (slurp "data/tile-specs/L7.edn"))
+        L5 (edn/read-string (slurp "data/tile-specs/L5.edn"))
+        L4 (edn/read-string (slurp "data/tile-specs/L4.edn"))]
        (map tile-spec/save (concat L8 L7 L5 L4))))

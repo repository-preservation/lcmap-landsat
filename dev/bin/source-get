@@ -3,4 +3,4 @@
 curl -v \
      -H "Accept: application/json, */*" \
      -X GET \
-     http://localhost:5678/landsat/source/LT50460282003221-SC20160826121438.tar.gz
+     http://localhost:5678/source/LT50460282003221-SC20160826121438.tar.gz

@@ -2,4 +2,4 @@
 
 curl \
   -H "Accept: application/json, */*" \
-  "http://localhost:5678/landsat/tiles?ubid=LANDSAT_5/TM/sr_band1&x=-2062080&y=2952960&acquired=2000-01-01/2006-01-01"
+  "http://localhost:5678/tiles?ubid=LANDSAT_5/TM/sr_band1&x=-2062080&y=2952960&acquired=2000-01-01/2006-01-01"

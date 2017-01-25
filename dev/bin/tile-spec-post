@@ -9,4 +9,4 @@ curl --verbose \
      -H "Content-Type: application/json" \
      -X POST \
      --data "@tile-spec.json" \
-     http://localhost:5678/landsat/tile-specs
+     http://localhost:5678/tile-specs
