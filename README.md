@@ -55,7 +55,6 @@ user@machine:~$ http http://host:port/tile-specs
 lcmap-landsat honors HTTP ```Accept``` headers for both ```application/json```
 and ```text/html```.  The default is json.
 
---------------
 
 ## Developing
 Clone this repository
@@ -96,7 +95,6 @@ lein run
 
 A [FAQ][3] is available for common development & test issues.
 
----------------------
 
 ## Build, Run & Deployment
 
