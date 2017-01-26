@@ -13,7 +13,9 @@
             [lcmap.aardvark.db :as db :refer [db-session]]
             [lcmap.aardvark.event :as event :refer [amqp-channel]]
             [lcmap.aardvark.landsat :as landsat]
-            [lcmap.aardvark.middleware :refer [wrap-authenticate wrap-authorize]]
+            [lcmap.aardvark.middleware :refer [wrap-authenticate
+                                               wrap-authorize
+                                               wrap-request-debug]]
             [lcmap.aardvark.problem :as problem]
             [lcmap.aardvark.source :as source]
             [lcmap.aardvark.tile :as tile]
@@ -43,6 +45,7 @@
       (wrap-authenticate)
       (wrap-keyword-params)
       (wrap-params)
+      (wrap-request-debug)
       (wrap-problem problem/transformer)))
 
 ;;; Server-related state

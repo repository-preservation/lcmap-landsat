@@ -71,9 +71,17 @@
                   :x (Integer/parseInt x)
                   :y (Integer/parseInt y)
                   :acquired (str/split acquired #"/")}
+        _     (log/debug "about to get tiles")
         tiles (tile/find tile+)]
-    (log/debugf "get tiles: %s")
+    (log/debugf "get tiles: %s" tiles)
     {:status 200 :body tiles}))
+
+(defn get-tile
+  "Gets a tile given x, y, acquired, satellite, sensor and band"
+  [satellite sensor band request]
+  (->> (str/join "/" [satellite sensor band])
+       (update-in request [:params :ubid] str)
+       (get-tiles)))
 
 (defn get-tile-spec
   "Search for a source and produce a response map."
@@ -177,58 +185,58 @@
   []
   (wrap-handler
    (context "/" request
-     (GET    "/" []
-             (with-meta {:status 200}
-               {:template html/default}))
-     (ANY    "/" []
-             (with-meta (allow ["GET"])
-               {:template html/default}))
-     (GET    "/health" []
-             (with-meta (check-health)
-               {:template html/status-list}))
-     (GET    "/sources" []
-             (with-meta (sample-source)
-               {:template html/source-list}))
-     (GET    "/source/:source-id{.+}" [source-id]
-             (with-meta (get-source source-id)
-               {:template html/source-info}))
-     (PUT    "/source/:source-id{.+}" [source-id]
-             (with-meta (put-source source-id request)
-               {:template html/source-info}))
-     (ANY    "/source" []
-             (with-meta (allow ["GET" "PUT"])
-               {:template html/default}))
-     (GET    "/tiles" []
-             (with-meta (get-tiles request)
-               {:template html/tile-list}))
-     (GET    "/tile/:id" [id]
-             (with-meta {:body "coming soon"}
-               {:template html/tile-info}))
-     (ANY    "/tile" []
-             (with-meta (allow ["GET"])
-               {:template html/default}))
-     (GET    "/tile-specs" []
-             (with-meta (get-tile-specs request)
-               {:template html/tile-spec-list}))
-     (ANY    "/tile-specs" []
-             (with-meta (allow ["GET" "POST"])
-               {:template html/default}))
-     (GET    "/tile-spec/:ubid{.+}" [ubid]
-             (with-meta (get-tile-spec ubid request)
-               {:template html/tile-spec-info}))
+     (GET "/" []
+          (with-meta {:status 200}
+            {:template html/default}))
+     (ANY "/"[]
+          (with-meta (allow ["GET"])
+            {:template html/default}))
+     (GET "/health" []
+          (with-meta (check-health)
+            {:template html/status-list}))
+     (GET "/sources" []
+          (with-meta (sample-source)
+            {:template html/source-list}))
+     (GET  "/source/:source-id{.+}" [source-id]
+           (with-meta (get-source source-id)
+             {:template html/source-info}))
+     (PUT "/source/:source-id{.+}" [source-id]
+          (with-meta (put-source source-id request)
+            {:template html/source-info}))
+     (ANY "/source" []
+          (with-meta (allow ["GET" "PUT"])
+            {:template html/default}))
+     (GET "/tiles" []
+          (with-meta (get-tiles request)
+            {:template html/tile-list}))
+     (GET "/tile/:satellite/:sensor/:band" [satellite sensor band]
+          (with-meta (get-tile satellite sensor band request)
+            {:template html/tile-info}))
+     (ANY "/tile" []
+          (with-meta (allow ["GET"])
+            {:template html/default}))
+     (GET "/tile-specs" []
+          (with-meta (get-tile-specs request)
+            {:template html/tile-spec-list}))
+     (ANY "/tile-specs" []
+          (with-meta (allow ["GET" "POST"])
+            {:template html/default}))
+     (GET "/tile-spec/:ubid{.+}" [ubid]
+          (with-meta (get-tile-spec ubid request)
+            {:template html/tile-spec-info}))
      (DELETE "/tile-spec/:ubid{.+}" [ubid]
-             (with-meta (delete-tile-spec ubid)
-               {:template html/tile-spec-info}))
-     (ANY    "/tile-spec/:ubid{.+}" []
-             (with-meta (allow ["GET" "PUT"])
-               {:template html/default}))
+          (with-meta (delete-tile-spec ubid)
+            {:template html/tile-spec-info}))
+     (ANY "/tile-spec/:ubid{.+}" []
+         (with-meta (allow ["GET" "PUT"])
+           {:template html/default}))
      ;; TODO: Enable after providing authentication/authorization.
-     #_(POST   "/tile-specs" []
-             (with-meta (post-tile-spec request)
-               {:template html/tile-spec-list}))
-     #_(PUT    "/tile-spec/:ubid{.+}" [ubid]
-             (with-meta (put-tile-spec ubid request)
-               {:template html/tile-spec-info}))
-     (GET    "/problem/" []
-             {:status 200 :body "problem resource"}))
+     #_(POST "/tile-specs" []
+         (with-meta (post-tile-spec request)
+           {:template html/tile-spec-list}))
+      #_(PUT "/tile-spec/:ubid{.+}" [ubid]
+          (with-meta (put-tile-spec ubid request)
+            {:template html/tile-spec-info}))
+      (GET "/problem/" []
+        {:status 200 :body "problem resource"}))
    prepare-with respond-with))
