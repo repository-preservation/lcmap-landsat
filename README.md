@@ -7,7 +7,7 @@
 
 LCMAP Landsat data ingest, inventory &amp; distribution.
 
-### Usage
+## Usage
 
 #### Retrieve data.  Any number of ubids may be specified.
 ```bash
@@ -57,7 +57,7 @@ and ```text/html```.  The default is json.
 
 --------------
 
-### Developing LCMAP-Landsat
+## Developing
 Clone this repository
 ```bash
 git clone git@github.com:usgs-eros/lcmap-landsat
@@ -98,13 +98,9 @@ A [FAQ][3] is available for common development & test issues.
 
 ---------------------
 
-### Building
+## Build, Run & Deployment
 
 Use `lein uberjar` (or `make build`) to build a standalone jarfile.
-
----------------------
-
-### Running
 
 There are two modes of operation: a web-server that handles HTTP requests, and a worker that handles AMQP messages. A single process can simultaneusly run both modes, although this is not recommended in a production environment.
 
@@ -116,11 +112,7 @@ java -jar \
   $(cat dev/resources/lcmap-landsat.edn)
 ```
 
-### Docker Image
-
 Use `make docker-image` to build a Docker image that includes GDAL dependencies.
-
-### Deployment
 
 [Docker images][2] are automatically built when all tests pass on Travis CI. You may either run the Docker image with additional command line parameters or, if you prefer, build an image using file based configuration.
 
@@ -129,7 +121,7 @@ Example:
 docker run -p 5679:5679 usgseros/lcmap-landsat:0.1.0-SNAPSHOT $(cat ~/landsat.edn)
 ```
 
-### Configuration
+## Configuration
 
 Example config:
 ```edn
@@ -167,8 +159,6 @@ Example config:
               :max-result-size 10000}}
 
 ```
-
-### Links
 
 [1]: https://github.com/USGS-EROS/lcmap-landsat/blob/develop/resources/shared/lcmap-landsat.edn "Configuration File"
 [2]: https://hub.docker.com/r/usgseros/lcmap-landsat/ "Docker Image"
