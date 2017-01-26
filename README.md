@@ -8,7 +8,8 @@
 LCMAP Landsat data ingest, inventory &amp; distribution.
 
 ### Usage
-Retrieve data.  Any number of ubids may be specified.
+
+#### Retrieve data.  Any number of ubids may be specified.
 ```bash
 # Using httpie
 user@machine:~$ http http://host:port/tiles
@@ -19,32 +20,48 @@ user@machine:~$ http http://host:port/tiles
                      &ubid=LANDSAT_8/OLI_TIRS/sr_band2
                      &ubid=LANDSAT_8/OLI_TIRS/sr_band3
 ```
-Get all tile-specs.
+
+#### Retrieve data (alternative endpoint).
+This endpoint may provide better performance for single ubid retrievals due to caching, as some HTTP caches do not account for the querystring.  Currently only available for a single ubid at a time.
+```bash
+# Using httpie
+user@machine:~$ http http://host:port/tile/LANDSAT_8/OLI_TIRS/sr_band1
+                     ?x=-2013585
+                     &y=3095805
+                     &acquired=2000-01-01/2017-01-01
+```
+
+#### Get all tile-specs.
 ```bash
 user@machine:~$ http http://host:port/tile-specs
 ```
 
-Search for tile-specs.  ?q= parameter uses [ElasticSearch QueryStringSyntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
-> By default, elastic search applies the query against all indexed fields.
-> 
-> Individual fields may also be searched directly by prepending the query
-> with the field name plus colon. 
-> 
-> Example: ?q=ubid:landsat_7 AND etm AND sr_band1
-> 
-> UBIDS cannot be supplied as is to the ?q parameter, as they are tokens separate by a forward slash "/". This 
-> character denotes a regex expression in elastic search syntax.  See the QueryString query syntax guide above.
-> 
+#### Search for tile-specs.  
+?q= parameter uses [ElasticSearch QueryStringSyntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
+By default, elastic search applies the query against all indexed fields.
 
+Individual fields may also be searched directly by prepending the query
+with the field name plus colon. 
+
+Example: ?q=ubid:landsat_7 AND etm AND sr_band1
+
+UBIDS cannot be supplied as is to the ?q parameter, as they are tokens separate by a forward slash "/". This 
+character denotes a regex expression in elastic search syntax.  See the QueryString query syntax guide above.
 ```bash
 user@machine:~$ http http://host:port/tile-specs
-                     ?q=((landsat AND 8) AND sr AND (band1 OR band2 OR band3))
+                     ?q=((landsat AND 8) AND NOT sr AND (band1 OR band2 OR band3))
 ```
 
 lcmap-landsat honors HTTP ```Accept``` headers for both ```application/json```
 and ```text/html```.  The default is json.
 
-### Developing
+--------------
+
+### Developing LCMAP-Landsat
+Clone this repository
+```bash
+git clone git@github.com:usgs-eros/lcmap-landsat
+```
 
 Initialize submodules (to get dev/test data).
 
@@ -66,26 +83,26 @@ make docker-dev-up-nodaemon
 make docker-dev-down
 ```
 
+Run the tests.
+```bash
+lein test
+```
+
 Start a REPL.
 
 ```bash
 lein run
 ```
 
-Switch to the `lcmap.aardvark.dev` namespace and start the system. This
-will start a server (using Jetty) and a worker.
-
-```clojure
-(dev)
-(start)
-```
-
 A [FAQ][3] is available for common development & test issues.
 
+---------------------
 
 ### Building
 
 Use `lein uberjar` (or `make build`) to build a standalone jarfile.
+
+---------------------
 
 ### Running
 
@@ -103,7 +120,7 @@ java -jar \
 
 Use `make docker-image` to build a Docker image that includes GDAL dependencies.
 
-## Deployment
+### Deployment
 
 [Docker images][2] are automatically built when all tests pass on Travis CI. You may either run the Docker image with additional command line parameters or, if you prefer, build an image using file based configuration.
 
@@ -111,6 +128,8 @@ Example:
 ```
 docker run -p 5679:5679 usgseros/lcmap-landsat:0.1.0-SNAPSHOT $(cat ~/landsat.edn)
 ```
+
+### Configuration
 
 Example config:
 ```edn

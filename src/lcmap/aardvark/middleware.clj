@@ -13,6 +13,13 @@
   (fn [request]
     (res-tf request (handler (req-tf request)))))
 
+(defn wrap-request-debug
+  "Logs request at DEBUG level"
+  [handler]
+  (fn [request]
+    (log/debug "request-debug: %s" request)
+    (handler request)))
+
 (defn wrap-authenticate
   "Add Identity to request map"
   [handler]

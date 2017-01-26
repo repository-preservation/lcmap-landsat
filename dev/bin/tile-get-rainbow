@@ -1,0 +1,5 @@
+#!/bin/bash
+
+curl \
+  -H "Accept: application/json, */*" \
+  "http://localhost:5678/tiles?ubid=LANDSAT_7/ETM/toa_band6_qa&x=1916415&y=2333805&acquired=1980-01-01/2017-10-10"
