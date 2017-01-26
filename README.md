@@ -55,7 +55,13 @@ user@machine:~$ http http://host:port/tile-specs
 lcmap-landsat honors HTTP ```Accept``` headers for both ```application/json```
 and ```text/html```.  The default is json.
 
-### Developing
+--------------
+
+### Developing LCMAP-Landsat
+Clone this repository
+```bash
+git clone git@github.com:usgs-eros/lcmap-landsat
+```
 
 Initialize submodules (to get dev/test data).
 
@@ -77,26 +83,26 @@ make docker-dev-up-nodaemon
 make docker-dev-down
 ```
 
+Run the tests.
+```bash
+lein test
+```
+
 Start a REPL.
 
 ```bash
 lein run
 ```
 
-Switch to the `lcmap.aardvark.dev` namespace and start the system. This
-will start a server (using Jetty) and a worker.
-
-```clojure
-(dev)
-(start)
-```
-
 A [FAQ][3] is available for common development & test issues.
 
+---------------------
 
 ### Building
 
 Use `lein uberjar` (or `make build`) to build a standalone jarfile.
+
+---------------------
 
 ### Running
 
@@ -114,7 +120,7 @@ java -jar \
 
 Use `make docker-image` to build a Docker image that includes GDAL dependencies.
 
-## Deployment
+### Deployment
 
 [Docker images][2] are automatically built when all tests pass on Travis CI. You may either run the Docker image with additional command line parameters or, if you prefer, build an image using file based configuration.
 
@@ -122,6 +128,8 @@ Example:
 ```
 docker run -p 5679:5679 usgseros/lcmap-landsat:0.1.0-SNAPSHOT $(cat ~/landsat.edn)
 ```
+
+### Configuration
 
 Example config:
 ```edn
