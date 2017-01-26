@@ -49,7 +49,7 @@ UBIDS cannot be supplied as is to the ?q parameter, as they are tokens separate 
 character denotes a regex expression in elastic search syntax.  See the QueryString query syntax guide above.
 ```bash
 user@machine:~$ http http://host:port/tile-specs
-                     ?q=((landsat AND 8) AND sr AND (band1 OR band2 OR band3))
+                     ?q=((landsat AND 8) AND NOT sr AND (band1 OR band2 OR band3))
 ```
 
 lcmap-landsat honors HTTP ```Accept``` headers for both ```application/json```
