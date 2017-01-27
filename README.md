@@ -157,22 +157,22 @@ Example config:
               :max-result-size 10000}}
 ```
 
-### :database
+#### :database
 ```:cluster``` [options are here.](https://github.com/mpenet/alia/blob/master/docs/guide.md)
 
-### :event
+#### :event
 Queue, exchange and binding opts are in the Langohr docs.
 
-### :http
+#### :http
 Specify Jetty options.
 
-### :server
+#### :server
 :exchange and :queue from the :event configuration
 
-### :worker
+#### :worker
 :exchange and :queue from the :event configuration
 
-### :search
+#### :search
 ```:index-url```, ```:bulk-api-url```, and ```:search-api-url``` all require
 the full url to each endpoint.  This is to enable lcmap-landsat to make use
 of read vs. write endpoints during operational deployments.
