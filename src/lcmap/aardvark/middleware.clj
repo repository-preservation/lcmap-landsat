@@ -17,7 +17,7 @@
   "Logs request at DEBUG level"
   [handler]
   (fn [request]
-    (log/debug "request-debug: %s" request)
+    (log/debugf "request-debug: %s" request)
     (handler request)))
 
 (defn wrap-authenticate
