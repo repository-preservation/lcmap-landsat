@@ -231,12 +231,10 @@
          (with-meta (allow ["GET" "PUT"])
            {:template html/default}))
      ;; TODO: Enable after providing authentication/authorization.
-     #_(POST "/tile-specs" []
-         (with-meta (post-tile-spec request)
-           {:template html/tile-spec-list}))
-      #_(PUT "/tile-spec/:ubid{.+}" [ubid]
-          (with-meta (put-tile-spec ubid request)
-            {:template html/tile-spec-info}))
-      (GET "/problem/" []
-        {:status 200 :body "problem resource"}))
+     #_(POST   "/tile-specs" []
+             (with-meta (post-tile-spec request)
+               {:template html/tile-spec-list}))
+     #_(PUT    "/tile-spec/:ubid{.+}" [ubid]
+             (with-meta (put-tile-spec ubid request)
+               {:template html/tile-spec-info})))
    prepare-with respond-with))
