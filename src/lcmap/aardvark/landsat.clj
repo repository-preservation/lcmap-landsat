@@ -228,7 +228,5 @@
                {:template html/tile-spec-list}))
      #_(PUT    "/tile-spec/:ubid{.+}" [ubid]
              (with-meta (put-tile-spec ubid request)
-               {:template html/tile-spec-info}))
-     (GET    "/problem/" []
-             {:status 200 :body "problem resource"}))
+               {:template html/tile-spec-info})))
    prepare-with respond-with))

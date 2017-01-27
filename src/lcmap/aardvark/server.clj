@@ -14,7 +14,6 @@
             [lcmap.aardvark.event :as event :refer [amqp-channel]]
             [lcmap.aardvark.landsat :as landsat]
             [lcmap.aardvark.middleware :refer [wrap-authenticate wrap-authorize wrap-exception]]
-            [lcmap.aardvark.problem :as problem]
             [lcmap.aardvark.source :as source]
             [lcmap.aardvark.tile :as tile]
             [lcmap.aardvark.tile-spec :as tile-spec]
