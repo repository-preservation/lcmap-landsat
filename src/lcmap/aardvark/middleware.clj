@@ -30,3 +30,30 @@
     (let [response (handler request)]
       (log/debug "res - authorize wrapper ...")
       response)))
+
+(defn ex->resp
+  "Produce Ring-style response body from exception."
+  [ex]
+  (try
+    (let [info (-> (bean ex)
+                   (update :class str)
+                   (select-keys [:class :cause :message]))]
+      {:status 500
+       :headers {"Content-Type" "application/json"}
+       :body (json/generate-string info)})
+    (catch RuntimeException ex
+      {:status 500
+       :body "Another exception occurred converting exception into JSON response. :sad:"})))
+
+(defn wrap-exception
+  [handler]
+  (fn [req]
+    (try
+      (handler req)
+      (catch Throwable ex
+        ;; this will print a stack trace, useful for debugging.
+        (log/debug ex (.getMessage ex))
+        ;; this will not print a stack trace, just a short message.
+        (log/error "%s: %s" (.getMessage ex) (ex-data ex))
+        ;; produce a ring style response map
+        (ex->resp ex)))))

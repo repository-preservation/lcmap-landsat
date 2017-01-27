@@ -13,7 +13,7 @@
             [lcmap.aardvark.db :as db :refer [db-session]]
             [lcmap.aardvark.event :as event :refer [amqp-channel]]
             [lcmap.aardvark.landsat :as landsat]
-            [lcmap.aardvark.middleware :refer [wrap-authenticate wrap-authorize]]
+            [lcmap.aardvark.middleware :refer [wrap-authenticate wrap-authorize wrap-exception]]
             [lcmap.aardvark.problem :as problem]
             [lcmap.aardvark.source :as source]
             [lcmap.aardvark.tile :as tile]
@@ -23,7 +23,6 @@
             [ring.middleware.accept :refer [wrap-accept]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.params :refer [wrap-params]]
-            [ring.middleware.problem :refer [wrap-problem]]
             [ring.middleware.resource :refer [wrap-resource]])
   (:import [org.joda.time.DateTime]
            [org.apache.commons.codec.binary Base64]))
@@ -43,7 +42,7 @@
       (wrap-authenticate)
       (wrap-keyword-params)
       (wrap-params)
-      (wrap-problem problem/transformer)))
+      (wrap-exception)))
 
 ;;; Server-related state
 

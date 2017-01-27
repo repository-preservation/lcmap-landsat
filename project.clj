@@ -8,7 +8,6 @@
                  [ring/ring "1.5.0"]
                  [ring/ring-json "0.4.0"]
                  [usgs-eros/ring-accept "0.2.0-SNAPSHOT"]
-                 [usgs-eros/ring-problem "0.1.0-SNAPSHOT"]
                  [compojure "1.5.1"]
                  ;; json/xml/html
                  [cheshire "5.6.3"]
