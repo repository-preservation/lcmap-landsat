@@ -161,16 +161,16 @@ Example config:
 ```:cluster``` [options are here.](https://github.com/mpenet/alia/blob/master/docs/guide.md)
 
 #### :event
-Queue, exchange and binding opts are in the Langohr docs.
+```:queue```, ```:exchange``` and ```:binding``` opts are in the Langohr docs.
 
 #### :http
 Specify Jetty options.
 
 #### :server
-:exchange and :queue from the :event configuration
+```:exchange``` and ```:queue``` from the ```:event``` configuration
 
 #### :worker
-:exchange and :queue from the :event configuration
+```:exchange``` and ```:queue``` from the ```:event``` configuration
 
 #### :search
 ```:index-url```, ```:bulk-api-url```, and ```:search-api-url``` all require
