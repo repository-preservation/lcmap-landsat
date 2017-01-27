@@ -1,4 +1,4 @@
-{:database  {:contact-points "localhost"
+{:database  {:cluster {:contact-points "localhost"}
              :default-keyspace "lcmap_landsat_test"}
  :event     {:host "localhost"
              :port 5672

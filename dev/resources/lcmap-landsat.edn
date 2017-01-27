@@ -1,5 +1,6 @@
 {
-  :database  {:contact-points "localhost"
+  :database  {:cluster {:contact-points "localhost"
+                        :socket-options {:read-timeout-millis 20000}}
               :default-keyspace "lcmap_landsat_dev"}
   :event     {
               :host "localhost"
