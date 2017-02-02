@@ -63,10 +63,10 @@
 (defn covers?
  "Determines if a point is covered by the seed data"
   ([x y]
-   (and (and (>= x (:left data))
-             (<= x (:right data)))
-        (and (>= y (:bottom data))
-             (<= y (:top data)))))
+   (and (>= x (:left data))
+        (<= x (:right data))
+        (>= y (:bottom data))
+        (<= y (:top data))))
   ([point]
    (covers? (first point)(second point))))
 
