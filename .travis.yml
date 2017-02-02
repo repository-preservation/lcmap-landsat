@@ -20,7 +20,7 @@ before_install:
   # Defaults are too low.
   - sudo sysctl -w vm.max_map_count=262144
   #- docker-compose up -d
-  - make docker-test-up
+  - make docker-deps-up
   # - cd ../..
   - sudo apt-add-repository ppa:ubuntugis/ppa -y
   - sudo apt-get update -qq
@@ -28,7 +28,7 @@ before_install:
 
 after_success:
   - bin/deploy
-  - make docker-test-down
+  - make docker-deps-down
 
 notifications:
   slack:

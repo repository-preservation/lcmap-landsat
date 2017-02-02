@@ -41,11 +41,11 @@ user@machine:~$ http http://host:port/tile-specs
 By default, elastic search applies the query against all indexed fields.
 
 Individual fields may also be searched directly by prepending the query
-with the field name plus colon. 
+with the field name plus colon.
 
 Example: ?q=ubid:landsat_7 AND etm AND sr_band1
 
-UBIDS cannot be supplied as is to the ?q parameter, as they are tokens separate by a forward slash "/". This 
+UBIDS cannot be supplied as is to the ?q parameter, as they are tokens separate by a forward slash "/". This
 character denotes a regex expression in elastic search syntax.  See the QueryString query syntax guide above.
 ```bash
 user@machine:~$ http http://host:port/tile-specs
@@ -73,13 +73,13 @@ Install docker-compose (make sure the version support docker-compose.yml version
 
 ```bash
 # will run infrastructure as a daemon
-make docker-dev-up
+make docker-deps-up
 
 # Keeps processes in foreground, useful for troubleshooting
-make docker-dev-up-nodaemon
+make docker-deps-up-nodaemon
 
 # cleanly shut down daemons when done.
-make docker-dev-down
+make docker-deps-down
 ```
 
 Run the tests.

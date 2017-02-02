@@ -1,8 +1,8 @@
-CREATE KEYSPACE IF NOT EXISTS lcmap_landsat_test
+CREATE KEYSPACE IF NOT EXISTS lcmap_landsat_unit
 WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1};
 
 
-CREATE TABLE IF NOT EXISTS lcmap_landsat_test.sources (
+CREATE TABLE IF NOT EXISTS lcmap_landsat_unit.sources (
     id text,
     uri text static,
     checksum text static,
@@ -16,7 +16,7 @@ WITH COMPRESSION = { 'sstable_compression' : 'LZ4Compressor' }
 AND  COMPACTION = { 'class' :  'LeveledCompactionStrategy' };
 
 
-CREATE TABLE IF NOT EXISTS lcmap_landsat_test.conus (
+CREATE TABLE IF NOT EXISTS lcmap_landsat_unit.conus (
     x int,
     y int,
     ubid text,
@@ -29,10 +29,10 @@ WITH COMPRESSION = { 'sstable_compression' : 'LZ4Compressor' }
 AND  COMPACTION = { 'class' :  'LeveledCompactionStrategy' };
 
 
-CREATE TABLE IF NOT EXISTS lcmap_landsat_test.tile_specs (
+CREATE TABLE IF NOT EXISTS lcmap_landsat_unit.tile_specs (
     name text,
     ubid text,
-    tags set<text>, 
+    tags set<text>,
     wkt text static,
     pixel_x float static,
     pixel_y float static,
