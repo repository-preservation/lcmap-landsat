@@ -123,7 +123,7 @@ docker run -p 5679:5679 usgseros/lcmap-landsat:0.1.0-SNAPSHOT $(cat ~/landsat.ed
 
 Example config:
 ```edn
-{:database  {:contact-points "172.17.0.1"
+{:database  {:cluster {:contact-points "172.17.0.1"}
              :default-keyspace "lcmap_landsat"}
  :event     {:host "172.17.0.1"
              :port 5672
@@ -155,8 +155,31 @@ Example config:
               :bulk-api-url   "http://localhost:9200/tile-specs/ops/_bulk"
               :search-api-url "http://localhost:9200/tile-specs/_search"
               :max-result-size 10000}}
-
 ```
+
+#### :database
+```:cluster``` [options are here.](https://github.com/mpenet/alia/blob/master/docs/guide.md)
+
+#### :event
+```:queue```, ```:exchange``` and ```:binding``` opts are in the Langohr docs.
+
+#### :http
+Specify Jetty options.
+
+#### :server
+```:exchange``` and ```:queue``` from the ```:event``` configuration
+
+#### :worker
+```:exchange``` and ```:queue``` from the ```:event``` configuration
+
+#### :search
+```:index-url```, ```:bulk-api-url```, and ```:search-api-url``` all require
+the full url to each endpoint.  This is to enable lcmap-landsat to make use
+of read vs. write endpoints during operational deployments.
+```:index-url``` path to elastic search including index name
+```:bulk-api-url``` full url for bulk api, including 'index type' value
+```:search-api-url``` full url to the search api endpoint
+```:max-result-size``` number of results that should be returned from search operations.
 
 [1]: https://github.com/USGS-EROS/lcmap-landsat/blob/develop/resources/shared/lcmap-landsat.edn "Configuration File"
 [2]: https://hub.docker.com/r/usgseros/lcmap-landsat/ "Docker Image"
