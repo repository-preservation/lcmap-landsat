@@ -13,25 +13,16 @@ docker-shell:
 docker-up:
 	docker run usgseros/lcmap-landsat:0.1.0-SNAPSHOT
 
-docker-dev-up:
-	docker-compose -f dev/resources/docker-compose.yml up -d
+docker-deps-up:
+	docker-compose -f resources/docker-compose.yml up -d
 
-docker-dev-up-nodaemon:
-	docker-compose -f dev/resources/docker-compose.yml up
+docker-deps-up-nodaemon:
+	docker-compose -f resources/docker-compose.yml up
 
-docker-dev-down:
-	docker-compose -f dev/resources/docker-compose.yml down
+docker-deps-down:
+	docker-compose -f	resources/docker-compose.yml down
 
-docker-test-up:
-	docker-compose -f test/resources/docker-compose.yml up -d
-
-docker-test-up-nodaemon:
-	docker-compose -f test/resources/docker-compose.yml up 
-
-docker-test-down:
-	docker-compose -f test/resources/docker-compose.yml down
-
-docker-rm-all: docker-dev-down docker-test-down
+docker-rm-all: docker-deps-down
 	@if [ -n "$(CONTAINERS)" ]; then \
 		docker rm $(CONTAINERS); fi;
 

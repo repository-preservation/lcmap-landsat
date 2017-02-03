@@ -64,7 +64,7 @@
         payload (json/encode source)]
     (log/debugf "publish '%s' source: %s" routing payload)
     (lb/publish amqp-channel exchange routing payload
-                {:content-type "application/json"}))
+                {:content-type "application/json" :persistent true}))
   source)
 
 (defn insert-and-publish

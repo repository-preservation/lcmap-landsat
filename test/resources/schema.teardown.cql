@@ -1,3 +1,3 @@
-TRUNCATE TABLE lcmap_landsat_test.sources;
-TRUNCATE TABLE lcmap_landsat_test.tile_specs;
-TRUNCATE TABLE lcmap_landsat_test.conus;
+TRUNCATE TABLE lcmap_landsat_unit.sources;
+TRUNCATE TABLE lcmap_landsat_unit.tile_specs;
+TRUNCATE TABLE lcmap_landsat_unit.conus;

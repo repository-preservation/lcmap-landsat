@@ -73,13 +73,13 @@ Install docker-compose (make sure the version support docker-compose.yml version
 
 ```bash
 # will run infrastructure as a daemon
-make docker-dev-up
+make docker-deps-up
 
 # Keeps processes in foreground, useful for troubleshooting
-make docker-dev-up-nodaemon
+make docker-deps-up-nodaemon
 
 # cleanly shut down daemons when done.
-make docker-dev-down
+make docker-deps-down
 ```
 
 Run the tests.
