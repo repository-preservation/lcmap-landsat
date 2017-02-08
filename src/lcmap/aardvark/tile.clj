@@ -107,13 +107,19 @@
 (defn +spec
   "Retrieve a spec (for the given UBID) and add it to the band. This assumes
    only one tile-spec will be found. If multiple tile-specs exists, behavior
-   is undefined."
+   is undefined.
+
+   If a tile-spec is not found, then this function returns nil. The band should
+   not be ingested."
   [band]
   (log/debugf "looking for tile-spec for %s" (:ubid band))
   (let [spec (first (tile-spec/query {:ubid (:ubid band)}))]
-    (if (nil? spec)
-      (throw (ex-info (format "no tile-spec for %s" (:ubid band)) {}))
-      (merge band spec))))
+    (if (some? spec)
+      ;; then add the spec properties to the band
+      (merge band spec)
+      ;; this returns nil, the band will be filtered out
+      ;; by `conforms?`
+      (log/warnf "no tile-spec present, skipping %s"))))
 
 (defn int16-fill
   "Produce a buffer used to detect INT16 type buffers containing all fill data."
@@ -127,11 +133,22 @@
           (.put shorts))
       buffer)))
 
-(defn- uint8-fill
+(defn uint8-fill
   "Produce a buffer used to detect UINT8 type buffers all fill data."
   [data-size data-fill]
   (if data-fill
     (let [buffer (java.nio.ByteBuffer/allocate (* (/ Byte/SIZE 8) data-size))
+          bytes (byte-array data-size (unchecked-byte data-fill))]
+      (-> buffer
+          (.order java.nio.ByteOrder/LITTLE_ENDIAN)
+          (.put bytes))
+      buffer)))
+
+(defn uint16-fill
+  "Produce a buffer used to detect UINT16 type buffers all fill data."
+  [data-size data-fill]
+  (if data-fill
+    (let [buffer (java.nio.ByteBuffer/allocate (* 2 data-size))
           bytes (byte-array data-size (unchecked-byte data-fill))]
       (-> buffer
           (.order java.nio.ByteOrder/LITTLE_ENDIAN)
@@ -143,7 +160,8 @@
   (memoize/lu
    (fn [data-size data-fill data-type]
      (cond (= data-type "INT16") (int16-fill data-size data-fill)
-           (= data-type "UINT8") (uint8-fill data-size data-fill)))))
+           (= data-type "UINT8") (uint8-fill data-size data-fill)
+           (= data-type "UINT16") (uint16-fill data-size data-fill)))))
 
 (defn +fill
   "Make a fill buffer used to detect no-data tiles"
@@ -158,7 +176,8 @@
   [tile]
   (let [data (:data tile)
         fill (:fill tile)]
-    (and (some? fill) (some? data) (zero? (.compareTo data fill)))))
+    (and (some? fill) (some? data) (zero? (.compareTo (.rewind data)
+                                                      (.rewind fill))))))
 
 (defn locate-fn
   "Build projection coordinate point calculator for GDAL dataset."
@@ -190,7 +209,7 @@
    This ensures the raster is the same projection and that the boundaries
    precisely align to the tile-specs grid values."
   [band]
-  true)
+  (some? band))
 
 (defn scene->bands
   "Create sequence of from ESPA XML metadata."
@@ -229,10 +248,10 @@
   "Saves all bands in dir referenced by path."
   ([scene-dir source]
    (let [band-xf   (comp (map +spec)
+                         (filter conforms?)
                          (map +fill)
                          (map +locate)
-                         (map (fn [band] (assoc band :source (:id source))))
-                         (filter conforms?))]
+                         (map (fn [band] (assoc band :source (:id source)))))]
      (dorun (map #(process-band % source) (scene->bands scene-dir band-xf)))
      :done)))
 
