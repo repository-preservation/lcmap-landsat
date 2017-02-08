@@ -9,6 +9,7 @@
             [camel-snake-kebab.extras :refer [transform-keys]]
             [cheshire.core :as json]
             [clojure.tools.logging :as log]
+            [dire.core :as dire]
             [langohr.core :as rmq]
             [langohr.basic :as lb]
             [langohr.channel :as lch]
@@ -21,6 +22,13 @@
   "Convert byte payload to JSON."
   [metadata payload]
   (transform-keys ->snake_case_keyword (json/decode (String. payload "UTF-8"))))
+
+(dire/with-handler! #'decode-message
+  java.lang.Exception
+  (fn [e & args]
+    (log/debugf "cannot decode message: %s"
+                {:metadata (first args) :payload (second args) :exception e})
+    nil))
 
 (declare amqp-connection amqp-channel)
 
