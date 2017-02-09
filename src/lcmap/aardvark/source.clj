@@ -67,7 +67,7 @@
                 {:content-type "application/json" :persistent true}))
   source)
 
-(defn insert-and-publish
+(defn save
   "Create a source and publish a message."
   [source]
   (let [source+ (merge source {:progress_at (time/now)

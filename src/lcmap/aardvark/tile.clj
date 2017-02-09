@@ -115,11 +115,8 @@
   (log/debugf "looking for tile-spec for %s" (:ubid band))
   (let [spec (first (tile-spec/query {:ubid (:ubid band)}))]
     (if (some? spec)
-      ;; then add the spec properties to the band
       (merge band spec)
-      ;; this returns nil, the band will be filtered out
-      ;; by `conforms?`
-      (log/warnf "no tile-spec present, skipping %s"))))
+      (log/warnf "no tile-spec present, skipping %s" (:ubid band)))))
 
 (defn int16-fill
   "Produce a buffer used to detect INT16 type buffers containing all fill data."
@@ -157,11 +154,10 @@
 
 (def fill-buffer
   "Create a buffer memoized on data-size and data-fill."
-  (memoize/lu
-   (fn [data-size data-fill data-type]
-     (cond (= data-type "INT16") (int16-fill data-size data-fill)
-           (= data-type "UINT8") (uint8-fill data-size data-fill)
-           (= data-type "UINT16") (uint16-fill data-size data-fill)))))
+  (fn [data-size data-fill data-type]
+    (cond (= data-type "INT16") (int16-fill data-size data-fill)
+          (= data-type "UINT8") (uint8-fill data-size data-fill)
+          (= data-type "UINT16") (uint16-fill data-size data-fill))))
 
 (defn +fill
   "Make a fill buffer used to detect no-data tiles"
