@@ -61,7 +61,7 @@
                  (assoc {:status 403} :body))
         (some->> (source/search source-id)
                  (assoc {:status 409} :body))
-        (some->> (source/insert-and-publish source)
+        (some->> (source/save source)
                  (assoc {:status 202} :body)))))
 
 (defn get-tiles
