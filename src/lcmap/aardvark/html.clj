@@ -7,6 +7,10 @@
             [net.cgrand.enlive-html :as html]
             [camel-snake-kebab.core :as csk]))
 
+;; Provides a value for the <base href=""> element, useful when
+;; deploying the app in a subdirectoy, like /landsat/v1/
+(def base_url (or (System/getenv "LCMAP_LANDSAT_BASE_URL") ""))
+
 (defn prep-for-html
   ""
   [source]
@@ -21,16 +25,23 @@
        (map (fn [[k v]] [k (str v)]))
        (into {})))
 
+;; Used to produce head element, intended for use
+;; with all templates.
+(html/defsnippet header "public/application.html"
+  [:head]
+  []
+  [:base] (html/set-attr :href base_url))
+
 ;; Used to produce navigation element, intended for use
 ;; with all templates.
 (html/defsnippet nav "public/application.html"
   [:nav]
-  []
-  identity)
+  [])
 
 (html/deftemplate default "public/application.html"
   [entity]
-  [:nav] (html/content (nav))
+  [:head] (html/substitute (header))
+  [:nav]  (html/substitute (nav))
   [:#debug] (html/content (json/encode entity {:pretty true})))
 
 ;; Used to produce detailed information about a source.
@@ -46,9 +57,11 @@
 
 (html/deftemplate source-info "public/source-info.html"
   [sources]
-  [:nav] (html/content (nav))
+  [:head] (html/substitute (header))
+  [:nav]  (html/substitute (nav))
   [:#id] (html/content (:id (first sources)))
   [:#uri] (html/content (:uri (first sources)))
+  [:#uri] (html/set-attr :href (:uri (first sources)))
   [:#checksum] (html/content (:checksum (first sources)))
   [:table] (html/content (progress sources)))
 
@@ -56,14 +69,16 @@
 
 (html/deftemplate source-list "public/source-list.html"
   [sources]
-  [:nav] (html/content (nav))
+  [:head] (html/substitute (header))
+  [:nav]  (html/substitute (nav))
   [:tbody :tr] (html/clone-for [source sources]
                                [:a] (html/content (:id source))
-                               [:a] (html/set-attr :href (str "/source/" (:id source)))))
+                               [:a] (html/set-attr :href (str "source/" (:id source)))))
 
 (html/deftemplate status-list "public/status.html"
   [services]
-  [:nav] (html/content (nav))
+  [:head] (html/substitute (header))
+  [:nav]  (html/substitute (nav))
   [:tbody :tr] (html/clone-for [[svc-name status] services]
                                [:.healthy] (html/content (-> status :healthy str))
                                [:.service] (html/content (name svc-name))
@@ -79,7 +94,8 @@
 
 (html/deftemplate tile-list "public/tile-list.html"
   [tiles]
-  [:nav]       (html/content (nav))
+  [:head] (html/substitute (header))
+  [:nav]  (html/substitute (nav))
   [:header :p] (html/content (describe-tiles tiles))
   [:tbody :tr] (html/clone-for [tile tiles]
                                [:.id] (html/content (str ((juxt :x :y) tile)))
@@ -88,15 +104,17 @@
 
 (html/deftemplate tile-info "public/tile-info.html"
   [tiles]
-  [:nav] (html/content (nav))
+  [:head] (html/substitute (header))
+  [:nav]  (html/substitute (nav))
   [:content] (html/content "Tile details"))
 
 (html/deftemplate tile-spec-list "public/tile-spec-list.html"
   [tile-specs]
-  [:nav] (html/content (nav))
+  [:head] (html/substitute (header))
+  [:nav]  (html/substitute (nav))
   [:table :> :tr] (html/clone-for [tile-spec tile-specs]
                                   [:a] (html/content (:ubid tile-spec))
-                                  [:a] (html/set-attr :href (str "/tile-spec/" (:ubid tile-spec)))))
+                                  [:a] (html/set-attr :href (str "tile-spec/" (:ubid tile-spec)))))
 
 (def geom-fields [:tile_x :tile_y :shift_x :shift_y :pixel_x :pixel_y])
 
@@ -111,7 +129,8 @@
 
 (html/deftemplate tile-spec-info "public/tile-spec-info.html"
   [tile-spec]
-  [:nav] (html/content (nav))
+  [:head] (html/substitute (header))
+  [:nav]  (html/substitute (nav))
   [:h2 :#ubid] (html/content (:ubid tile-spec))
   [:pre.wkt]  (html/content (:wkt tile-spec))
   [:pre.geom] (html/content (json/encode (select-keys tile-spec geom-fields)

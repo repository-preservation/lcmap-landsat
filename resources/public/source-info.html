@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <base href="/">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>LCMAP Landsat REST API</title>
@@ -11,11 +12,11 @@
     <meta property="og:description" content="">
     <meta property="og:image" content="">
     <meta property="og:url" content="">
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/icon.png" />
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/css/bootstrap-theme.min.css">
-    <link rel="stylesheet" href="/css/starter-template.css">
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="apple-touch-icon" href="icon.png" />
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="css/starter-template.css">
   </head>
 
   <body>
@@ -33,20 +34,19 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="/sources">Sources</a></li>
-            <li><a href="/tile-specs">Tile Specs</a></li>
-            <li><a href="/tiles">Tiles</a></li>
+            <li><a href="sources">Sources</a></li>
+            <li><a href="tile-specs">Tile Specs</a></li>
+            <li><a href="tiles">Tiles</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
 
     <div class="container">
-
       <section>
         <header>
           <h2 id="id">${id}</h2>
-          <p>Source Data: <a id="uri" href=""></a></p>
+          <p>Source Data: <a id="uri" href="#"></a></p>
           <p>MD5 Checksum: <span id="checksum"></span></p>
         </header>
         <content>
@@ -67,7 +67,6 @@
           </table>
         </content>
       </section>
-
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
