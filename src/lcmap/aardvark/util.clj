@@ -3,7 +3,8 @@
             [clojure.tools.logging :as log]
             [digest]
             [clj-http.client :as client]
-            [me.raynes.fs :as fs])
+            [me.raynes.fs :as fs]
+            [clojure.walk :as walk])
   (:import [org.apache.commons.compress.archivers
             ArchiveInputStream ArchiveStreamFactory]
            [org.apache.commons.compress.compressors
@@ -120,3 +121,45 @@
        (finally
          (log/debug "removing temp-file: %s" (.getAbsolutePath temp#))
          (fs/delete-dir temp#)))))
+
+;;; Deep-map
+
+(defn- deep-merge*
+  [& maps]
+  (let [f (fn [old new]
+             (if (and (map? old) (map? new))
+                 (merge-with deep-merge* old new)
+                 new))]
+    (if (every? map? maps)
+      (apply merge-with f maps)
+      (last maps))))
+
+(defn deep-merge
+  [& maps]
+  (let [maps (filter identity maps)]
+    (assert (every? map? maps))
+    (apply merge-with deep-merge* maps)))
+
+(defn deep-apply [coll f1 f2]
+  (walk/prewalk
+   (fn [x] (cond
+             (map? x) (into (empty x) (f1 f2 x))
+             :else x))
+   coll))
+
+(defn deep-remove
+  ""
+  [f coll]
+  (deep-apply coll remove f))
+
+(defn deep-filter
+  ""
+  [f coll]
+  (deep-apply coll filter f))
+
+(defn read-edn
+  [path]
+  (try
+    (-> path clojure.java.io/resource slurp clojure.edn/read-string)
+    (catch java.lang.RuntimeException ex
+      {})))

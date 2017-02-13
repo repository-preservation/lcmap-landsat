@@ -1,0 +1,18 @@
+{:database  {:cluster {:contact-points ["localhost"]
+                       :socket-options {:read-timeout-millis 20000}}
+             :default-keyspace "lcmap_landsat_local"
+             :schema {:setup true :teardown false}}
+ :http      {:port 5678
+             :join? false
+             :daemon? true}
+ :event     {:host "localhost"
+             :port 5672}
+ :server    {:exchange "local.lcmap.landsat.server"
+             :queue    "local.lcmap.landsat.server"}
+ :worker    {:exchange "local.lcmap.landsat.worker"
+             :queue    "local.lcmap.landsat.worker"}
+ :search    {:index-url      "http://localhost:9200/tile-specs"
+             :refresh-url    "http://localhost:9200/tile-specs/_refresh"
+             :bulk-api-url   "http://localhost:9200/tile-specs/local/_bulk"
+             :search-api-url "http://localhost:9200/tile-specs/_search"
+             :max-result-size 10000}}

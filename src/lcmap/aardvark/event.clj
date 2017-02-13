@@ -1,10 +1,5 @@
 (ns lcmap.aardvark.event
-  "Provide RabbitMQ connections, channels, and message handling
-  helpers.
-
-  Exchanges, queues, bindings, and  consumers are created in
-  namespaces that define function responsible for producing
-  and handling messages."
+  "Provide RabbitMQ connections, channels, and message handling helpers."
   (:require [camel-snake-kebab.core :refer [->snake_case_keyword]]
             [camel-snake-kebab.extras :refer [transform-keys]]
             [cheshire.core :as json]
@@ -16,6 +11,7 @@
             [langohr.exchange :as le]
             [langohr.queue :as lq]
             [lcmap.aardvark.config :refer [config]]
+            [lcmap.aardvark.util :as util]
             [mount.core :refer [args defstate stop] :as mount]))
 
 (defn decode-message
@@ -39,7 +35,7 @@
     (let [args (:event config)
           opts (select-keys args [:host :port])]
       (log/debugf "starting RabbitMQ connection: %s" opts)
-      (rmq/connect (select-keys args [:host :port])))
+      (rmq/connect opts))
     (catch java.lang.RuntimeException ex
       (log/fatal "failed to start RabbitMQ connection"))))
 
@@ -63,9 +59,12 @@
   []
   (try
     (log/debugf "starting RabbitMQ channel")
-    (lch/open amqp-connection)
+    (let [channel (lch/open amqp-connection)]
+      (lb/qos channel 1)
+      channel)
     (catch java.lang.RuntimeException ex
-      (log/fatal "failed to start RabbitMQ channel"))))
+      (log/fatal "failed to start RabbitMQ channel")
+      (log/fatal ex))))
 
 (defn stop-amqp-channel
   "Close RabbitMQ channel."
@@ -73,8 +72,9 @@
   (try
     (log/debugf "stopping RabbitMQ channel")
     (lch/close amqp-channel)
-    (catch com.rabbitmq.client.AlreadyClosedException e
-      (log/warnf "failed to stop RabbitMQ channel"))
+    (catch com.rabbitmq.client.AlreadyClosedException ex
+      (log/warnf "failed to stop RabbitMQ channel")
+      (log/warnf ex))
     (finally
       nil)))
 
@@ -82,37 +82,39 @@
   :start (start-amqp-channel)
   :stop  (stop-amqp-channel))
 
-(defstate configure-amqp-channel
-  :start (do (lb/qos amqp-channel 1) true))
+(defn create-exchanges
+  [exchanges]
+  (doseq [exchange exchanges]
+    (log/debugf "creating exchange: %s" (:name exchange))
+    (le/declare amqp-channel
+                (:name exchange)
+                (:type exchange)
+                (:opts exchange))))
 
-(defstate exchanges
-  :start (let [configs (get-in config [:event :exchanges])]
-           (doseq [exchange configs]
-             (log/debugf "Creating Exchange: %s" (:name exchange))
-             (le/declare amqp-channel
-                         (:name exchange)
-                         (:type exchange)
-                         (:opts exchange)))
-           configs))
+(defn create-queues
+  [queues]
+  (doseq [queue queues]
+    (log/debugf "creating queue: %s" (:name queue))
+    (lq/declare amqp-channel (:name queue) (:opts queue))))
 
-(defstate queues
-  :start (let [configs (get-in config [:event :queues])]
-           (doseq [queue configs]
-             (log/debugf "Creating Queue: %s" (:name queue))
-             (lq/declare amqp-channel (:name queue) (:opts queue)))
-           configs))
+(defn create-bindings
+  [bindings]
+  (doseq [binding bindings]
+    (log/debugf "binding %s to %s with opts %s"
+                (:exchange binding)
+                (:queue binding)
+                (:opts binding))
+    (lq/bind amqp-channel
+             (:queue binding)
+             (:exchange binding)
+             (:opts binding))))
 
-(defstate bindings
-  :start (let [exchanges_state exchanges
-               queues_state    queues
-               configs         (get-in config [:event :bindings])]
-           (doseq [binder configs]
-             (log/debugf "Binding %s to %s with opts %s"
-                         (:exchange binder)
-                         (:queue binder)
-                         (:opts binder))
-             (lq/bind amqp-channel
-                      (:queue binder)
-                      (:exchange binder)
-                      (:opts binder)))
-           configs))
+(defstate event-schema
+  :start (do
+           (log/debug "creating exchanges, queues, and bindings")
+           (let [wiring (util/read-edn "event.setup.edn")]
+             (create-exchanges (:exchanges wiring))
+             (create-queues (:queues wiring))
+             (create-bindings (:bindings wiring))))
+  :stop (do
+          (log/debug "automatic removal of exchanges, queues, and bindings not supported")))
