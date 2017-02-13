@@ -1,0 +1,17 @@
+{:queues [{:name "local.lcmap.landsat.server"
+           :opts {:durable true
+                  :exclusive false
+                  :auto-delete false}}
+          {:name "local.lcmap.landsat.worker"
+           :opts {:durable true
+                  :exclusive false
+                  :auto-delete false}}]
+ :exchanges [{:name "local.lcmap.landsat.server"
+              :type "topic"
+              :opts {:durable true}}
+             {:name "local.lcmap.landsat.worker"
+              :type "topic"
+              :opts {:durable true}}]
+ :bindings [{:exchange "local.lcmap.landsat.server"
+             :queue "local.lcmap.landsat.worker"
+             :opts {:routing-key "ingest"}}]}
