@@ -10,8 +10,5 @@
              :queue    "unit.lcmap.landsat.server"}
  :worker    {:exchange "unit.lcmap.landsat.worker"
              :queue    "unit.lcmap.landsat.worker"}
- :search     {:index-url      "http://localhost:9200/tile-specs"
-              :refresh-url    "http://localhost:9200/tile-specs/_refresh"
-              :bulk-api-url   "http://localhost:9200/tile-specs/unit/_bulk"
-              :search-api-url "http://localhost:9200/tile-specs/_search"
+ :search     {:index-url "http://localhost:9200/lcmap-landsat-test"
               :max-result-size 10000}}
