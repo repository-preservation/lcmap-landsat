@@ -62,9 +62,6 @@
                   :search    {:index-url "http://elasticsearch:9200/tile-specs"
                               :max-result-size 10000}})
 
-(config/init default-cfg)
-(config/init (util/read-edn "lcmap.aardvark.edn"))
-
 (defn env-name->env-value
   "Replaces all string values with the matching environment variable."
   [nested-map]
