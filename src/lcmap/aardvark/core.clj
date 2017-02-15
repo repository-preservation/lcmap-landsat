@@ -45,19 +45,19 @@
 
 ;; This nested map contains a default configuration. It is updated with `env-cfg`
 ;; values during startup.
-(def default-cfg {:database  {:cluster {:contact-points ["localhost"]
+(def default-cfg {:database  {:cluster {:contact-points "cassandra"
                                         :socket-options {:read-timeout-millis 20000}}
                               :default-keyspace "lcmap_landsat"}
                   :http      {:port 5678
                               :join? false
                               :daemon? true}
-                  :event     {:host "localhost"
+                  :event     {:host "rabbitmq"
                               :port 5672}
                   :server    {:exchange "lcmap.landsat.server"
                               :queue    "lcmap.landsat.server"}
                   :worker    {:exchange "lcmap.landsat.worker"
                               :queue    "lcmap.landsat.worker"}
-                  :search    {:index-url "http://localhost:9200/lcmap-landsat"
+                  :search    {:index-url "http://elasticsearch:9200/tile-specs"
                               :max-result-size 10000}})
 
 (defn env-name->env-value
