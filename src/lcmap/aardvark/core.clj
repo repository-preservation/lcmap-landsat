@@ -28,26 +28,28 @@
 ;; This nested map contains environment variable names. These values
 ;; are replaced with actual values during startup and merged into
 ;; the default configuration map, `def-cfg`.
-(def environ-cfg {:database {:default-keyspace "AARDVARK_DB_KEYSPACE"
-                             :cluster {:contact-points "AARDVARK_DB_HOST"
+(def environ-cfg {:database {:cluster {:contact-points "AARDVARK_DB_HOST"
                                        :credentials {:user "AARDVARK_DB_USER"
-                                                     :password "AARDVARK_DB_PASS"}}}
+                                                     :password "AARDVARK_DB_PASS"}}
+                             :default-keyspace "AARDVARK_DB_KEYSPACE"}
                   :html    {:base-url  "AARDVARK_BASE_URL"}
                   :http    {:port      "AARDVARK_HTTP_PORT"}
                   :event   {:host      "AARDVARK_EVENT_HOST"
+                            :port      "AARDVARK_EVENT_PORT"
                             :user      "AARDVARK_EVENT_USER"
                             :password  "AARDVARK_EVENT_PASS"}
                   :server  {:exchange  "AARDVARK_SERVER_EVENTS"
                             :queue     "AARDVARK_SERVER_EVENTS"}
                   :worker  {:exchange  "AARDVARK_WORKER_EVENTS"
                             :queue     "AARDVARK_WORKER_EVENTS"}
-                  :search  {:base-url  "AARDVARK_SEARCH_INDEX_URL"}})
+                  :search  {:index-url "AARDVARK_SEARCH_INDEX_URL"}})
 
 ;; This nested map contains a default configuration. It is updated with `env-cfg`
 ;; values during startup.
 (def default-cfg {:database  {:cluster {:contact-points "cassandra"
                                         :socket-options {:read-timeout-millis 20000}}
-                              :default-keyspace "lcmap_landsat"}
+                              :default-keyspace "lcmap_landsat"
+                              :schema {:setup false :teardown false}}
                   :http      {:port 5678
                               :join? false
                               :daemon? true}
@@ -59,6 +61,9 @@
                               :queue    "lcmap.landsat.worker"}
                   :search    {:index-url "http://elasticsearch:9200/tile-specs"
                               :max-result-size 10000}})
+
+(config/init default-cfg)
+(config/init (util/read-edn "lcmap.aardvark.edn"))
 
 (defn env-name->env-value
   "Replaces all string values with the matching environment variable."
