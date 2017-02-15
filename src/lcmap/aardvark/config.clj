@@ -31,6 +31,10 @@
            (schema/optional-key :daemon?) schema/Bool
            schema/Keyword schema/Str})
 
+;; Used to populate environment specific configuration in HTML
+(def html {(schema/optional-key :base-url) schema/Str
+           schema/Keyword schema/Str})
+
 ;; Used by states defined in lcmap.event
 (def event {:host schema/Str
             :port schema/Num
@@ -40,7 +44,7 @@
 (def database {:cluster {:contact-points [schema/Str]
                          schema/Keyword schema/Any}
                :default-keyspace schema/Str
-               schema/Keyword schema/Any})
+               :schema schema/Any})
 
 ;; These specify the names of exchanges and queues from which
 ;; the server publishes and consumes messages.
@@ -61,9 +65,9 @@
    :event event
    :search search
    (schema/optional-key :http) http
+   (schema/optional-key :html) html
    (schema/optional-key :server) server
-   (schema/optional-key :worker) worker
-   schema/Keyword schema/Str})
+   (schema/optional-key :worker) worker})
 
 (defn init
   "Coerce config and check schema."
