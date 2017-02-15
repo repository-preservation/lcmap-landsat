@@ -44,7 +44,7 @@
 (def database {:cluster {:contact-points [schema/Str]
                          schema/Keyword schema/Any}
                :default-keyspace schema/Str
-               :schema schema/Any})
+               (schema/optional-key :schema) schema/Any})
 
 ;; These specify the names of exchanges and queues from which
 ;; the server publishes and consumes messages.

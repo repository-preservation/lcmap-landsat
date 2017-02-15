@@ -7,9 +7,98 @@
 
 LCMAP Landsat data ingest, inventory &amp; distribution.
 
+## Development
+
+### Requirements
+
+* Leiningen 2.7.1
+* Java 1.8
+* Docker 1.13.1
+* Docker Compose 1.10.0
+
+### Setup
+
+Clone the repo.
+
+```bash
+git clone git@github.com:usgs-eros/lcmap-landsat
+```
+
+Initialize submodules (to get dev/test data).
+
+```bash
+git submodule init
+git submodule update
+```
+
+Start backing services.
+
+```bash
+make docker-deps-up
+```
+
+Run the tests.
+
+```bash
+lein test
+```
+
+Start a REPL.
+
+```bash
+lein run
+```
+
+### Sample Data
+
+See `dev/curate.clj` to learn how to load sample data for you to play with during development. You can use your REPL to load a small (or large) amount of data.
+
+### Problems?
+
+If you run into problem, common development and test issues are available in the [FAQ][3].
+
+## Deployment
+
+During routine development, use `dev/user.clj` with a REPL to run the HTTP server and AMQP workers.
+
+### Automated Build
+
+Travis-CI will automatically build and push a jarfile and Docker image for the develop and master branches after all tests pass.
+
+You can build your own jarfile and Docker image using `make build` and `make docker-image`.
+
+The Docker image can be run deployed to a service capable of running Docker containers (e.g. Marathon). Configuration values are provided using environment variables. Defaults for hostname like values correspond to a plausible name for the service; localhost is an unreasonable place for the Docker container to use.
+
+### Configure
+
+Provide configuration values using environment variables when runnning the application as a jarfile or docker container.
+
+| Environment Variable          | Default    |
+|:----------------------------- | ---------- |
+| AARDVARK\_BASE\_URL           | /          |
+| AARDVARK\_DB\_HOST            | cassandra  |
+| AARDVARK\_DB\_USER            | nil        |
+| AARDVARK\_DB\_PASS            | nil        |
+| AARDVARK\_EVENT\_HOST         | rabbitmq   |
+| AARDVARK\_EVENT\_PORT         | 5672       |
+| AARDVARK\_EVENT\_USER         | nil        |
+| AARDVARK\_EVENT\_PASS         | nil        |
+| AARDVARK\_HTTP\_PORT          | 5678       |
+| AARDVARK\_SEARCH\_INDEX\_URL  | http://elasticsearch:9200/tile-specs |
+| AARDVARK\_SERVER\_EVENTS      | lcmap.landsat.server |
+| AARDVARK\_WORKER\_EVENTS      | lcmap.landsat.worker |
+| AARDVARK\_LOG\LEVEL           | INFO       |
+
+You may notice that the default hostnames are not localhost. This is because localhost is not a reasonable default for the application to use when running in the context of a Docker container; the container does not provide these services. However, service discovery systems may provide DNS support that Docker automatically can use to resolve these services. If you do not have this available, simply provide the appropriate value instead.
+
 ## Usage
 
-#### Retrieve data.  Any number of ubids may be specified.
+This application's primary purpose is providing Landsat raster data via HTTP.
+
+Much like the way an operating system retrieves memory in pages, this application retrieves raster imagery as tiles, a stack of spatially and temporally coherent data.
+
+### Retrieve data.  Any number of ubids may be specified.
+
 ```bash
 # Using httpie
 user@machine:~$ http http://host:port/tiles
@@ -36,7 +125,7 @@ user@machine:~$ http http://host:port/tile/LANDSAT_8/OLI_TIRS/sr_band1
 user@machine:~$ http http://host:port/tile-specs
 ```
 
-#### Search for tile-specs.  
+#### Search for tile-specs.
 ?q= parameter uses [ElasticSearch QueryStringSyntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
 By default, elastic search applies the query against all indexed fields.
 
@@ -55,131 +144,7 @@ user@machine:~$ http http://host:port/tile-specs
 lcmap-landsat honors HTTP ```Accept``` headers for both ```application/json```
 and ```text/html```.  The default is json.
 
-
-## Developing
-Clone this repository
-```bash
-git clone git@github.com:usgs-eros/lcmap-landsat
-```
-
-Initialize submodules (to get dev/test data).
-
-```bash
-git submodule init
-git submodule update
-```
-
-Install docker-compose (make sure the version support docker-compose.yml version 2 formats).
-
-```bash
-# will run infrastructure as a daemon
-make docker-deps-up
-
-# Keeps processes in foreground, useful for troubleshooting
-make docker-deps-up-nodaemon
-
-# cleanly shut down daemons when done.
-make docker-deps-down
-```
-
-Run the tests.
-```bash
-lein test
-```
-
-Start a REPL.
-
-```bash
-lein run
-```
-
-A [FAQ][3] is available for common development & test issues.
-
-
-## Build, Run & Deployment
-
-Use `lein uberjar` (or `make build`) to build a standalone jarfile.
-
-There are two modes of operation: a web-server that handles HTTP requests, and a worker that handles AMQP messages. A single process can simultaneusly run both modes, although this is not recommended in a production environment.
-
-Execute the jarfile like this, passing configuration data as EDN via STDIN:
-
-```bash
-java -jar \
-  target/uberjar/lcmap-landsat-0.1.0-SNAPSHOT-standalone.jar \
-  $(cat dev/resources/lcmap-landsat.edn)
-```
-
-Use `make docker-image` to build a Docker image that includes GDAL dependencies.
-
-[Docker images][2] are automatically built when all tests pass on Travis CI. You may either run the Docker image with additional command line parameters or, if you prefer, build an image using file based configuration.
-
-Example:
-```
-docker run -p 5679:5679 usgseros/lcmap-landsat:0.1.0-SNAPSHOT $(cat ~/landsat.edn)
-```
-
-## Configuration
-
-Example config:
-```edn
-{:database  {:cluster {:contact-points "172.17.0.1"}
-             :default-keyspace "lcmap_landsat"}
- :event     {:host "172.17.0.1"
-             :port 5672
-             :queues [{:name "lcmap.landsat.server.queue"
-                       :opts {:durable true
-                              :exclusive false
-                              :auto-delete false}}
-                      {:name "lcmap.landsat.worker.queue"
-                       :opts {:durable true
-                              :exclusive false
-                              :auto-delete false}}]
-             :exchanges [{:name "lcmap.landsat.server.exchange"
-                          :type "topic"
-                          :opts {:durable true}}
-                         {:name "lcmap.landsat.worker.exchange"
-                          :type "topic"
-                          :opts {:durable true}}]
-             :bindings [{:exchange "lcmap.landsat.server.exchange"
-                         :queue "lcmap.landsat.worker.queue"
-                         :opts {:routing-key "ingest"}}]}
- :http      {:port 5679
-             :join? false
-             :daemon? true}
- :server    {:exchange "lcmap.landsat.server.exchange"
-             :queue    "lcmap.landsat.server.queue"}
- :worker    {:exchange "lcmap.landsat.worker.exchange"
-             :queue    "lcmap.landsat.worker.queue"}
- :search     {:index-url      "http://localhost:9200/tile-specs"
-              :bulk-api-url   "http://localhost:9200/tile-specs/ops/_bulk"
-              :search-api-url "http://localhost:9200/tile-specs/_search"
-              :max-result-size 10000}}
-```
-
-#### :database
-```:cluster``` [options are here.](https://github.com/mpenet/alia/blob/master/docs/guide.md)
-
-#### :event
-```:queue```, ```:exchange``` and ```:binding``` opts are in the Langohr docs.
-
-#### :http
-Specify Jetty options.
-
-#### :server
-```:exchange``` and ```:queue``` from the ```:event``` configuration
-
-#### :worker
-```:exchange``` and ```:queue``` from the ```:event``` configuration
-
-#### :search
-```:index-url```, ```:bulk-api-url```, and ```:search-api-url``` all require
-the full url to each endpoint.  This is to enable lcmap-landsat to make use
-of read vs. write endpoints during operational deployments.
-```:index-url``` path to elastic search including index name
-```:bulk-api-url``` full url for bulk api, including 'index type' value
-```:search-api-url``` full url to the search api endpoint
-```:max-result-size``` number of results that should be returned from search operations.
+# References
 
 [1]: https://github.com/USGS-EROS/lcmap-landsat/blob/develop/resources/shared/lcmap-landsat.edn "Configuration File"
 [2]: https://hub.docker.com/r/usgseros/lcmap-landsat/ "Docker Image"
