@@ -4,12 +4,9 @@
             [clj-time.format :as time-fmt]
             [clojure.tools.logging :as log]
             [clojure.string :as string]
+            [lcmap.aardvark.config :as config]
             [net.cgrand.enlive-html :as html]
             [camel-snake-kebab.core :as csk]))
-
-;; Provides a value for the <base href=""> element, useful when
-;; deploying the app in a subdirectoy, like /landsat/v1/
-(def base_url (or (System/getenv "LCMAP_LANDSAT_BASE_URL") ""))
 
 (defn prep-for-html
   ""
@@ -30,7 +27,7 @@
 (html/defsnippet header "public/application.html"
   [:head]
   []
-  [:base] (html/set-attr :href base_url))
+  [:base] (html/set-attr :href (get-in config/config [:html :base-url] "/")))
 
 ;; Used to produce navigation element, intended for use
 ;; with all templates.

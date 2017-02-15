@@ -32,6 +32,7 @@
                              :cluster {:contact-points "AARDVARK_DB_HOST"
                                        :credentials {:user "AARDVARK_DB_USER"
                                                      :password "AARDVARK_DB_PASS"}}}
+                  :html    {:base-url  "AARDVARK_BASE_URL"}
                   :http    {:port      "AARDVARK_HTTP_PORT"}
                   :event   {:host      "AARDVARK_EVENT_HOST"
                             :user      "AARDVARK_EVENT_USER"
