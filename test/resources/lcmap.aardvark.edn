@@ -1,14 +1,11 @@
 {:database  {:cluster {:contact-points ["localhost"]}
              :default-keyspace "lcmap_landsat_unit"
              :schema {:setup true :teardown true}}
- :event     {:host "localhost"
-             :port 5672}
- :http      {:port 5679
-             :join? false
-             :daemon? true}
+ :event     {:host "localhost" :port 5672}
+ :http      {:port 5679 :join? false :daemon? true}
  :server    {:exchange "unit.lcmap.landsat.server"
              :queue    "unit.lcmap.landsat.server"}
  :worker    {:exchange "unit.lcmap.landsat.worker"
              :queue    "unit.lcmap.landsat.worker"}
- :search     {:index-url "http://localhost:9200/lcmap-landsat-test"
-              :max-result-size 10000}}
+ :search    {:index-url "http://localhost:9200/lcmap-landsat-test"
+             :max-result-size 10000}}
