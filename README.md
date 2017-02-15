@@ -63,11 +63,9 @@ During routine development, use `dev/user.clj` with a REPL to run the HTTP serve
 
 ### Automated Build
 
-Travis-CI will automatically build and push a jarfile and Docker image for the develop and master branches after all tests pass.
+Travis-CI will automatically build a jarfile and Docker image after a successful build of `develop` and `master` branches. The Docker image is pushed to [Docker Hub][2].
 
 You can build your own jarfile and Docker image using `make build` and `make docker-image`.
-
-The Docker image can be run deployed to a service capable of running Docker containers (e.g. Marathon). Configuration values are provided using environment variables. Defaults for hostname like values correspond to a plausible name for the service; localhost is an unreasonable place for the Docker container to use.
 
 ### Configure
 
@@ -91,27 +89,34 @@ Provide configuration values using environment variables when runnning the appli
 
 You may notice that the default hostnames are not localhost. This is because localhost is not a reasonable default for the application to use when running in the context of a Docker container; the container does not provide these services. However, service discovery systems may provide DNS support that Docker automatically can use to resolve these services. If you do not have this available, simply provide the appropriate value instead.
 
+### Deployment
+
+The Docker image can be deployed to services capable of running Docker containers (e.g. Marathon, Kubernetes). Configuration values are provided using environment variables.
+
+Although `dev` and `test` profiles use EDN based configuration files, these are not used in an operational environment.
+
 ## Usage
 
-This application's primary purpose is providing Landsat raster data via HTTP.
+This application's primary purpose is providing Landsat raster data via HTTP. It provides three resources: tiles, tile-specs, and sources.
+
+### Tiles
 
 Much like the way an operating system retrieves memory in pages, this application retrieves raster imagery as tiles, a stack of spatially and temporally coherent data.
 
-### Retrieve data.  Any number of ubids may be specified.
-
 ```bash
-# Using httpie
-user@machine:~$ http http://host:port/tiles
-                     ?x=-2013585
-                     &y=3095805
-                     &acquired=2000-01-01/2017-01-01
-                     &ubid=LANDSAT_8/OLI_TIRS/sr_band1
-                     &ubid=LANDSAT_8/OLI_TIRS/sr_band2
-                     &ubid=LANDSAT_8/OLI_TIRS/sr_band3
+http http://$HOST:$PORT/tiles
+                        ?x=-2013585
+                        &y=3095805
+                        &acquired=2000-01-01/2017-01-01
+                        &ubid=LANDSAT_8/OLI_TIRS/sr_band1
+                        &ubid=LANDSAT_8/OLI_TIRS/sr_band2
+                        &ubid=LANDSAT_8/OLI_TIRS/sr_band3
 ```
 
 #### Retrieve data (alternative endpoint).
+
 This endpoint may provide better performance for single ubid retrievals due to caching, as some HTTP caches do not account for the querystring.  Currently only available for a single ubid at a time.
+
 ```bash
 # Using httpie
 user@machine:~$ http http://host:port/tile/LANDSAT_8/OLI_TIRS/sr_band1
@@ -120,32 +125,44 @@ user@machine:~$ http http://host:port/tile/LANDSAT_8/OLI_TIRS/sr_band1
                      &acquired=2000-01-01/2017-01-01
 ```
 
-#### Get all tile-specs.
+### Tile-Specs
+
+Tile-Specs describe the geometry and data-type for tiles.
+
+You can get all available tile-specs...
+
 ```bash
-user@machine:~$ http http://host:port/tile-specs
+http http://$HOST:$PORT/tile-specs
 ```
 
-#### Search for tile-specs.
-?q= parameter uses [ElasticSearch QueryStringSyntax](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax).
-By default, elastic search applies the query against all indexed fields.
+...or you can use [ElasticSearch QueryStringSyntax][4] to get a subset of available tile-specs. By default, elastic search applies the query against all indexed fields. Individual fields may also be searched directly by prepending the query with the field name plus colon. For example, `?q=ubid:landsat_7 AND etm AND sr_band1`
 
-Individual fields may also be searched directly by prepending the query
-with the field name plus colon.
+*Please note: UBIDs contain a forward-slash "/" and cannot be supplied as a ?q parameter; Elasticsearch syntax interprets this character as a regular expression, so they must be escaped.*
 
-Example: ?q=ubid:landsat_7 AND etm AND sr_band1
-
-UBIDS cannot be supplied as is to the ?q parameter, as they are tokens separate by a forward slash "/". This
-character denotes a regex expression in elastic search syntax.  See the QueryString query syntax guide above.
 ```bash
-user@machine:~$ http http://host:port/tile-specs
-                     ?q=((landsat AND 8) AND NOT sr AND (band1 OR band2 OR band3))
+http http://$HOST:$PORT/tile-specs?q=((landsat AND 8) AND NOT sr AND (band1 OR band2 OR band3))
 ```
 
-lcmap-landsat honors HTTP ```Accept``` headers for both ```application/json```
-and ```text/html```.  The default is json.
+You can retrieve JSON (by default) and HTML representations of data by setting the HTTP `Accept` header to `application/json` or `text/html`.
 
-# References
+### Sources
+
+Sources provide information about where information was obtained. Each tile has a `source-id` that can be used to determine what file was ingested and which bands were tiled.
+
+A random sample of ten sources can be retrieved like this:
+
+```bash
+http http://$HOST:$PORT/sources
+```
+
+A specific source can be retrieved like this:
+
+```bash
+http http://localhost:5678/source/LT050460261984185-SC20161231013600
+``
+
 
 [1]: https://github.com/USGS-EROS/lcmap-landsat/blob/develop/resources/shared/lcmap-landsat.edn "Configuration File"
 [2]: https://hub.docker.com/r/usgseros/lcmap-landsat/ "Docker Image"
 [3]: docs/DevFAQ.md "Developers Frequently Asked Questions"
+[4]: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax "Elasticsearch query syntax"
