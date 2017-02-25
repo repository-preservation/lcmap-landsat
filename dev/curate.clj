@@ -45,7 +45,6 @@
   (->> (mount/with-args {:config (util/read-edn "curator.edn")})
        (mount/start-without #'lcmap.aardvark.server/server
                             #'lcmap.aardvark.worker/worker
-                            #'lcmap.aardvark.worker/worker-consumer
                             #'lcmap.aardvark.db/db-schema)))
 
 ;; Verify that you are referencing the correct backing services.
