@@ -1,5 +1,15 @@
 (ns lcmap.aardvark.event
-  "Provide RabbitMQ connections, channels, and message handling helpers."
+  "Provide RabbitMQ connections, channels, and message handling helpers.
+
+  This namespace provides defines state for:
+  * amqp-connection
+  * amqp-channel
+  * event-schema
+
+  The `event-schema` state uses an EDN file to get names and properties
+  of expected exchanges, queues, and bindings. The term schema is used
+  because it is analogous to a database schema.
+  "
   (:require [camel-snake-kebab.core :refer [->snake_case_keyword]]
             [camel-snake-kebab.extras :refer [transform-keys]]
             [cheshire.core :as json]
@@ -20,7 +30,7 @@
   (transform-keys ->snake_case_keyword (json/decode (String. payload "UTF-8"))))
 
 (dire/with-handler! #'decode-message
-  java.lang.Exception
+  java.lang.RuntimeException
   (fn [e & args]
     (log/debugf "cannot decode message: %s"
                 {:metadata (first args) :payload (second args) :exception e})
@@ -37,7 +47,9 @@
       (log/debugf "starting RabbitMQ connection: %s" opts)
       (rmq/connect opts))
     (catch java.lang.RuntimeException ex
-      (log/fatal "failed to start RabbitMQ connection"))))
+      (log/fatalf "connection to RabbitMQ failed to start: %s" ex)
+      (throw (ex-info "connection to RabbitMQ failed to start."
+                      {:exception ex})))))
 
 (defn stop-amqp-connection
   "Close RabbitMQ connection."
@@ -110,11 +122,11 @@
              (:opts binding))))
 
 (defstate event-schema
-  :start (do
-           (log/debug "creating exchanges, queues, and bindings")
-           (let [wiring (util/read-edn "event.setup.edn")]
+  :start (if-let [wiring (util/read-edn "event.setup.edn")]
+           (do
+             (log/info "creating exchanges, queues, and bindings")
              (create-exchanges (:exchanges wiring))
-             (create-queues (:queues wiring))
-             (create-bindings (:bindings wiring))))
+             (create-queues    (:queues wiring))
+             (create-bindings  (:bindings wiring))))
   :stop (do
-          (log/debug "automatic removal of exchanges, queues, and bindings not supported")))
+          (log/info "automatic removal of exchanges, queues, and bindings not supported")))

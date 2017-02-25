@@ -1,51 +1,47 @@
 (ns lcmap.aardvark.core
-  "Functions for starting a server, worker, or both.
-
-  The server is an HTTP handler and the worker is an AMQP consumer.
-
-  Both modes of operation can be run in a single process, although
-  in a production environment they should be run separately so that
-  each can be scaled independently to handle varying workloads.
-
-  See also:
-  * `dev/lcmap/aardvark/dev.clj` for REPL-driven development.
-  * `dev/resources/lcmap-landsat.edn` for configuration."
-  (:require [again.core :as again]
-            [mount.core :refer [defstate] :as mount]
-            [clojure.edn :as edn]
+  "Functions for starting a server and worker."
+  (:require [mount.core :refer [defstate] :as mount]
             [clojure.tools.logging :as log]
             [clojure.walk :as walk]
             [lcmap.aardvark.config :as config]
+            [lcmap.aardvark.server :as server]
+            [lcmap.aardvark.worker :as worker]
             [lcmap.aardvark.util :as util])
   (:gen-class))
 
+;; A shutdown hook provides a way to intentionally stop mount 'beings'
+;; but it isn't guaranteed to run. This is defined here because it is
+;; only useful when the main entrypoint is used.
+
 (defstate hook
   :start (do
-           (log/debugf "registering shutdown handler")
+           (log/debug "registering shutdown handler")
            (.addShutdownHook (Runtime/getRuntime)
                              (Thread. #(mount/stop) "shutdown-handler"))))
 
 ;; This nested map contains environment variable names. These values
 ;; are replaced with actual values during startup and merged into
-;; the default configuration map, `def-cfg`.
+;; the default configuration map, `default-cfg`.
+
 (def environ-cfg {:database {:cluster {:contact-points "AARDVARK_DB_HOST"
                                        :credentials {:user "AARDVARK_DB_USER"
                                                      :password "AARDVARK_DB_PASS"}}
                              :default-keyspace "AARDVARK_DB_KEYSPACE"}
-                  :html    {:base-url  "AARDVARK_BASE_URL"}
-                  :http    {:port      "AARDVARK_HTTP_PORT"}
-                  :event   {:host      "AARDVARK_EVENT_HOST"
-                            :port      "AARDVARK_EVENT_PORT"
-                            :user      "AARDVARK_EVENT_USER"
-                            :password  "AARDVARK_EVENT_PASS"}
-                  :server  {:exchange  "AARDVARK_SERVER_EVENTS"
-                            :queue     "AARDVARK_SERVER_EVENTS"}
-                  :worker  {:exchange  "AARDVARK_WORKER_EVENTS"
-                            :queue     "AARDVARK_WORKER_EVENTS"}
-                  :search  {:index-url "AARDVARK_SEARCH_INDEX_URL"}})
+                  :html     {:base-url  "AARDVARK_BASE_URL"}
+                  :http     {:port      "AARDVARK_HTTP_PORT"}
+                  :event    {:host      "AARDVARK_EVENT_HOST"
+                             :port      "AARDVARK_EVENT_PORT"
+                             :user      "AARDVARK_EVENT_USER"
+                            :password   "AARDVARK_EVENT_PASS"}
+                  :server   {:exchange  "AARDVARK_SERVER_EVENTS"
+                             :queue     "AARDVARK_SERVER_EVENTS"}
+                  :worker   {:exchange  "AARDVARK_WORKER_EVENTS"
+                             :queue     "AARDVARK_WORKER_EVENTS"}
+                  :search   {:index-url "AARDVARK_SEARCH_INDEX_URL"}})
 
-;; This nested map contains a default configuration. It is updated with `env-cfg`
-;; values during startup.
+;; This nested map contains a default configuration. It is updated
+;; with `environ-cfg` values during startup.
+
 (def default-cfg {:database  {:cluster {:contact-points "cassandra"
                                         :socket-options {:read-timeout-millis 20000}}
                               :default-keyspace "lcmap_landsat"
@@ -79,18 +75,10 @@
   "Start the server, worker, or both."
   [& args]
   (let [cfg (env->cfg)]
-    (log/debugf "cfg: '%s'" cfg)
-    (when (get-in cfg [:server])
-      (log/info "HTTP server mode enabled")
-      (require 'lcmap.aardvark.server))
-    (when (get-in cfg [:worker])
-      (log/info "AMQP worker mode enabled")
-      (require 'lcmap.aardvark.worker))
-
-    ;;; Retry and try catch are to wait for system resources to become
-    ;;; available.
+    (log/debugf "start lcmap.aardvark.core using config: '%s'" cfg)
     (try
-      (mount/start (mount/with-args {:config cfg}))
+      (->> (mount/with-args {:config cfg})
+           (mount/start))
       (catch RuntimeException e
-        (log/fatalf e "Could not start lcmap.landsat... exiting")
+        (log/fatalf e "could not start lcmap.aardvark.core; exiting.")
         (System/exit 1)))))
