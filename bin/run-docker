@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# This file exists to make it easy for you to run the project as
+# a Docker container during local development. You can use this
+# to evaulate configuration related changes that are difficult to
+# test using automated tests.
+#
+# This configuration uses the hostnames Docker assigns to services
+# described in the resource/docker-compose.yml file. In order for
+# the container to access these services, you will need to run it
+# in the same network as them.
+#
+
+docker run \
+  --net resources_lcmap_landsat \
+  -e AARDVARK_DB_KEYSPACE=lcmap_landsat_local \
+  -e AARDVARK_DB_HOST="resources_cassandra_1" \
+  -e AARDVARK_BASE_URL="/" \
+  -e AARDVARK_HTTP_PORT="5678" \
+  -e AARDVARK_EVENT_HOST="resources_rabbit_1" \
+  -e AARDVARK_SERVER_EVENTS="local.docker.aardvark.server" \
+  -e AARDVARK_WORKER_EVENTS="localdocker.aarvark.worker" \
+  -e AARDVARK_SEARCH_INDEX_URL=http://resources_elastic_1:9200/tile-specs \
+usgseros/lcmap-landsat:0.1.0-SNAPSHOT

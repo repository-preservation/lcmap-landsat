@@ -1,17 +1,32 @@
-version: '2'
+version: "3"
+
+networks:
+  lcmap_landsat:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.168.42.0/24
+
 services:
   elastic:
     image: elasticsearch:5.0.0
     ports:
     - "9200:9200"
     - "9300:9300"
+    networks:
+      - lcmap_landsat
   rabbit:
     image: rabbitmq:3-management
     ports:
     - "15672:15672"
     - "5672:5672"
     - "5671:5671"
+    networks:
+      - lcmap_landsat
   cassandra:
     image: cassandra:3.9
     ports:
     - "9042:9042"
+    networks:
+      - lcmap_landsat
