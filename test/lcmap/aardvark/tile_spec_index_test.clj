@@ -11,7 +11,6 @@
             [lcmap.aardvark.tile-spec-index :as index]
             [lcmap.aardvark.tile-test :as tile-test :refer [L5 tile-spec-opts]]))
 
-
 (deftest test-indexing
   (shared/with-system
 
@@ -27,8 +26,8 @@
         (is (= "index_not_found_exception" err))))
 
     (testing "load and search the index"
-        (tile-spec/process L5 tile-spec-opts)
-        (is (< 0 (count (index/result (index/search "tm"))))))
+      (tile-spec/process L5 tile-spec-opts)
+      (is (< 0 (count (index/result (index/search "tm"))))))
 
     (testing "index search"
       (let [raw (index/search "((tm AND cloud) OR band3) AND NOT shadow AND 5")
