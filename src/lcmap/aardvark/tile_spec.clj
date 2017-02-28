@@ -39,7 +39,7 @@
 
   ([columns]
    (db/execute (hayt/select :tile_specs
-                (apply hayt/columns columns)))))
+                            (apply hayt/columns columns)))))
 
 (defn query
   "Find tile-spec in DB."

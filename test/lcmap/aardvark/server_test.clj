@@ -23,7 +23,7 @@
   (with-system
     (testing "health check"
       (let [resp (req :get "http://localhost:5679/health"
-                            :headers {"Accept" "*/*"})]
+                      :headers {"Accept" "*/*"})]
         (is (= 200 (:status resp)))))))
 
 (deftest landsat-tile-resource
@@ -45,21 +45,21 @@
         (is (= 200 (:status resp)))
         (is (= "application/json" (get-in resp [:headers :content-type])))))
     (testing "get a single ubid as JSON"
-          (let [resp (req :get "http://localhost:5679/tile/LANDSAT_5/TM/sr_band1"
-                          :headers {"Accept" "application/json"}
-                          :form-params {:x 0 :y 0
-                                        :acquired "2000-01-01/2005-01-01"})]
-            (is (= 200 (:status resp)))))))
+      (let [resp (req :get "http://localhost:5679/tile/LANDSAT_5/TM/sr_band1"
+                      :headers {"Accept" "application/json"}
+                      :form-params {:x 0 :y 0
+                                    :acquired "2000-01-01/2005-01-01"})]
+        (is (= 200 (:status resp)))))))
 
 (deftest landsat-tile-spec-resource
   (with-system
     #_(testing "put a tile-spec as JSON"
-       (let [tile-spec (slurp (io/resource "data/sample-tile-spec.json"))
-             resp (req :put "http://localhost:5679/tile-spec/LANDSAT_5/TM/sr_band1"
-                       :headers {"Content-Type" "application/json"
-                                 "Accept" "application/json"}
-                       :body tile-spec)]
-         (is (= 202 (:status resp)))))
+        (let [tile-spec (slurp (io/resource "data/sample-tile-spec.json"))
+              resp (req :put "http://localhost:5679/tile-spec/LANDSAT_5/TM/sr_band1"
+                        :headers {"Content-Type" "application/json"
+                                  "Accept" "application/json"}
+                        :body tile-spec)]
+          (is (= 202 (:status resp)))))
     (testing "get an existing tile-spec"
       (tile-spec/process L5 tile-spec-opts)
       (let [resp (req :get "http://localhost:5679/tile-spec/LANDSAT_5/TM/sr_band1"
@@ -70,12 +70,12 @@
                       :headers {"Accept" "application/json"})]
         (is (= 404 (:status resp)))))
     #_(testing "post multiple tile-specs"
-       (let [tile-specs (slurp (io/resource "data/sample-tile-specs.json"))
-             resp (req :post "http://localhost:5679/tile-spec"
-                       :headers {"Content-Type" "application/json"
-                                 "Accept" "application/json"}
-                       :body tile-specs)]
-            (is (= 200 (:status resp)))))))
+        (let [tile-specs (slurp (io/resource "data/sample-tile-specs.json"))
+              resp (req :post "http://localhost:5679/tile-spec"
+                        :headers {"Content-Type" "application/json"
+                                  "Accept" "application/json"}
+                        :body tile-specs)]
+          (is (= 200 (:status resp)))))))
 
 (deftest source-tests
   (with-system

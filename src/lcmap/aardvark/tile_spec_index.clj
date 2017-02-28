@@ -18,7 +18,7 @@
       tile-spec)))
 
 (defn index-entry
-   "Converts a tile-spec to an index entry."
+  "Converts a tile-spec to an index entry."
   [tile-spec]
   (log/debugf "converting tile-spec to index entry")
   (str (json/write-str {"index" {"_retry_on_conflict" 3}}) "\n"
@@ -60,9 +60,9 @@
               Caller can either wait 1 second (per the docs) or call refresh
               endpoint"
              (es/refresh! refresh-url))
-  (log/tracef "Refreshing search index")
-  #_(Thread/sleep 1000)
-  (es/refresh! refresh-url))
+    (log/tracef "Refreshing search index")
+    #_(Thread/sleep 1000)
+    (es/refresh! refresh-url))
   true)
 
 (defn save

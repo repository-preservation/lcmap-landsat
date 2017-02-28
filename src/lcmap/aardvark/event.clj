@@ -128,5 +128,4 @@
              (create-exchanges (:exchanges wiring))
              (create-queues    (:queues wiring))
              (create-bindings  (:bindings wiring))))
-  :stop (do
-          (log/info "automatic removal of exchanges, queues, and bindings not supported")))
+  :stop  (log/warn "automatic removal of exchanges, queues, and bindings not supported"))

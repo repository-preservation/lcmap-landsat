@@ -29,4 +29,4 @@
         (is (= 1 (count results)))
         (is (= "LANDSAT_5" (-> results first :satellite)))
         (is (= "TM" (-> results first :instrument)))))))
-    
+

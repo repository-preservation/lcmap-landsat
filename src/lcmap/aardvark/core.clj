@@ -32,7 +32,7 @@
                   :event    {:host      "AARDVARK_EVENT_HOST"
                              :port      "AARDVARK_EVENT_PORT"
                              :user      "AARDVARK_EVENT_USER"
-                            :password   "AARDVARK_EVENT_PASS"}
+                             :password   "AARDVARK_EVENT_PASS"}
                   :server   {:exchange  "AARDVARK_SERVER_EVENTS"
                              :queue     "AARDVARK_SERVER_EVENTS"}
                   :worker   {:exchange  "AARDVARK_WORKER_EVENTS"
@@ -77,8 +77,7 @@
   (let [cfg (env->cfg)]
     (log/debugf "start lcmap.aardvark.core using config: '%s'" cfg)
     (try
-      (->> (mount/with-args {:config cfg})
-           (mount/start))
+      (mount/start (mount/with-args {:config cfg}))
       (catch RuntimeException e
         (log/fatalf e "could not start lcmap.aardvark.core; exiting.")
         (System/exit 1)))))

@@ -52,8 +52,9 @@
                                   [proto-repl "0.3.1"]
                                   [org.slf4j/slf4j-log4j12 "1.7.21"]]
 
-                   :plugins [[lein-codox "0.10.0"]
-                             [lein-ancient "0.6.10"]
+                   :plugins [[lein-ancient "0.6.10"]
+                             [lein-cljfmt "0.5.6"]
+                             [lein-codox "0.10.0"]
                              [lein-kibit "0.1.2"]
                              [jonase/eastwood "0.2.3"]
                              [lein-cljfmt "0.5.6"]]}

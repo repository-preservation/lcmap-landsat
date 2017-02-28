@@ -48,7 +48,6 @@
     (testing "an archive that isn't ESPA output"
       (is (= :fail (tile/process corrupt-source))))))
 
-
 (def space-time {:x -2062080 :y 2952960 :acquired ["2000-01-05" "2000-01-30"]})
 (def one-ubid {:ubids ["LANDSAT_7/ETM/toa_qa"]})
 (def two-ubid {:ubids ["LANDSAT_7/ETM/toa_qa"

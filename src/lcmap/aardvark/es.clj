@@ -31,16 +31,16 @@
 (defn search
   "Submits a supplied query to the elastic index.
    Returns a hashmap of raw results"
-   [api-url query result-size]
-   (let [full-url (str api-url
-                       "?q=" (http/url-encode query) "&size=" result-size)
-         {:keys [body error] :as resp} @(http/get full-url)
-         errors (or error (get-errors body))]
-     (if errors
-       (do (log/debug (str "search error:" errors "full url:" full-url))
-           errors)
-       (do (log/debug (str "search success:" body "full url:" full-url))
-           (json/read-str body :key-fn keyword)))))
+  [api-url query result-size]
+  (let [full-url (str api-url
+                      "?q=" (http/url-encode query) "&size=" result-size)
+        {:keys [body error] :as resp} @(http/get full-url)
+        errors (or error (get-errors body))]
+    (if errors
+      (do (log/debug (str "search error:" errors "full url:" full-url))
+          errors)
+      (do (log/debug (str "search success:" body "full url:" full-url))
+          (json/read-str body :key-fn keyword)))))
 
 (defn refresh!
   "Refreshes the search index"
