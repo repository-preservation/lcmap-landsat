@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# This file exists to make it easy for you to run an uberjar to
+# evaluate how the application operates in standalone mode. During
+# active development a REPL is strongly recommended.
+#
+# In order for the application to connect to backing services, you
+# will need to run docker-compose; see Makefile for details. Unlike
+# the docker-run script, this can refer to services using localhost
+# because services are port-mapped.
+#
+
+AARDVARK_DB_KEYSPACE=lcmap_landsat_local \
+AARDVARK_DB_HOST="localhost" \
+AARDVARK_BASE_URL="/" \
+AARDVARK_HTTP_PORT="5678" \
+AARDVARK_EVENT_HOST="localhost" \
+AARDVARK_SERVER_EVENTS="local.lcmap.landsat.server" \
+AARDVARK_WORKER_EVENTS="local.lcmap.landsat.worker" \
+AARDVARK_SEARCH_INDEX_URL=http://localhost:9200/tile-specs \
+lein run
