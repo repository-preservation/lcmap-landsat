@@ -11,37 +11,6 @@
 
 (declare db-cluster db-schema db-session)
 
-;; utility functions
-
-(defn cql->stmts
-  "Convert file containing CQL statements into a vector.
-
-  Splits statements, removes comments, trims whitespace,
-  and removes blank statements."
-  [path]
-  (let [cql (-> path
-                (io/resource)
-                (slurp)
-                (clojure.string/split #";"))
-        tf (comp (map #(clojure.string/replace % #"--.+\n" ""))
-                 (map clojure.string/trim)
-                 (remove clojure.string/blank?))]
-    (into [] tf cql)))
-
-(defn execute-cql
-  "Executes a CQL string, useful for schema setup or teardown."
-  [path session]
-  (doseq [query (cql->stmts path)]
-    (alia/execute session query)))
-
-(defn execute
-  "Executes the supplied query."
-  [query]
-  (log/debugf "executing query: %s" query)
-  (alia/execute db-session query))
-
-;;; States
-
 (defn db-cluster-start
   "Open cluster connection.
 
@@ -65,33 +34,6 @@
   :start (db-cluster-start)
   :stop  (db-cluster-stop))
 
-(defn db-schema-setup
-  []
-  (if (true? (get-in config [:database :schema :setup]))
-    (let [session (alia/connect db-cluster)]
-      (execute-cql "schema.setup.cql" session)
-      (alia/shutdown session))))
-
-(defn db-schema-teardown
-  []
-  (if (true? (get-in config [:database :schema :teardown]))
-    (let [session (alia/connect db-cluster)]
-      (execute-cql "schema.teardown.cql" session)
-      (alia/shutdown session))))
-
-;; !!! WARNING !!!
-;;
-;; db-schme can be used to setup and teardown a schema. Useful for dev
-;; and test model; potentially hazardous in an ops environment if using
-;; a REPL. To minimize the risk this will only execute if configuration
-;; map contains a {:database {:schema {:setup true }} key. In an ops
-;; environment, do not connect using credentials with priveleges that
-;; allow schema modification.
-
-(defstate db-schema
-  :start (db-schema-setup)
-  :stop  (db-schema-teardown))
-
 (defn db-session-start
   "Create session that uses the default keyspace."
   []
@@ -113,3 +55,10 @@
 (defstate db-session
   :start (db-session-start)
   :stop  (db-session-stop))
+
+
+(defn execute
+  "Executes the supplied query."
+  [query]
+  (log/debugf "executing query: %s" query)
+  (alia/execute db-session query))

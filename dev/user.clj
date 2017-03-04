@@ -20,7 +20,20 @@
             [lcmap.aardvark.server :as server]
             [lcmap.aardvark.worker :as worker]
             [lcmap.aardvark.util :as util]
+            [lcmap.aardvark.setup :as setup]
             [mount.core :as mount]))
+
+(defn init
+  "Run this function once to configure a development system.
+
+  This should be called before running start when backing services
+  have been started for the first time.
+
+  Please be careful when using a REPL with an operational system."
+  []
+  (setup/run {:cfg "local.lcmap.aardvark.edn"
+              :cql "local.schema.setup.cql"
+              :eqb "local.event.setup.edn"}))
 
 (defn start
   "Start stateful 'beings' using an EDN-derived configuration.
@@ -29,7 +42,7 @@
   be started. If you evaluate other namespaces during development, they
   will also be started when this function is invoked."
   []
-  (-> (mount/with-args {:config (util/read-edn "lcmap.aardvark.edn")})
+  (-> (mount/with-args {:config (util/read-edn "local.lcmap.aardvark.edn")})
       (mount/start)))
 
 (defn stop

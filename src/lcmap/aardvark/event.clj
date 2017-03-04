@@ -93,39 +93,3 @@
 (defstate amqp-channel
   :start (start-amqp-channel)
   :stop  (stop-amqp-channel))
-
-(defn create-exchanges
-  [exchanges]
-  (doseq [exchange exchanges]
-    (log/debugf "creating exchange: %s" (:name exchange))
-    (le/declare amqp-channel
-                (:name exchange)
-                (:type exchange)
-                (:opts exchange))))
-
-(defn create-queues
-  [queues]
-  (doseq [queue queues]
-    (log/debugf "creating queue: %s" (:name queue))
-    (lq/declare amqp-channel (:name queue) (:opts queue))))
-
-(defn create-bindings
-  [bindings]
-  (doseq [binding bindings]
-    (log/debugf "binding %s to %s with opts %s"
-                (:exchange binding)
-                (:queue binding)
-                (:opts binding))
-    (lq/bind amqp-channel
-             (:queue binding)
-             (:exchange binding)
-             (:opts binding))))
-
-(defstate event-schema
-  :start (if-let [wiring (util/read-edn "event.setup.edn")]
-           (do
-             (log/info "creating exchanges, queues, and bindings")
-             (create-exchanges (:exchanges wiring))
-             (create-queues    (:queues wiring))
-             (create-bindings  (:bindings wiring))))
-  :stop  (log/warn "automatic removal of exchanges, queues, and bindings not supported"))

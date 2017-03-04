@@ -18,7 +18,7 @@
   permissions required to curate data (selecting and inserting data)
   so that you you don't have to worry about performing schema changes.
 
-  You will need to create and update a copy of `dev/lcmap.landsat.edn`
+  You will need to create and update a copy of `dev/local.lcmap.landsat.edn`
   named `curator.edn` and place it on the resource load path. This file
   is listed in .gitignore so you don't have to worry about sensitive
   data being added to the repository."
@@ -44,8 +44,7 @@
   []
   (->> (mount/with-args {:config (util/read-edn "curator.edn")})
        (mount/start-without #'lcmap.aardvark.server/server
-                            #'lcmap.aardvark.worker/worker
-                            #'lcmap.aardvark.db/db-schema)))
+                            #'lcmap.aardvark.worker/worker)))
 
 ;; Verify that you are referencing the correct backing services.
 
