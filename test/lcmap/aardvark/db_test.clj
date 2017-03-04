@@ -1,11 +1,12 @@
 (ns lcmap.aardvark.db-test
   (:require [clojure.test :refer :all]
-            [lcmap.aardvark.shared :as shared]
+            [lcmap.aardvark.fixtures :as fixtures]
             [lcmap.aardvark.db :as db]))
 
-(deftest testing-event-state
-  (shared/with-system
-    (testing "cluster connection is open"
-      (is (not (.isClosed db/db-cluster))))
-    (testing "session is open"
-      (is (not (.isClosed db/db-session))))))
+(use-fixtures :once fixtures/with-services)
+
+(deftest testing-db-state
+  (testing "cluster connection is open"
+    (is (not (.isClosed db/db-cluster))))
+  (testing "session is open"
+    (is (not (.isClosed db/db-session)))))

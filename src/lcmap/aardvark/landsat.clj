@@ -93,36 +93,11 @@
       {:status 200 :body result}
       {:status 404 :body nil})))
 
-(defn delete-tile-spec
-  "Deleting a tile-spec is not supported.
-
-  Supporting removal of a tile-spec is unusual and would make it
-  impossible to get tile data for those UBIDs."
-  [ubid]
-  {:status 501})
-
 (defn get-tile-specs
   "Get tile-specs."
   [{{q :q :or {q "*"}} :params}]
   (log/debug "get tile-specs")
   {:status 200 :body (index/result (index/search q))})
-
-(defn post-tile-spec
-  "Create or update all tile-specs"
-  [{body :body :as req}]
-  (log/debugf "create or update %s tile specs" (count body))
-  (let [saved (map #(tile-spec/save %) body)]
-    {:status 200 :body {:saved (count saved)}}))
-
-(defn put-tile-spec
-  "Create or update a tile-spec."
-  [ubid {body :body :as req}]
-  (log/debugf "create or update tile-spec '%s' with %s" ubid body)
-  (let [tile-spec (merge {:ubid ubid} body)]
-    (or (some->> (tile-spec/validate tile-spec)
-                 (assoc {:status 403} :body))
-        (some->> (tile-spec/save tile-spec)
-                 (assoc {:status 202} :body)))))
 
 ;;; Request entity transformers.
 
@@ -195,7 +170,7 @@
        (with-meta (check-health)
          {:template html/status-list}))
      (GET "/sources" []
-       (with-meta (sample-source)
+       (with-meta []
          {:template html/source-list}))
      (GET  "/source/:source-id{.+}" [source-id]
        (with-meta (get-source source-id)
@@ -219,22 +194,12 @@
        (with-meta (get-tile-specs request)
          {:template html/tile-spec-list}))
      (ANY "/tile-specs" []
-       (with-meta (allow ["GET" "POST"])
+       (with-meta (allow ["GET"])
          {:template html/default}))
      (GET "/tile-spec/:ubid{.+}" [ubid]
        (with-meta (get-tile-spec ubid request)
          {:template html/tile-spec-info}))
-     (DELETE "/tile-spec/:ubid{.+}" [ubid]
-       (with-meta (delete-tile-spec ubid)
-         {:template html/tile-spec-info}))
      (ANY "/tile-spec/:ubid{.+}" []
-       (with-meta (allow ["GET" "PUT"])
-         {:template html/default}))
-     ;; TODO: Enable after providing authentication/authorization.
-     #_(POST   "/tile-specs" []
-         (with-meta (post-tile-spec request)
-           {:template html/tile-spec-list}))
-     #_(PUT    "/tile-spec/:ubid{.+}" [ubid]
-         (with-meta (put-tile-spec ubid request)
-           {:template html/tile-spec-info})))
+       (with-meta (allow ["GET"])
+         {:template html/default})))
    prepare-with respond-with))

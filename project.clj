@@ -45,7 +45,7 @@
                  [metrics-clojure-health "2.8.0"]
                  [listora/again "0.1.0"]]
 
-  :profiles {:dev {:resource-paths ["dev" "dev/resources" "resources" "data"]
+  :profiles {:dev {:resource-paths ["dev" "dev/resources" "test/resources" "resources" "data"]
                    :dependencies [[org.clojure/tools.namespace "0.3.0-alpha3"]
                                   [http-kit "2.2.0"]
                                   [http-kit.fake "0.2.2"]
