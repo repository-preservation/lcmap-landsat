@@ -7,5 +7,6 @@
              :queue    "unit.lcmap.landsat.server"}
  :worker    {:exchange "unit.lcmap.landsat.worker"
              :queue    "unit.lcmap.landsat.worker"}
- :search    {:index-url "http://localhost:9200/lcmap-landsat-test"
+ :search    {:index-url "http://localhost:9200/unit-lcmap-landsat"
+             :tile-spec-url "http://localhost:9200/unit-lcmap-landsat/tile-spec"
              :max-result-size 10000}}

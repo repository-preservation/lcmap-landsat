@@ -37,7 +37,8 @@
                              :queue     "AARDVARK_SERVER_EVENTS"}
                   :worker   {:exchange  "AARDVARK_WORKER_EVENTS"
                              :queue     "AARDVARK_WORKER_EVENTS"}
-                  :search   {:index-url "AARDVARK_SEARCH_INDEX_URL"}})
+                  :search   {:index-url "AARDVARK_SEARCH_INDEX_URL"
+                             :tile-spec-url "AARDVARK_TILE_SPEC_URL"}})
 
 ;; This nested map contains a default configuration. It is updated
 ;; with `environ-cfg` values during startup.
@@ -55,8 +56,9 @@
                               :queue    "lcmap.landsat.server"}
                   :worker    {:exchange "lcmap.landsat.worker"
                               :queue    "lcmap.landsat.worker"}
-                  :search    {:index-url "http://elasticsearch:9200/tile-specs"
-                              :max-result-size 10000}})
+                  :search    {:index-url "http://elasticsearch:9200/lcmap-landsat"
+                              :tile-spec-url "http://elasticsearch:9200/lcmap-landsat/tile-spec"
+                              :max-result-size 1000}})
 
 (defn env-name->env-value
   "Replaces all string values with the matching environment variable."

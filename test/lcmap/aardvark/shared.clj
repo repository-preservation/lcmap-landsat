@@ -3,6 +3,7 @@
             [clojure.tools.logging :as log]
             [clojure.java.io :as io]
             [lcmap.aardvark.config :as config]
+            [lcmap.aardvark.elasticsearch :as es]
             [lcmap.aardvark.server :as server]
             [lcmap.aardvark.worker :as worker]
             [lcmap.aardvark.fixtures :as fixtures]

@@ -56,7 +56,7 @@
                                   :acquired "2000-01-01/2005-01-01"})]
       (is (= 200 (:status resp))))))
 
-(deftest tile-spec-resource-tests
+(deftest tile-spec-tests
   (testing "get an existing tile-spec"
     (let [resp (req :get "http://localhost:5679/tile-spec/LANDSAT_5/TM/sr_band1"
                     :headers {"Accept" "application/json"})]

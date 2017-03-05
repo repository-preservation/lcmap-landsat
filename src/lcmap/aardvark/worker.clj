@@ -80,7 +80,7 @@
   [consumer]
   (let [queue-name (get-in config [:worker :queue])]
     (log/debugf "cancel queue consumer: %s" queue-name)
-    (lb/cancel event/amqp-channel consumer)))
+    #_(lb/cancel event/amqp-channel consumer)))
 
 ;; After starting, this will contain an auto-assigned consumer-tag
 ;; string value (e.g. "amq.ctag--ShMiMaeEhswKop2ccp9Lg"). This tag
