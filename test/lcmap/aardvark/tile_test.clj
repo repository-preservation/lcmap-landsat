@@ -8,6 +8,8 @@
 
 (use-fixtures :once fixtures/with-services)
 
+(use-fixtures :each fixtures/with-data)
+
 (def tile-spec-opts {:data_shape [128 128]
                      :name "conus"})
 
@@ -47,15 +49,23 @@
     (is (= :fail (tile/process corrupt-source)))))
 
 (def space-time {:x -2062080 :y 2952960 :acquired ["2000-01-05" "2000-01-30"]})
+
 (def one-ubid {:ubids ["LANDSAT_7/ETM/toa_qa"]})
+
 (def two-ubid {:ubids ["LANDSAT_7/ETM/toa_qa"
                        "LANDSAT_5/TM/sr_band1"]})
+
 (def bad-ubid {:ubids ["Not a ubid"]})
+
 (def mux-ubid {:ubids ["Not a ubid"
                        "LANDSAT_7/ETM/toa_qa"
                        "LANDSAT_5/TM/sr_band1"]})
 
-(deftest find
+;; This test uses data that no longer conforms with the tile-specs
+;; of an operational system. Consequently, tile-specs have to be
+;; saved that will work with the ingested data.
+
+(deftest find-tests
   (doall (map #(tile-spec/process % tile-spec-opts) [L5 L7]))
   (doall (map #(tile/process %) [L5 L7]))
   (testing "Test a single ubid"

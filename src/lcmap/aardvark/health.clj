@@ -2,8 +2,10 @@
   (:require [metrics.health.core :as h]
             [metrics.counters :as counters]
             [metrics.timers :as timers]
+            [lcmap.aardvark.config :as config]
             [lcmap.aardvark.db :as db]
-            [lcmap.aardvark.event :as event]))
+            [lcmap.aardvark.event :as event]
+            [lcmap.aardvark.elasticsearch :as es]))
 
 (h/defhealthcheck db-health
   (fn []
@@ -23,7 +25,11 @@
 
 (h/defhealthcheck es-health
   (fn []
-    (h/healthy "Elasticsearch works.")))
+    (let [index-url (get-in config/config [:search :index-url])
+          index-info (es/index-get index-url)]
+      (if (-> index-info :error :root_cause first :reason)
+        (h/unhealthy "Elasticsearch index missing.")
+        (h/healthy "Elasticsearch index works.")))))
 
 (defn health-status []
   {:db    (select-keys (bean (h/check db-health))

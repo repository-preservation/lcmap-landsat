@@ -12,4 +12,5 @@
  :worker    {:exchange "local.lcmap.landsat.worker"
              :queue    "local.lcmap.landsat.worker"}
  :search    {:index-url "http://localhost:9200/lcmap-landsat-local"
-             :max-result-size 10000}}
+             :tile-spec-url "http://localhost:9200/lcmap-landsat-local/tile-spec"
+             :max-result-size 1000}}

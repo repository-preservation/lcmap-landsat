@@ -16,7 +16,6 @@
             [lcmap.aardvark.source :as source]
             [lcmap.aardvark.tile :as tile]
             [lcmap.aardvark.tile-spec :as tile-spec]
-            [lcmap.aardvark.tile-spec-index :as index]
             [lcmap.commons.collections :refer [vectorize]]
             [lcmap.aardvark.middleware :refer [wrap-handler]]))
 
@@ -87,8 +86,7 @@
   "Search for a source and produce a response map."
   [ubid {params :params :as req}]
   (log/debugf "get tile-spec for '%s' with %s" ubid params)
-  (let [query  (str "ubid:" (str/replace ubid #"/" " AND "))
-        result (first (index/result (index/search query)))]
+  (let [result (tile-spec/get ubid)]
     (if (= (:ubid result) ubid)
       {:status 200 :body result}
       {:status 404 :body nil})))
@@ -97,7 +95,7 @@
   "Get tile-specs."
   [{{q :q :or {q "*"}} :params}]
   (log/debug "get tile-specs")
-  {:status 200 :body (index/result (index/search q))})
+  {:status 200 :body (tile-spec/search q)})
 
 ;;; Request entity transformers.
 

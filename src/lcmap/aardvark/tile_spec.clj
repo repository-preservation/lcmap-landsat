@@ -13,23 +13,21 @@
             [schema.core :as schema]
             [lcmap.aardvark.db :as db]
             [lcmap.aardvark.config :refer [config]]
-            [lcmap.aardvark.tile-spec-index :as index])
+            [lcmap.aardvark.elasticsearch :as es])
   (:refer-clojure :exclude [find]))
+
+;; States
 
 (defstate gdal
   :start (do
            (log/debug "initializing GDAL")
            (gdal.core/init)))
 
-(def tile-spec-schema
-  {:ubid schema/Str
-   schema/Keyword schema/Any})
+(defstate tile-spec-url
+  :start (get-in config [:search :tile-spec-url])
+  :stop nil)
 
-(defn validate
-  "Produce a map of errors if the tile-spec is invalid, otherwise nil."
-  [tile-spec]
-  (log/tracef "validate tile-spec: %s" tile-spec)
-  (schema/check tile-spec-schema tile-spec))
+;; Database support
 
 (defn all
   "Retrieve all tile-specs."
@@ -40,19 +38,6 @@
   ([columns]
    (db/execute (hayt/select :tile_specs
                             (apply hayt/columns columns)))))
-
-(defn query
-  "Find tile-spec in DB."
-  ([params]
-   (log/tracef "search for tile-spec: %s" params)
-   (db/execute (hayt/select :tile_specs
-                            (hayt/where params)
-                            (hayt/allow-filtering))))
-  ([columns params]
-   (db/execute (hayt/select :tile_specs
-                            (apply hayt/columns columns)
-                            (hayt/where params)
-                            (hayt/allow-filtering)))))
 
 (def column-names [:name :ubid :tags :wkt :satellite :instrument
                    :tile_x :tile_y :pixel_x :pixel_y :shift_x :shift_y
@@ -69,18 +54,58 @@
   "Create tile-spec in DB."
   [tile-spec]
   (log/tracef "insert tile-spec: %s" tile-spec)
-  (->> (relevant tile-spec)
+  (->> (update tile-spec :tags set)
+       (relevant)
        (hayt/values)
        (hayt/insert :tile_specs)
        (db/execute))
   tile-spec)
 
-(defn save
-  "Saves a tile-spec"
+(defn query
+  "Find tile-spec in DB."
+  ([params]
+   (log/tracef "search for tile-spec: %s" params)
+   (db/execute (hayt/select :tile_specs
+                            (hayt/where params)
+                            (hayt/allow-filtering))))
+  ([columns params]
+   (db/execute (hayt/select :tile_specs
+                            (apply hayt/columns columns)
+                            (hayt/where params)
+                            (hayt/allow-filtering)))))
+
+;; Search-indexing support
+
+(defn +tags
+  "Appends additional tags to a tile-spec"
   [tile-spec]
-  (->> tile-spec
-       (index/save)
-       (insert)))
+  (log/debugf "appending additional tags to tile-spec")
+  (let [ubid-tags (clojure.string/split (:ubid tile-spec) #"/|_")]
+    (update tile-spec :tags concat ubid-tags)))
+
+(defn index
+  "Save tile-spec to Elasticsearch."
+  [& tile-specs]
+  (es/doc-bulk-index tile-spec-url tile-specs {:_id :ubid}))
+
+(defn get
+  "Retrive tile-spec from Elasticsearch."
+  [ubid]
+  (es/doc-get tile-spec-url ubid))
+
+(defn search
+  "Query tile-specs in Elasticsearch."
+  [query]
+  (es/hits->sources (es/search tile-spec-url query {:size 1000})))
+
+;; Convenience functions
+
+(defn save
+  "Saves a tile-spec, includes writing to DB and updating search index."
+  [tile-spec]
+  (some->> tile-spec +tags insert index some?))
+
+;; Utility functions, not commonly used.
 
 (defn dataset->spec
   "Deduce tile spec properties from band's dataset at file_path and band's data_shape"

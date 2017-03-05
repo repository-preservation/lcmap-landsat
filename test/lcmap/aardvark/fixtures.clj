@@ -4,10 +4,10 @@
   There are four broad categories, each of which has a setup
   and teardown method: services, data, server, and worker.
 
-  1. Service fixtures are connections to backing services like
-     Cassandra, RabbitMQ, Elasticseach. Although this is not
-     a traditional use of fixtures, this avoids having to write
-     that wrap tests that behave identically to `use-fixtures`.
+  1. Service fixtures are stateful connections to things like:
+     Cassandra, RabbitMQ, Elasticseach. Although not a common
+     use of fixtures, this obviates the need for functions
+     behaving identically to `use-fixtures`.
 
   2. Data fixtures are related to the DB schema and seed data
      such as tile-specs. These fixtures only work if service
@@ -22,10 +22,11 @@
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [lcmap.aardvark.db :as db]
+            [lcmap.aardvark.elasticsearch :as es]
             [lcmap.aardvark.event :as event]
             [lcmap.aardvark.server :as server]
             [lcmap.aardvark.tile-spec :as tile-spec]
-            [lcmap.aardvark.tile-spec-index :as index]
+            [lcmap.aardvark.setup :as setup]
             [lcmap.aardvark.setup.database :as setup-db]
             [lcmap.aardvark.setup.event :as setup-event]
             [lcmap.aardvark.util :as util]
@@ -38,6 +39,22 @@
 (def ^:dynamic *test-config-path* "test.lcmap.aardvark.edn")
 
 (def ^:dynamic *test-config-data* (util/read-edn *test-config-path*))
+
+;; Idempotent setup. Fixtures won't work without this because
+;; keyspaces, exchanges, queues, and the search index do not
+;; exist.
+(setup/run {:cfg "test.lcmap.aardvark.edn"
+            :cql "test.schema.setup.cql"
+            :eqb "test.event.setup.edn"})
+
+;; Use this function to trigger an index refresh when integration
+;; tests update the index and subsequently retrieve data.
+
+(defn refresh-index
+  "Convenience function for refreshing index"
+  []
+  (let [url (get-in *test-config-data* [:search :index-url])]
+    (es/index-refresh url)))
 
 ;;; Service Fixtures
 ;;;
@@ -70,14 +87,16 @@
 ;;;
 
 (defn setup-data []
-  (setup-db/setup "test.schema.setup.cql")
-  (setup-event/setup "test.event.setup.cql")
-  (->> "tile-specs/L5.edn" util/read-edn (map tile-spec/save))
-  (->> "tile-specs/L7.edn" util/read-edn (map tile-spec/save)))
+  (log/debug "setup data")
+  (es/index-create (get-in *test-config-data* [:search :index-url]))
+  (doall (->> "tile-specs/L5.edn" util/read-edn (map tile-spec/save)))
+  (doall (->> "tile-specs/L7.edn" util/read-edn (map tile-spec/save)))
+  (es/index-refresh (get-in *test-config-data* [:search :index-url])))
 
 (defn teardown-data []
+  (log/debug "teardown data")
   (setup-db/teardown "test.schema.teardown.cql")
-  (index/clear))
+  (es/index-delete (get-in *test-config-data* [:search :index-url])))
 
 (defn with-data
   [test-fn]
@@ -89,7 +108,6 @@
 ;;;
 
 (defn start-server []
-  (prn *test-config-data*)
   (-> (mount/with-args {:config *test-config-data*})
       (mount/start #'server/server)))
 
