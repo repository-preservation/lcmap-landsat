@@ -85,7 +85,8 @@ Provide configuration values using environment variables when runnning the appli
 | AARDVARK\_EVENT\_USER         | nil        |
 | AARDVARK\_EVENT\_PASS         | nil        |
 | AARDVARK\_HTTP\_PORT          | 5678       |
-| AARDVARK\_SEARCH\_INDEX\_URL  | http://elasticsearch:9200/tile-specs |
+| AARDVARK\_SEARCH\_INDEX\_URL  | http://elasticsearch:9200/lcmap-landsat |
+| AARDVARK\_TILE\_SPEC\_URL     | http://elasticsearch:9200/lcmap-lands/tile-specs |
 | AARDVARK\_SERVER\_EVENTS      | lcmap.landsat.server |
 | AARDVARK\_WORKER\_EVENTS      | lcmap.landsat.worker |
 | AARDVARK\_LOG\LEVEL           | INFO       |
