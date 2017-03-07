@@ -30,9 +30,9 @@
       (is (= 200 (:status resp))))))
 
 (deftest tile-resource-tests
-  #_(testing "parameters validation"
+  (testing "parameters validation"
     (let [resp (req :get "http://localhost:5679/tiles")]
-      ()))
+      (is (= 403 (:status resp)))))
   (testing "get tiles as JSON"
     (let [resp (req :get "http://localhost:5679/tiles"
                     :headers {"Accept" "application/json"}

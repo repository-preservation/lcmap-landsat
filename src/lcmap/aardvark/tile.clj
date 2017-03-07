@@ -3,8 +3,8 @@
   (:require [clojure.java.io :as io]
             [clojure.core.memoize :as memoize]
             [clojure.set]
-            [clojure.stacktrace :as stacktrace]
             [clojure.tools.logging :as log]
+            [clj-time.format :as time-fmt]
             [dire.core :as dire]
             [gdal.core]
             [gdal.band]
@@ -17,6 +17,8 @@
             [lcmap.aardvark.tile-spec :as tile-spec]
             [lcmap.aardvark.util :as util]
             [lcmap.aardvark.middleware :refer [wrap-handler]]
+            [lcmap.commons.numbers :refer [numberize]]
+            [lcmap.commons.collections :refer [vectorize]]
             [lcmap.commons.tile :refer [snap]]
             [langohr.basic :as lb]
             [me.raynes.fs :as fs]
@@ -34,12 +36,6 @@
   :start (do
            (log/debug "initializing GDAL")
            (gdal.core/init)))
-
-(def tile-schema
-  {:ubid schema/Str
-   :x schema/Num
-   :y schema/Num
-   :acquired [:schema/Str]})
 
 ;;; Data type related functions
 
@@ -65,7 +61,24 @@
     (for [[x y xs ys] (steps band step-x step-y)]
       (->Tile x y (gdal.band/read-raster-direct band x y xs ys)))))
 
+;;; Query validation
+
+(defn conform
+  "Used for transform maps of string values to other types."
+  [{:keys [:ubid :x :y :acquired] :as params}]
+  {:x        (some-> x numberize)
+   :y        (some-> y numberize)
+   :ubids    (some-> ubid vectorize)
+   :acquired (some-> acquired util/parse-date-interval)})
+
+(defn validate
+  "Remove keys with values from the map, only invalid items remain."
+  [params]
+  (let [nil-value? (fn [[k v]] (nil? v))]
+    (into {} (filter nil-value? params))))
+
 ;;; Database functions
+
 (defn find
   "Query DB for all tiles that match the UBIDs, contain (x,y), and
    were acquired during a certain period of time."
@@ -74,7 +87,6 @@
   (if-let [spec (first (tile-spec/query
                         [:name :tile_x :tile_y :shift_x :shift_y]
                         [[:in :ubid ubids]]))]
-
     (let [table    (:name spec)
           [tx ty]  (snap x y spec)
           [t1 t2]  acquired
@@ -277,7 +289,7 @@
       (progress source "scene-finish")
       :done
       (catch clojure.lang.ExceptionInfo ex
-        (log/errorf "scene-fail: %s" (stacktrace/root-cause ex))
+        (log/errorf "scene %s failed to process: %s" id (.getMessage ex))
         (progress source "fail" (.getMessage ex))
         :fail)
       (finally

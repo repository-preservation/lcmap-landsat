@@ -33,7 +33,7 @@
                      :uri (-> "file:///data/missing-archive.tar.gz" io/as-url str)
                      :checksum "c7aae8568ee8be9347373dd44d7e14c4"})
 
-(deftest landsat-worker-support
+(deftest landsat-tile-processing-tests
   (doall (map #(tile-spec/process % tile-spec-opts) [L5 L7]))
   (testing "a Landsat 5 archive"
     (is (= :done (tile/process L5))))
@@ -66,13 +66,37 @@
 ;; saved that will work with the ingested data.
 
 (deftest find-tests
-  (doall (map #(tile-spec/process % tile-spec-opts) [L5 L7]))
-  (doall (map #(tile/process %) [L5 L7]))
-  (testing "Test a single ubid"
-    (is (= 1 (count (tile/find (merge space-time one-ubid))))))
-  (testing "Test two ubids"
-    (is (= 2 (count (tile/find (merge space-time two-ubid))))))
-  (testing "Test no valid ubid supplied"
-    (is (= 0 (count (tile/find (merge space-time bad-ubid))))))
-  (testing "Test bad ubid mixed with valid ubids"
+  (testing "Testing a variety of queries on ingested data"
+    (doall (map #(tile-spec/process % tile-spec-opts) [L5 L7]))
+    (doall (map #(tile/process %) [L5 L7]))
+    (is (= 1 (count (tile/find (merge space-time one-ubid)))))
+    (is (= 2 (count (tile/find (merge space-time two-ubid)))))
+    (is (= 0 (count (tile/find (merge space-time bad-ubid)))))
     (is (= 2 (count (tile/find (merge space-time mux-ubid)))))))
+
+(deftest query-tests
+  (testing "correct query"
+    (let [query (tile/conform {:ubid "LANDSAT_5/TM/sr_band1"
+                               :x "-123"
+                               :y "123"
+                               :acquired "2010/2012"})]
+      (is (= -123 (query :x)))
+      (is (= 123 (query :y)))
+      (is (= ["LANDSAT_5/TM/sr_band1"] (query :ubids)))
+      (is (str (-> query :acquired first)))
+      (is (str (-> query :acquired last)))))
+  (testing "conformance and validation"
+    (let [errors (-> {:x "0" :y "0" :ubid "LANDSAT_5/TM/sr_band1"}
+                     tile/conform
+                     tile/validate)]
+      (is (= errors {:acquired nil}))))
+  (testing "conformance of points"
+    (is (= 0 (-> {:x "0"} tile/conform :x)))
+    (is (= 1 (-> {:y "1"} tile/conform :y)))
+    (is (= nil (-> {:x "bacon"} tile/conform :x))))
+  (testing "conformance of time interval"
+    (let [[t1 t2] (-> {:acquired "2010/2012"} tile/conform :acquired)]
+      (is (= org.joda.time.DateTime (type t1)))
+      (is (= org.joda.time.DateTime (type t2)))))
+  (testing "conformance of UBIDs"
+    (is (= ["foo"] (-> {:ubid "foo"} tile/conform :ubids)))))

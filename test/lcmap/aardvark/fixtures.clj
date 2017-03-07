@@ -21,6 +21,7 @@
   "
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
+            [lcmap.aardvark.config :as config]
             [lcmap.aardvark.db :as db]
             [lcmap.aardvark.elasticsearch :as es]
             [lcmap.aardvark.event :as event]
@@ -62,7 +63,8 @@
 (defn setup-services []
   (log/debug "start test service mounts")
   (-> (mount/with-args {:config *test-config-data*})
-      (mount/start #'db/db-cluster
+      (mount/start #'config/config
+                   #'db/db-cluster
                    #'db/db-session
                    #'event/amqp-connection
                    #'event/amqp-channel)))
@@ -73,7 +75,8 @@
   (mount/stop #'event/amqp-channel
               #'event/amqp-connection
               #'db/db-session
-              #'db/db-cluster))
+              #'db/db-cluster
+              #'config/config))
 
 (defn with-services [test-fn]
   (setup-services)
@@ -87,15 +90,31 @@
 ;;;
 
 (defn setup-data []
-  (log/debug "setup data")
+  ;; the search index would get automatically created, but this
+  ;; just makes things explicit.
+  (log/debug "creating a search index")
   (es/index-create (get-in *test-config-data* [:search :index-url]))
+  ;; add data to the db and search index, this does rely on functions
+  ;; that require testing.
+  (log/debug "saving tile-specs")
   (doall (->> "tile-specs/L5.edn" util/read-edn (map tile-spec/save)))
   (doall (->> "tile-specs/L7.edn" util/read-edn (map tile-spec/save)))
+  ;; the search index will update itself every second, this will force
+  ;; re-indexing data, without this tests may fail intermittently.
   (es/index-refresh (get-in *test-config-data* [:search :index-url])))
 
 (defn teardown-data []
-  (log/debug "teardown data")
+  ;; This should only truncate tables,
+  (log/debug "removing data from db")
   (setup-db/teardown "test.schema.teardown.cql")
+  ;; Leaving messages in queues between runs could lead to some very
+  ;; confusing errors messages. Like data in a table, it should be
+  ;; purged. However, queues and exchanges will remain.
+  (log/debug "purging messages from queues")
+  (-> (get-in *test-config-data* [:server :queue]) (event/purge-queue))
+  (-> (get-in *test-config-data* [:worker :queue]) (event/purge-queue))
+  ;; Obviously, we want to get rid of previously indexed data.
+  (log/debug "deleting search index")
   (es/index-delete (get-in *test-config-data* [:search :index-url])))
 
 (defn with-data
@@ -105,11 +124,11 @@
   (teardown-data))
 
 ;;; Server Fixtures
-;;;
 
 (defn start-server []
-  (-> (mount/with-args {:config *test-config-data*})
-      (mount/start #'server/server)))
+  (-> (mount/only [#'server/server])
+      (mount/with-args {:config *test-config-data*})
+      (mount/start)))
 
 (defn stop-server []
   (mount/stop #'server/server))
@@ -118,6 +137,3 @@
   (start-server)
   (test-fn)
   (stop-server))
-
-;;; Worker Fixtures
-;;; TODO

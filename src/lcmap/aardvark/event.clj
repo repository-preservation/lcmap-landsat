@@ -93,3 +93,10 @@
 (defstate amqp-channel
   :start (start-amqp-channel)
   :stop  (stop-amqp-channel))
+
+;; Convenience functions
+
+(defn purge-queue
+  "Remove messages from queue, use with caution."
+  [queue]
+  (lq/purge amqp-channel queue))
