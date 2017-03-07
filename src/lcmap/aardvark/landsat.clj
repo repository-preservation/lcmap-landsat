@@ -17,6 +17,7 @@
             [lcmap.aardvark.tile :as tile]
             [lcmap.aardvark.tile-spec :as tile-spec]
             [lcmap.commons.collections :refer [vectorize]]
+            [lcmap.commons.numbers :refer [numberize]]
             [lcmap.aardvark.middleware :refer [wrap-handler]]))
 
 ;;; Response producing functions
@@ -66,14 +67,13 @@
 (defn get-tiles
   "Get tiles containing point for given UBID and ISO8601 time range."
   [{{:keys [:ubid :x :y :acquired] :as params} :params :as req}]
-  (let [tile+    {:ubids (vectorize ubid)
-                  :x (Integer/parseInt x)
-                  :y (Integer/parseInt y)
-                  :acquired (str/split acquired #"/")}
-        _     (log/debug "about to get tiles")
-        tiles (tile/find tile+)]
-    (log/debugf "get tiles: %s" tiles)
-    {:status 200 :body tiles}))
+  (let [query (tile/conform params)]
+    (or (some->> (tile/validate query)
+                 (seq)
+                 (assoc {:status 403} :body))
+        (some->> (tile/find query)
+                 (assoc {:status 200} :body))
+        {:status 404 :body []})))
 
 (defn get-tile
   "Gets a tile given x, y, acquired, satellite, sensor and band"

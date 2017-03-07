@@ -56,7 +56,6 @@
   :start (db-session-start)
   :stop  (db-session-stop))
 
-
 (defn execute
   "Executes the supplied query."
   [query]

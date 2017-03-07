@@ -1,5 +1,6 @@
 (ns lcmap.aardvark.middleware
-  (:require [clojure.tools.logging :as log]
+  (:require [clojure.stacktrace :as stacktrace]
+            [clojure.tools.logging :as log]
             [cheshire.core :as json]
             [ring.util.accept :refer [defaccept best-match]]))
 
@@ -59,8 +60,8 @@
       (handler req)
       (catch Throwable ex
         ;; this will print a stack trace, useful for debugging.
-        (log/debug ex (.getMessage ex))
+        (log/debug ex (stacktrace/root-cause ex))
         ;; this will not print a stack trace, just a short message.
-        (log/error "%s: %s" (.getMessage ex) (ex-data ex))
+        (log/errorf "%s: %s" (.getMessage ex) (ex-data ex))
         ;; produce a ring style response map
         (ex->resp ex)))))

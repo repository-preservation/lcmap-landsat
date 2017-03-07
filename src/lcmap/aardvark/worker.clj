@@ -24,10 +24,13 @@
 (defn handle-delivery
   "Called whenever a message is available on the worker's queue."
   [ch metadata payload]
-  (let [source (event/decode-message metadata payload)]
-    (log/debugf "worker consuming message: %s" metadata)
-    (tile/process source)
-    (lb/ack event/amqp-channel (metadata :delivery-tag))))
+  (try
+    (let [source (event/decode-message metadata payload)]
+      (log/debugf "consuming message: %s" metadata)
+      (tile/process source)
+      (lb/ack event/amqp-channel (metadata :delivery-tag)))
+    (catch java.lang.RuntimeException ex
+      (log/errorf "failed to process message %s" metadata))))
 
 ;; This handler is here for completeness; cancellation is part of
 ;; the worker lifecycle, and this provides information to a developer
@@ -79,8 +82,12 @@
   "Cancel consumer, returns unack'd messages to queue."
   [consumer]
   (let [queue-name (get-in config [:worker :queue])]
-    (log/debugf "cancel queue consumer: %s" queue-name)
-    #_(lb/cancel event/amqp-channel consumer)))
+    (try
+      (log/debugf "cancel queue consumer: %s" queue-name)
+      (lb/cancel event/amqp-channel consumer)
+      (catch java.lang.RuntimeException ex
+        (log/warn "could not gracefully cancel consumer")
+        nil))))
 
 ;; After starting, this will contain an auto-assigned consumer-tag
 ;; string value (e.g. "amq.ctag--ShMiMaeEhswKop2ccp9Lg"). This tag

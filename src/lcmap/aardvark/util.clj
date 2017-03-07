@@ -8,7 +8,31 @@
   (:import [org.apache.commons.compress.archivers
             ArchiveInputStream ArchiveStreamFactory]
            [org.apache.commons.compress.compressors
-            CompressorInputStream CompressorStreamFactory]))
+            CompressorInputStream CompressorStreamFactory]
+           [org.joda.time Interval DateTimeZone]
+           [java.util TimeZone]))
+
+;;; Time-related utilities
+
+;; Set JVM and Joda timezone to UTC, I'm not sure where else to put
+;; this...
+
+(TimeZone/setDefault (TimeZone/getTimeZone "UTC")) ;; JVM
+(DateTimeZone/setDefault (DateTimeZone/UTC))       ;; Joda
+
+;; Candidate for lcmap.commons, seems generally useful.
+
+(defn parse-date-interval
+  "Return a parsed Joda time ISO 8601 interval as a bean."
+  [str]
+  (try
+    (-> str
+        (Interval/parse)
+        (bean)
+        (select-keys [:start :end])
+        (vals))
+    (catch java.lang.RuntimeException ex
+      nil)))
 
 ;;; Archive handling utilities
 
