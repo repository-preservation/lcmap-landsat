@@ -12,7 +12,7 @@
 
   Schema is used to coerce string values into expected types and
   ensure the overall config structure and presence of values.
-n
+
   To retrieve configuration values, require this namespace and
   use `(get-in)` to retrieve expected values. Care is taken to
   provide data in the shape expected by libraries, for example,
