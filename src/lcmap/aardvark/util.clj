@@ -4,7 +4,8 @@
             [digest]
             [clj-http.client :as client]
             [me.raynes.fs :as fs]
-            [clojure.walk :as walk])
+            [clojure.walk :as walk]
+            [clojure.pprint :refer [pprint]])
   (:import [org.apache.commons.compress.archivers
             ArchiveInputStream ArchiveStreamFactory]
            [org.apache.commons.compress.compressors
@@ -187,3 +188,7 @@
     (-> path clojure.java.io/resource slurp clojure.edn/read-string)
     (catch java.lang.RuntimeException ex
       {})))
+
+(defn save-edn [path data]
+  (binding [*out* (io/writer path)]
+    (pprint data)))

@@ -22,7 +22,8 @@
   named `curator.edn` and place it on the resource load path. This file
   is listed in .gitignore so you don't have to worry about sensitive
   data being added to the repository."
-  (:require [lcmap.aardvark.config :as config]
+  (:require [clojure.java.io :as io]
+            [lcmap.aardvark.config :as config]
             [lcmap.aardvark.db :as db]
             [lcmap.aardvark.event :as event]
             [lcmap.aardvark.server :as server]
@@ -88,8 +89,8 @@
 
 (comment
   (save-sources "sources/washington/LT04046027.edn" 25)
-  (save-sources "sources/washington/LT05046027.edn" 25)
-  (save-sources "sources/washington/LE07046027.edn" 25)
+  (save-sources "sources/washington/LT05046027.edn" 1)
+  (save-sources "sources/washington/LE07046027.edn" 1)
   (save-sources "sources/washington/LC8046027.edn"  25))
 
 ;; Step 4: See how things are going. This will inspect the
@@ -114,3 +115,82 @@
   (progress-report "sources/washington/LT05046026.edn")
   (progress-report "sources/washington/LE07046026.edn")
   (progress-report "sources/washington/LC8046026.edn"))
+
+;; Create source EDN from files with checksum/source pairs.
+
+(defn dir->files
+  "Produce a list of files contained in directory at path"
+  [path]
+  (let [fs (file-seq (io/file path))
+        tf (remove #(.isDirectory %))]
+    (into [] tf fs)))
+
+(defn pair->source
+  "Create source"
+  [base-uri [checksum source]]
+  (let [source-id (last (re-find #"(.+)\.tar\.gz" source))
+        source-uri (str base-uri "/" source)]
+    {:id source-id
+     :uri source-uri
+     :checksum checksum}))
+
+(defn file->sources
+  "Create list of sources contained in a file."
+  [base-uri file]
+  (let [path-to-parent (.getParent file)]
+  (->> (slurp file)
+       (re-seq #"\S+")
+       (partition 2)
+       (map (partial pair->source base-uri)))))
+
+(defn save-sources
+  "Produce an EDN file containing sources (id, checksum, uri).
+
+  Because the list of sources only contains the filename and checksum,
+  an absolute URL need to be built. You can accomplish this two ways:
+
+  Provide a base-uri that does not include any path or parent directories,
+  then specify a source-file that is nested in directories. The parent
+  directories will be used to form a path to the source file.
+
+  Alternatively, specify a base-url including the path to the file
+  name and a path to a source file that does not have any relative parent
+  directories. Although this works, it is somewhat confusing.
+  "
+  [base-uri source-file out-dir]
+  (let [tile-name (-> source-file (.getParentFile) (.getName))
+        save-path (str out-dir "/" tile-name ".edn")
+        tile-path (-> source-file (.getParentFile) (.getPath))
+        base-uri (str base-uri "/" tile-path)]
+    (->> (file->sources base-uri source-file)
+         (util/save-edn save-path))))
+
+(comment
+  "This will recursively find *all* files in the `sites` directory and
+  produce an EDN file that matches the name of the immediate parent dir
+  in the input file in a directory name `outputs`.
+
+  The directory should only contain text files with a checksum and source
+  file name on each line. These files are produced with a shell script.
+
+  Notice that the nested paths are used to build an absolute URL to
+  the actual file. This is a consequence of the input checksum/source
+  not having the absolute path already, not a big deal, just something
+  we need to handle.
+
+  The list of sources should be in directories like this:
+  - sites/california/H02V09-35/
+  - sites/california/H02V09-627/
+  - sites/california/H02V09-857/
+  - ...
+
+  The list of outputs will be:
+  - outputs/H02V09-35.edn
+  - outputs/H02V09-627.edn
+  - outputs/H02V09-857.edn
+  - ...
+  "
+  (def ^:dynamic *base-uri* "https://edclpdsftp.cr.usgs.gov/downloads/lcmap")
+  (let [files (dir->files "sites")
+        saver #(save-sources *base-uri* % "outputs")]
+    (map saver files)))
