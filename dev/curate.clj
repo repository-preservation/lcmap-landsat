@@ -88,10 +88,9 @@
 ;; the EDN files in a directory with `save-sources`.
 
 (comment
-  (save-sources "sources/washington/LT04046027.edn" 25)
-  (save-sources "sources/washington/LT05046027.edn" 1)
-  (save-sources "sources/washington/LE07046027.edn" 1)
-  (save-sources "sources/washington/LC8046027.edn"  25))
+  (save-sources "sources/california/H02V09-35.edn" 25)
+  (save-sources "sources/california/H02V09-627.edn" 25)
+  (save-sources "sources/california/H02V09-857.edn" 25))
 
 ;; Step 4: See how things are going. This will inspect the
 ;; sources table for activity and check the most recent
@@ -111,10 +110,9 @@
        (frequencies)))
 
 (comment
-  (progress-report "sources/washington/LT04046026.edn")
-  (progress-report "sources/washington/LT05046026.edn")
-  (progress-report "sources/washington/LE07046026.edn")
-  (progress-report "sources/washington/LC8046026.edn"))
+  (progress-report "sources/california/H02V09-35.edn")
+  (progress-report "sources/california/H02V09-627.edn")
+  (progress-report "sources/california/H02V09-857.edn"))
 
 ;; Create source EDN from files with checksum/source pairs.
 
@@ -166,31 +164,32 @@
          (util/save-edn save-path))))
 
 (comment
-  "This will recursively find *all* files in the `sites` directory and
-  produce an EDN file that matches the name of the immediate parent dir
-  in the input file in a directory name `outputs`.
+  "This will recursively find *all* files in a directory and produce
+  an EDN file for each input file. The name of the EDN file will match
+  the name of the immediate parent dir of source file. The EDN fill
+  is written to a directory.
 
-  The directory should only contain text files with a checksum and source
-  file name on each line. These files are produced with a shell script.
+  The input directory should only contain text files with a checksum
+  and source file name on each line. These files are produced separately
+  with a shell script.
 
   Notice that the nested paths are used to build an absolute URL to
-  the actual file. This is a consequence of the input checksum/source
-  not having the absolute path already, not a big deal, just something
-  we need to handle.
+  the actual file. This is needed because the input checksum/source
+  does not have an absolute path already; it must be deduced.
 
   The list of sources should be in directories like this:
-  - sites/california/H02V09-35/
-  - sites/california/H02V09-627/
-  - sites/california/H02V09-857/
+  - sites/california/H02V09-35/sources.txt
+  - sites/california/H02V09-627/sources.txt
+  - sites/california/H02V09-857/sources.txt
   - ...
 
   The list of outputs will be:
-  - outputs/H02V09-35.edn
-  - outputs/H02V09-627.edn
-  - outputs/H02V09-857.edn
+  - data/sources/california/H02V09-35.edn
+  - data/sources/california/H02V09-627.edn
+  - data/sources/california/H02V09-857.edn
   - ...
   "
   (def ^:dynamic *base-uri* "https://edclpdsftp.cr.usgs.gov/downloads/lcmap")
-  (let [files (dir->files "sites")
-        saver #(save-sources *base-uri* % "outputs")]
-    (map saver files)))
+  (let [files (dir->files "sites/lakes")
+        saver #(save-sources *base-uri* % "data/sources/lakes")]
+    (dorun (pmap saver files))))
