@@ -16,8 +16,9 @@
       (update :progress_name str)
       (update :progress_desc str)))
 
-(defn str-vals [kvs]
+(defn str-vals
   ""
+  [kvs]
   (->> kvs
        (map (fn [[k v]] [k (str v)]))
        (into {})))
@@ -36,6 +37,11 @@
   [])
 
 (html/deftemplate default "public/application.html"
+  [entity]
+  [:head] (html/substitute (header))
+  [:nav]  (html/substitute (nav)))
+
+(html/deftemplate debug "public/debug.html"
   [entity]
   [:head] (html/substitute (header))
   [:nav]  (html/substitute (nav))
@@ -61,16 +67,6 @@
   [:#uri] (html/set-attr :href (:uri (first sources)))
   [:#checksum] (html/content (:checksum (first sources)))
   [:table] (html/content (progress sources)))
-
-;; Used to produce a list of links to sources.
-
-(html/deftemplate source-list "public/source-list.html"
-  [sources]
-  [:head] (html/substitute (header))
-  [:nav]  (html/substitute (nav))
-  [:tbody :tr] (html/clone-for [source sources]
-                               [:a] (html/content (:id source))
-                               [:a] (html/set-attr :href (str "source/" (:id source)))))
 
 (html/deftemplate status-list "public/status.html"
   [services]

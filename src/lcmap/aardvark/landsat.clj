@@ -38,12 +38,6 @@
       {:status 200 :body service-status}
       {:status 503 :body service-status})))
 
-(defn sample-source
-  "Retrieve some random sources."
-  []
-  (log/debugf "summarizing sources")
-  {:status 200 :body (source/sample 10)})
-
 (defn get-source
   "Search for source by ID."
   [source-id]
@@ -167,9 +161,6 @@
      (GET "/health" []
        (with-meta (check-health)
          {:template html/status-list}))
-     (GET "/sources" []
-       (with-meta []
-         {:template html/source-list}))
      (GET  "/source/:source-id{.+}" [source-id]
        (with-meta (get-source source-id)
          {:template html/source-info}))
