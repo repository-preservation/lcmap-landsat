@@ -77,19 +77,29 @@
        (get-tiles)))
 
 (defn get-tile-spec
-  "Search for a source and produce a response map."
+  "Get single tile-spec by UBID."
   [ubid {params :params :as req}]
-  (log/debugf "get tile-spec for '%s' with %s" ubid params)
-  (let [result (tile-spec/get ubid)]
-    (if (= (:ubid result) ubid)
-      {:status 200 :body result}
-      {:status 404 :body nil})))
+  (log/debugf "get tile-spec for '%s'" ubid)
+  ;; The UBID is pulled from the URI path, not from query
+  ;; parameters (e.g. /tile-specs/LANDSAT_5/TM/sr_band1)
+  ;; which means that a tile-spec *is* a resource, so
+  ;; if it's not found, a 404 status makes sense.
+  (or (some->> (tile-spec/get ubid)
+               (assoc {:params params} :tile-spec)
+               (assoc {:status 200} :body))
+      (some->> {:status 404 :body nil})))
 
 (defn get-tile-specs
-  "Get tile-specs."
-  [{{q :q :or {q "*"}} :params}]
-  (log/debug "get tile-specs")
-  {:status 200 :body (tile-spec/search q)})
+  "Search for tile-specs and produce a response map. The map contains
+  the original params and the tile-specs."
+  [{{q :q :or {q "*"} :as params} :params :as req}]
+  (log/debugf "get tile-specs for %s" q)
+  ;; Unlike other resources a query does not require
+  ;; validation and should always return some values,
+  ;; so a 200 response always makes sense.
+  (->> (tile-spec/search q)
+       (assoc {:params params} :tile-specs)
+       (assoc {:status 200} :body)))
 
 ;;; Request entity transformers.
 
@@ -182,13 +192,7 @@
      (GET "/tile-specs" []
        (with-meta (get-tile-specs request)
          {:template html/tile-spec-list}))
-     (ANY "/tile-specs" []
-       (with-meta (allow ["GET"])
-         {:template html/default}))
      (GET "/tile-spec/:ubid{.+}" [ubid]
        (with-meta (get-tile-spec ubid request)
-         {:template html/tile-spec-info}))
-     (ANY "/tile-spec/:ubid{.+}" []
-       (with-meta (allow ["GET"])
-         {:template html/default})))
+         {:template html/tile-spec-info})))
    prepare-with respond-with))

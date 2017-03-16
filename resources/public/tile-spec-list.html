@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <base href="/">
+    <base href="">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>LCMAP Landsat REST API</title>
@@ -34,7 +34,6 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="sources">Sources</a></li>
             <li><a href="tile-specs">Tile Specs</a></li>
             <li><a href="tiles">Tiles</a></li>
           </ul>
@@ -43,18 +42,35 @@
     </nav>
 
     <section class="container">
-      <header>
-        <h2>Tile Specs</h2>
+
+      <header class="row">
+        <div class="col-md-12">
+          <h3>Tile Spec Search</h3>
+          <form id="search" class="form-inline">
+            <div class="form-group">
+              <label class="sr-only" for="q">Query</label>
+              <input type="text" class="form-control" id="q" name="q" placeholder="Search Terms">
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+          </form>
+        </div>
       </header>
-      <content>
-        <table class="table">
+
+      <content class="row">
+        <table id="results" class="table">
           <thead>
             <tr>
               <th>UBID</th>
+              <th>Type</th>
+              <th>Scale</th>
+              <th>Range</th>
             </tr>
           </thead>
           <tr>
             <td><a href="#">UBID</a></td>
+            <td class="data-type">data-type</td>
+            <td class="data-scale">data-scale</td>
+            <td class="data-range">data-range</td>
           </tr>
         </table>
       </content>

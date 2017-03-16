@@ -8,7 +8,8 @@
   Fixtures are used to selectively start/stop mount beings and load
   seed data into the test system.
   "
-  (:require [clojure.java.io :as io]
+  (:require [cheshire.core :as json]
+            [clojure.java.io :as io]
             [clojure.test :refer :all]
             [lcmap.aardvark.shared :refer [req]]
             [lcmap.aardvark.server :as server]
@@ -65,6 +66,21 @@
     (let [resp (req :get "http://localhost:5679/tile-spec/LANDSAT_5/TM/marklar"
                     :headers {"Accept" "application/json"})]
       (is (= 404 (:status resp))))))
+
+(deftest tile-specs-test
+  (testing "by default all tile-specs are returned"
+    (let [resp (req :get "http://localhost:5679/tile-specs"
+                    :headers {"Accept" "application/json"})
+          body (json/decode (resp :body) keyword)]
+      (is (= 200 (:status resp)))
+      (is (= 36 (count (body :tile-specs))))))
+  (testing "search for red spectral bands"
+    (let [resp (req :get "http://localhost:5679/tile-specs"
+                    :form-params {:q "red"}
+                    :headers {"Accept" "application/json"})
+          body (json/decode (resp :body) keyword)]
+      (is (= 200 (:status resp)))
+      (is (= 4 (count (body :tile-specs)))))))
 
 (deftest source-tests
   (let [landsat-source {:id  "LT50460272000005"

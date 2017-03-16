@@ -101,13 +101,22 @@
   [:nav]  (html/substitute (nav))
   [:content] (html/content "Tile details"))
 
+(html/defsnippet tile-spec-search "public/tile-spec-list.html"
+  [:form.search]
+  [params]
+  [:#q] (html/set-attr :value (-> params :q str)))
+
 (html/deftemplate tile-spec-list "public/tile-spec-list.html"
-  [tile-specs]
+  [{:keys [:tile-specs :params :errors]}]
   [:head] (html/substitute (header))
   [:nav]  (html/substitute (nav))
+  [:form] (html/substitute (tile-spec-search params))
   [:table :> :tr] (html/clone-for [tile-spec tile-specs]
                                   [:a] (html/content (:ubid tile-spec))
-                                  [:a] (html/set-attr :href (str "tile-spec/" (:ubid tile-spec)))))
+                                  [:a] (html/set-attr :href (str "tile-spec/" (:ubid tile-spec)))
+                                  [:.data-type] (html/content (-> :data_type tile-spec str))
+                                  [:.data-scale] (html/content (-> :data_scale tile-spec str))
+                                  [:.data-range] (html/content (-> :data_range tile-spec str))))
 
 (def geom-fields [:tile_x :tile_y :shift_x :shift_y :pixel_x :pixel_y])
 
@@ -117,11 +126,11 @@
 
 (defn describe-tile-spec
   ""
-  [tile-specs]
-  (format "%s %s %s" (select-keys tile-specs [:satellite :instrument :sensor])))
+  [{tile-spec :tile-spec :as body}]
+  (format "%s %s %s" (select-keys tile-spec [:satellite :instrument :sensor])))
 
 (html/deftemplate tile-spec-info "public/tile-spec-info.html"
-  [tile-spec]
+  [{:keys [:tile-spec]}]
   [:head] (html/substitute (header))
   [:nav]  (html/substitute (nav))
   [:h2 :#ubid] (html/content (:ubid tile-spec))
