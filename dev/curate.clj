@@ -88,9 +88,9 @@
 ;; the EDN files in a directory with `save-sources`.
 
 (comment
-  (save-sources "sources/california/H02V09-35.edn" 25)
-  (save-sources "sources/california/H02V09-627.edn" 25)
-  (save-sources "sources/california/H02V09-857.edn" 25))
+  (save-sources "sources/california/H02V09-35.edn" 1)
+  (save-sources "sources/california/H02V09-627.edn" 1)
+  (save-sources "sources/california/H02V09-857.edn" 1))
 
 ;; Step 4: See how things are going. This will inspect the
 ;; sources table for activity and check the most recent
@@ -141,7 +141,7 @@
        (partition 2)
        (map (partial pair->source base-uri)))))
 
-(defn save-sources
+(defn save-source-as-edn
   "Produce an EDN file containing sources (id, checksum, uri).
 
   Because the list of sources only contains the filename and checksum,
@@ -191,5 +191,5 @@
   "
   (def ^:dynamic *base-uri* "https://edclpdsftp.cr.usgs.gov/downloads/lcmap")
   (let [files (dir->files "sites/lakes")
-        saver #(save-sources *base-uri* % "data/sources/lakes")]
+        saver #(save-source-as-edn *base-uri* % "data/sources/lakes")]
     (dorun (pmap saver files))))
