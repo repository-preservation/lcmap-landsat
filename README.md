@@ -49,7 +49,7 @@ lein run
 Initialize the local development schema and bindings. By default, a REPL will start the `dev/user.clj`.
 
 ```bash
-(setup)
+(init)
 ```
 
 ### Sample Data
