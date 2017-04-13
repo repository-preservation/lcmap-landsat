@@ -11,7 +11,7 @@
             [gdal.dataset]
             [lcmap.aardvark.config :refer [config]]
             [lcmap.aardvark.db :as db]
-            [lcmap.aardvark.espa :as espa]
+            [lcmap.aardvark.ard :as ard]
             [lcmap.aardvark.event :as event]
             [lcmap.aardvark.source :as source :refer [progress]]
             [lcmap.aardvark.chip-spec :as chip-spec]
@@ -223,7 +223,7 @@
   "Create sequence of from ESPA XML metadata."
   [path band-xf]
   (log/debugf "producing bands for %s" path)
-  (sequence band-xf (espa/load path)))
+  (sequence band-xf (ard/load path)))
 
 (defn dataset->chips
   "Create sequence of chip from dataset referenced by band."
@@ -261,7 +261,9 @@
                          (map +locate)
                          (map (fn [band] (assoc band :source (:id source)))))]
      (dorun (map #(process-band % source) (scene->bands scene-dir band-xf)))
-     :done)))
+     :done))
+  ([scene-dir]
+   (process-scene scene-dir nil)))
 
 (defn process
   "Generate chips from an ESPA archive.
@@ -276,14 +278,12 @@
   "
   [{:keys [id checksum uri] :as source}]
   (let [download-file   (fs/temp-file "lcmap-")
-        uncompress-file (fs/temp-file "lcmap-")
         unarchive-file  (fs/temp-dir  "lcmap-")]
     (try
       (progress source "scene-start")
       (-> uri
           (util/download download-file)
           (util/verify checksum)
-          (util/uncompress uncompress-file)
           (util/unarchive unarchive-file)
           (process-scene source))
       (progress source "scene-finish")
@@ -294,7 +294,6 @@
         :fail)
       (finally
         (fs/delete-dir unarchive-file)
-        (fs/delete uncompress-file)
         (fs/delete download-file)))))
 
 ;;; Error handlers

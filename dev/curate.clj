@@ -30,6 +30,7 @@
             [lcmap.aardvark.source :as source]
             [lcmap.aardvark.chip :as chip]
             [lcmap.aardvark.chip-spec :as chip-spec]
+            [lcmap.aardvark.ard :as ard]
             [lcmap.aardvark.util :as util]
             [lcmap.aardvark.worker :as worker]
             [mount.core :as mount]))
@@ -193,3 +194,40 @@
   (let [files (dir->files "sites/lakes")
         saver #(save-source-as-edn *base-uri* % "data/sources/lakes")]
     (dorun (pmap saver files))))
+
+(comment
+  "Create tile-specs from ARD source data."
+  (let [path "data/ARD/LE07_CU_014007_20150223_20170330_C01_V01.xml"
+        opts {:name    "conus"
+              :tile_x   3000
+              :tile_y  -3000
+              :pixel_x  30.0
+              :pixel_y -30.0
+              :shift_x  2415.0
+              :shift_y -195.0
+              :data_shape [100 100]
+              :wkt "PROJCS[\"Albers\",GEOGCS[\"NAD83\",DATUM[\"North_American_Datum_1983\",SPHEROID[\"GRS 1980\",6378137,298.2572221010042,AUTHORITY[\"EPSG\",\"7019\"]],AUTHORITY[\"EPSG\",\"6269\"]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433],AUTHORITY[\"EPSG\",\"4269\"]],PROJECTION[\"Albers_Conic_Equal_Area\"],PARAMETER[\"standard_parallel_1\",29.5],PARAMETER[\"standard_parallel_2\",45.5],PARAMETER[\"latitude_of_center\",23],PARAMETER[\"longitude_of_center\",-96],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]]"}]
+  (util/save-edn "data/tile-specs/L7-ARD.edn" (ard/build-tile-specs path opts))))
+
+(comment
+  "Create tiles from ARD source data."
+  (let [path "data/ARD/LE07_CU_014007_20150223_20170330_C01_V01_BT.tar"
+        source {:id "LE07_CU_014007_20150223_20170330_C01_V01_BT"
+                :uri (-> path io/file io/as-url str)
+                :checksum "93ab262902e3199e1372b6f5e2491a98"}]
+    (tile/process source))
+  (let [path "data/ARD/LE07_CU_014007_20150223_20170330_C01_V01_QA.tar"
+        source {:id "LE07_CU_014007_20150223_20170330_C01_V01_QA"
+                :uri (-> path io/file io/as-url str)
+                :checksum "829d66729ec1651713ffb092795bb46e"}]
+    (tile/process source))
+  (let [path "data/ARD/LE07_CU_014007_20150223_20170330_C01_V01_SR.tar"
+        source {:id "LE07_CU_014007_20150223_20170330_C01_V01_SR"
+                :uri (-> path io/file io/as-url str)
+                :checksum "6c06e8b4ce5e8bafb1fe02c26c704237"}]
+    (tile/process source))
+  (let [path "data/ARD/LE07_CU_014007_20150223_20170330_C01_V01_TA.tar"
+        source {:id "LE07_CU_014007_20150223_20170330_C01_V01_TA"
+                :uri (-> path io/file io/as-url str)
+                :checksum "22b221a14196b318acb7b00999a44c8a"}]
+    (tile/process source)))
