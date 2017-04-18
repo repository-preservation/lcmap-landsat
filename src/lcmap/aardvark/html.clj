@@ -77,58 +77,58 @@
                                [:.service] (html/content (name svc-name))
                                [:.message] (html/content (-> status :message str))))
 
-(defn describe-tiles
+(defn describe-chips
   ""
-  [tiles]
-  (let [tally (count tiles)
-        tile  (first tiles)
-        [ubid x y] (vals (select-keys tile [:ubid :x :y]))]
-    (format "%s tiles for band %s contain point (%s, %s)" tally ubid x y)))
+  [chips]
+  (let [tally (count chips)
+        chip  (first chips)
+        [ubid x y] (vals (select-keys chip [:ubid :x :y]))]
+    (format "%s chips for band %s contain point (%s, %s)" tally ubid x y)))
 
-(html/deftemplate tile-list "public/tile-list.html"
-  [tiles]
+(html/deftemplate chip-list "public/chip-list.html"
+  [chips]
   [:head] (html/substitute (header))
   [:nav]  (html/substitute (nav))
-  [:header :p] (html/content (describe-tiles tiles))
-  [:tbody :tr] (html/clone-for [tile tiles]
-                               [:.id] (html/content (str ((juxt :x :y) tile)))
-                               [:.source] (html/content (:source tile))
-                               [:time] (html/content (-> tile :acquired str))))
+  [:header :p] (html/content (describe-chips chips))
+  [:tbody :tr] (html/clone-for [chip chips]
+                               [:.id] (html/content (str ((juxt :x :y) chip)))
+                               [:.source] (html/content (:source chip))
+                               [:time] (html/content (-> chip :acquired str))))
 
-(html/deftemplate tile-info "public/tile-info.html"
-  [tiles]
+(html/deftemplate chip-info "public/chip-info.html"
+  [chips]
   [:head] (html/substitute (header))
   [:nav]  (html/substitute (nav))
-  [:content] (html/content "Tile details"))
+  [:content] (html/content "Chip details"))
 
-(html/deftemplate tile-spec-list "public/tile-spec-list.html"
-  [tile-specs]
+(html/deftemplate chip-spec-list "public/chip-spec-list.html"
+  [chip-specs]
   [:head] (html/substitute (header))
   [:nav]  (html/substitute (nav))
-  [:table :> :tr] (html/clone-for [tile-spec tile-specs]
-                                  [:a] (html/content (:ubid tile-spec))
-                                  [:a] (html/set-attr :href (str "tile-spec/" (:ubid tile-spec)))))
+  [:table :> :tr] (html/clone-for [chip-spec chip-specs]
+                                  [:a] (html/content (:ubid chip-spec))
+                                  [:a] (html/set-attr :href (str "chip-spec/" (:ubid chip-spec)))))
 
-(def geom-fields [:tile_x :tile_y :shift_x :shift_y :pixel_x :pixel_y])
+(def geom-fields [:chip_x :chip_y :shift_x :shift_y :pixel_x :pixel_y])
 
 (def data-fields [:data_fill :data_range :data_scale :data_type :data_units :data_shape :data_mask])
 
 (def band-fields [:band_product :band_category :band_name :band_long_name :band_short_name :band_spectrum])
 
-(defn describe-tile-spec
+(defn describe-chip-spec
   ""
-  [tile-specs]
-  (format "%s %s %s" (select-keys tile-specs [:satellite :instrument :sensor])))
+  [chip-specs]
+  (format "%s %s %s" (select-keys chip-specs [:satellite :instrument :sensor])))
 
-(html/deftemplate tile-spec-info "public/tile-spec-info.html"
-  [tile-spec]
+(html/deftemplate chip-spec-info "public/chip-spec-info.html"
+  [chip-spec]
   [:head] (html/substitute (header))
   [:nav]  (html/substitute (nav))
-  [:h2 :#ubid] (html/content (:ubid tile-spec))
-  [:pre.wkt]  (html/content (:wkt tile-spec))
-  [:pre.geom] (html/content (json/encode (select-keys tile-spec geom-fields)
+  [:h2 :#ubid] (html/content (:ubid chip-spec))
+  [:pre.wkt]  (html/content (:wkt chip-spec))
+  [:pre.geom] (html/content (json/encode (select-keys chip-spec geom-fields)
                                          {:pretty true}))
-  [:pre.data] (html/content (json/encode (select-keys tile-spec data-fields)
+  [:pre.data] (html/content (json/encode (select-keys chip-spec data-fields)
                                          {:pretty true}))
-  [:pre.band] (html/content (json/encode (select-keys tile-spec band-fields)
+  [:pre.band] (html/content (json/encode (select-keys chip-spec band-fields)
                                          {:pretty true})))

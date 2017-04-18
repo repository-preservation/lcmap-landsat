@@ -10,7 +10,7 @@
      behaving identically to `use-fixtures`.
 
   2. Data fixtures are related to the DB schema and seed data
-     such as tile-specs. These fixtures only work if service
+     such as chip-specs. These fixtures only work if service
      fixtures have been setup. These have been separated so that
      each can be configured to run :once or :each time.
 
@@ -26,7 +26,7 @@
             [lcmap.aardvark.elasticsearch :as es]
             [lcmap.aardvark.event :as event]
             [lcmap.aardvark.server :as server]
-            [lcmap.aardvark.tile-spec :as tile-spec]
+            [lcmap.aardvark.chip-spec :as chip-spec]
             [lcmap.aardvark.setup :as setup]
             [lcmap.aardvark.setup.database :as setup-db]
             [lcmap.aardvark.setup.event :as setup-event]
@@ -96,9 +96,9 @@
   (es/index-create (get-in *test-config-data* [:search :index-url]))
   ;; add data to the db and search index, this does rely on functions
   ;; that require testing.
-  (log/debug "saving tile-specs")
-  (doall (->> "tile-specs/L5.edn" util/read-edn (map tile-spec/save)))
-  (doall (->> "tile-specs/L7.edn" util/read-edn (map tile-spec/save)))
+  (log/debug "saving chip-specs")
+  (doall (->> "chip-specs/L5.edn" util/read-edn (map chip-spec/save)))
+  (doall (->> "chip-specs/L7.edn" util/read-edn (map chip-spec/save)))
   ;; the search index will update itself every second, this will force
   ;; re-indexing data, without this tests may fail intermittently.
   (es/index-refresh (get-in *test-config-data* [:search :index-url])))

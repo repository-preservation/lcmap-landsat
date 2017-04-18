@@ -29,15 +29,15 @@ WITH COMPRESSION = { 'sstable_compression' : 'LZ4Compressor' }
 AND  COMPACTION = { 'class' :  'LeveledCompactionStrategy' };
 
 
-CREATE TABLE IF NOT EXISTS lcmap_landsat_unit.tile_specs (
+CREATE TABLE IF NOT EXISTS lcmap_landsat_unit.chip_specs (
     name text,
     ubid text,
     tags set<text>,
     wkt text static,
     pixel_x float static,
     pixel_y float static,
-    tile_x int,
-    tile_y int,
+    chip_x int,
+    chip_y int,
     shift_x float,
     shift_y float,
     resample_method text,

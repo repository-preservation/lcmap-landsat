@@ -58,7 +58,7 @@
 
 ;; URLs to elasticsearch resources and related config.
 (def search {:index-url schema/Str
-             :tile-spec-url schema/Str
+             :chip-spec-url schema/Str
              :max-result-size schema/Num})
 
 (def root-cfg

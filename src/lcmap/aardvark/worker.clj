@@ -1,7 +1,7 @@
 (ns lcmap.aardvark.worker
   "Message handling related functions.
 
-  A worker creates tiles from ESPA archives. Each archive can take
+  A worker creates chips from ESPA archives. Each archive can take
   several minutes to process; handling these requests synchronously
   as part of an HTTP request is not feasible.
 
@@ -13,7 +13,7 @@
             [langohr.consumers :as lcons]
             [lcmap.aardvark.config :refer [config]]
             [lcmap.aardvark.event :as event]
-            [lcmap.aardvark.tile :as tile]
+            [lcmap.aardvark.chip :as chip]
             [mount.core :as mount :refer [defstate]]))
 
 (defn handle-consume-ok
@@ -27,7 +27,7 @@
   (try
     (let [source (event/decode-message metadata payload)]
       (log/debugf "consuming message: %s" metadata)
-      (tile/process source)
+      (chip/process source)
       (lb/ack event/amqp-channel (metadata :delivery-tag)))
     (catch java.lang.RuntimeException ex
       (log/errorf "failed to process message %s" metadata))))

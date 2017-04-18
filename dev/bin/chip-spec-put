@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# PLEASE NOTE: This will not work until authorization is supported,
+# allowing unauthorized users to create or update chip-specs could
+# impair people's ability to retrieve chip data.
+
+curl --verbose \
+     -H "Accept: application/json, */*" \
+     -H "Content-Type: application/json" \
+     -X PUT \
+     --data "@test/resources/data/sample-chip-spec.json" \
+     http://localhost:5678/chip-spec/LANDSAT_5/TM/sr_band1

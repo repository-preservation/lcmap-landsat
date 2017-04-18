@@ -28,8 +28,8 @@
             [lcmap.aardvark.event :as event]
             [lcmap.aardvark.server :as server]
             [lcmap.aardvark.source :as source]
-            [lcmap.aardvark.tile :as tile]
-            [lcmap.aardvark.tile-spec :as tile-spec]
+            [lcmap.aardvark.chip :as chip]
+            [lcmap.aardvark.chip-spec :as chip-spec]
             [lcmap.aardvark.util :as util]
             [lcmap.aardvark.worker :as worker]
             [mount.core :as mount]))
@@ -55,20 +55,20 @@
   (-> config/config :event :host)
   (-> config/config :search :index-url))
 
-;; STEP 2. Create tile-specs. Without tile-specs, the application
-;; won't know where to store tile data. Please confirm you have
+;; STEP 2. Create chip-specs. Without chip-specs, the application
+;; won't know where to store chip data. Please confirm you have
 ;; the most recent `data` submodule before using this.
 
-(defn save-tile-specs
-  "Save all tile-specs in EDN at path."
+(defn save-chip-specs
+  "Save all chip-specs in EDN at path."
   [path]
-  (->> path util/read-edn (map tile-spec/save)))
+  (->> path util/read-edn (map chip-spec/save)))
 
 (comment
-  (save-tile-specs "tile-specs/L4.edn")
-  (save-tile-specs "tile-specs/L5.edn")
-  (save-tile-specs "tile-specs/L7.edn")
-  (save-tile-specs "tile-specs/L8.edn"))
+  (save-chip-specs "chip-specs/L4.edn")
+  (save-chip-specs "chip-specs/L5.edn")
+  (save-chip-specs "chip-specs/L7.edn")
+  (save-chip-specs "chip-specs/L8.edn"))
 
 ;; STEP 3. Create some sources. This will create data in Cassandra
 ;; and will send messages to an exchange that are routed to a queue
@@ -88,7 +88,7 @@
 ;; the EDN files in a directory with `save-sources`.
 
 (comment
-  (save-sources "sources/california/H02V09-35.edn" 1)
+  (save-sources "sources/california/H02V09-35.edn" 25)
   (save-sources "sources/california/H02V09-627.edn" 1)
   (save-sources "sources/california/H02V09-857.edn" 1))
 
@@ -156,10 +156,10 @@
   directories. Although this works, it is somewhat confusing.
   "
   [base-uri source-file out-dir]
-  (let [tile-name (-> source-file (.getParentFile) (.getName))
-        save-path (str out-dir "/" tile-name ".edn")
-        tile-path (-> source-file (.getParentFile) (.getPath))
-        base-uri (str base-uri "/" tile-path)]
+  (let [chip-name (-> source-file (.getParentFile) (.getName))
+        save-path (str out-dir "/" chip-name ".edn")
+        chip-path (-> source-file (.getParentFile) (.getPath))
+        base-uri (str base-uri "/" chip-path)]
     (->> (file->sources base-uri source-file)
          (util/save-edn save-path))))
 
