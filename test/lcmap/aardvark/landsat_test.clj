@@ -29,20 +29,20 @@
                     :headers {"Accept" "*/*"})]
       (is (= 200 (:status resp))))))
 
-(deftest tile-resource-tests
+(deftest chip-resource-tests
   (testing "parameters validation"
-    (let [resp (req :get "http://localhost:5679/tiles")]
+    (let [resp (req :get "http://localhost:5679/chips")]
       (is (= 403 (:status resp)))))
-  (testing "get tiles as JSON"
-    (let [resp (req :get "http://localhost:5679/tiles"
+  (testing "get chips as JSON"
+    (let [resp (req :get "http://localhost:5679/chips"
                     :headers {"Accept" "application/json"}
                     :form-params {:x 0 :y 0
                                   :ubid ["LANDSAT_5/TM/sr_band1"
                                          "LANDSAT_5/TM/sr_band2"]
                                   :acquired "2000-01-01/2005-01-01"})]
       (is (= 200 (:status resp)))))
-  (testing "get tiles as an unsupported type"
-    (let [resp (req :get "http://localhost:5679/tiles"
+  (testing "get chips as an unsupported type"
+    (let [resp (req :get "http://localhost:5679/chips"
                     :headers {"Accept" "application/foo"}
                     :form-params {:x 0 :y 0
                                   :ubid "LANDSAT_5/TM/sr_band1"
@@ -50,19 +50,19 @@
       (is (= 200 (:status resp)))
       (is (= "application/json" (get-in resp [:headers :content-type])))))
   (testing "get a single ubid as JSON"
-    (let [resp (req :get "http://localhost:5679/tile/LANDSAT_5/TM/sr_band1"
+    (let [resp (req :get "http://localhost:5679/chip/LANDSAT_5/TM/sr_band1"
                     :headers {"Accept" "application/json"}
                     :form-params {:x 0 :y 0
                                   :acquired "2000-01-01/2005-01-01"})]
       (is (= 200 (:status resp))))))
 
-(deftest tile-spec-tests
-  (testing "get an existing tile-spec"
-    (let [resp (req :get "http://localhost:5679/tile-spec/LANDSAT_5/TM/sr_band1"
+(deftest chip-spec-tests
+  (testing "get an existing chip-spec"
+    (let [resp (req :get "http://localhost:5679/chip-spec/LANDSAT_5/TM/sr_band1"
                     :headers {"Accept" "application/json"})]
       (is (= 200 (:status resp)))))
-  (testing "get a non-existent tile-spec"
-    (let [resp (req :get "http://localhost:5679/tile-spec/LANDSAT_5/TM/marklar"
+  (testing "get a non-existent chip-spec"
+    (let [resp (req :get "http://localhost:5679/chip-spec/LANDSAT_5/TM/marklar"
                     :headers {"Accept" "application/json"})]
       (is (= 404 (:status resp))))))
 

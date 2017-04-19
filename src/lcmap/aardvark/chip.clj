@@ -1,5 +1,5 @@
-(ns lcmap.aardvark.tile
-  "Functions for producing and retrieving tile data."
+(ns lcmap.aardvark.chip
+  "Functions for producing and retrieving chip data."
   (:require [clojure.java.io :as io]
             [clojure.core.memoize :as memoize]
             [clojure.set]
@@ -14,12 +14,12 @@
             [lcmap.aardvark.espa :as espa]
             [lcmap.aardvark.event :as event]
             [lcmap.aardvark.source :as source :refer [progress]]
-            [lcmap.aardvark.tile-spec :as tile-spec]
+            [lcmap.aardvark.chip-spec :as chip-spec]
             [lcmap.aardvark.util :as util]
             [lcmap.aardvark.middleware :refer [wrap-handler]]
             [lcmap.commons.numbers :refer [numberize]]
             [lcmap.commons.collections :refer [vectorize]]
-            [lcmap.commons.tile :refer [snap]]
+            [lcmap.commons.chip :refer [snap]]
             [langohr.basic :as lb]
             [me.raynes.fs :as fs]
             [mount.core :as mount :refer [defstate]]
@@ -39,16 +39,16 @@
 
 ;;; Data type related functions
 
-(defrecord Tile [x y data])
+(defrecord Chip [x y data])
 
-(defprotocol Tiled
+(defprotocol Chipper
   ""
   (shape [data] "Dimensions [cols rows] of data.")
   (steps [data step-x step-y] "Subsetting coordinates within data.")
-  (tiles [data step-x step-y] "List of maps with x, y, data."))
+  (chips [data step-x step-y] "List of maps with x, y, data."))
 
 (extend-type org.gdal.gdal.Band
-  Tiled
+  Chipper
   (shape [band]
     (gdal.band/get-size band))
   (steps [band step-x step-y]
@@ -56,10 +56,10 @@
       (for [x (range 0 x-size step-x)
             y (range 0 y-size step-y)]
         [x y step-x step-y])))
-  (tiles [band step-x step-y]
-    (log/debugf "creating tiles for %s. step-x: %s, step-y: %s" band step-x step-y)
+  (chips [band step-x step-y]
+    (log/debugf "creating chips for %s. step-x: %s, step-y: %s" band step-x step-y)
     (for [[x y xs ys] (steps band step-x step-y)]
-      (->Tile x y (gdal.band/read-raster-direct band x y xs ys)))))
+      (->Chip x y (gdal.band/read-raster-direct band x y xs ys)))))
 
 ;;; Query validation
 
@@ -80,12 +80,12 @@
 ;;; Database functions
 
 (defn find
-  "Query DB for all tiles that match the UBIDs, contain (x,y), and
+  "Query DB for all chips that match the UBIDs, contain (x,y), and
    were acquired during a certain period of time."
-  [{:keys [ubids x y acquired] :as tiles}]
+  [{:keys [ubids x y acquired] :as chips}]
   {:pre [(vector? ubids) (integer? x) (integer? y) (every? some? acquired)]}
-  (if-let [spec (first (tile-spec/query
-                        [:name :tile_x :tile_y :shift_x :shift_y]
+  (if-let [spec (first (chip-spec/query
+                        [:name :chip_x :chip_y :shift_x :shift_y]
                         [[:in :ubid ubids]]))]
     (let [table    (:name spec)
           [tx ty]  (snap x y spec)
@@ -96,39 +96,39 @@
                                 [>= :acquired (str t1)]
                                 ;; TODO: check t2 for nil before using.
                                 [<= :acquired (str t2)]])]
-      (log/debugf "Finding tile(s) %s: %s" table tiles)
+      (log/debugf "Finding chip(s) %s: %s" table chips)
       (db/execute (hayt/select table where)))
 
-    (do (log/warnf "No tile-specs found for %s" ubids)
+    (do (log/warnf "No chip-specs found for %s" ubids)
         (sequence []))))
 
 (defn save
-  "Save a tile. This function should be used for all saving that needs
-   to happen (in batch) when processing a tile. Currently, this only
-   inserts tile data, but it will soon update a scene inventory too."
-  [tile]
-  (let [params   (-> tile
+  "Save a chip. This function should be used for all saving that needs
+   to happen (in batch) when processing a chip. Currently, this only
+   inserts chip data, but it will soon update a scene inventory too."
+  [chip]
+  (let [params   (-> chip
                      (select-keys [:ubid :proj-x :proj-y :acquired :source :data])
                      (clojure.set/rename-keys {:proj-x :x :proj-y :y}))
-        table    (tile :name)]
-    (log/tracef "save tile to %s: %s" table params)
+        table    (chip :name)]
+    (log/tracef "save chip to %s: %s" table params)
     (db/execute (hayt/insert table (hayt/values params)))))
 
-;;; Tile supporting functions
+;;; Chip supporting functions
 
 (defn +spec
   "Retrieve a spec (for the given UBID) and add it to the band. This assumes
-   only one tile-spec will be found. If multiple tile-specs exists, behavior
+   only one chip-spec will be found. If multiple chip-specs exists, behavior
    is undefined.
 
-   If a tile-spec is not found, then this function returns nil. The band should
+   If a chip-spec is not found, then this function returns nil. The band should
    not be ingested."
   [band]
-  (log/debugf "looking for tile-spec for %s" (:ubid band))
-  (let [spec (first (tile-spec/query {:ubid (:ubid band)}))]
+  (log/debugf "looking for chip-spec for %s" (:ubid band))
+  (let [spec (first (chip-spec/query {:ubid (:ubid band)}))]
     (if (some? spec)
       (merge band spec)
-      (log/warnf "no tile-spec present, skipping %s" (:ubid band)))))
+      (log/warnf "no chip-spec present, skipping %s" (:ubid band)))))
 
 (defn int16-fill
   "Produce a buffer used to detect INT16 type buffers containing all fill data."
@@ -172,7 +172,7 @@
           (= data-type "UINT16") (uint16-fill data-size data-fill))))
 
 (defn +fill
-  "Make a fill buffer used to detect no-data tiles"
+  "Make a fill buffer used to detect no-data chips"
   [band]
   (log/debug "add fill buffer ...")
   (assoc band :fill (fill-buffer (apply * (band :data_shape))
@@ -180,10 +180,10 @@
                                  (band :data_type))))
 
 (defn fill?
-  "True if the tile is comprised entirely of fill values"
-  [tile]
-  (let [data (:data tile)
-        fill (:fill tile)]
+  "True if the chip is comprised entirely of fill values"
+  [chip]
+  (let [data (:data chip)
+        fill (:fill chip)]
     (and (some? fill) (some? data) (zero? (.compareTo (.rewind data)
                                                       (.rewind fill))))))
 
@@ -197,10 +197,10 @@
   ;;     simple-enough for now.
   (gdal.core/with-dataset [dataset (band :path)]
     (let [[px sx _ py _ sy] (gdal.dataset/get-geo-transform dataset)]
-      (fn [{x :x y :y :as tile}]
+      (fn [{x :x y :y :as chip}]
         (let [tx (long (+ px (* x sx)))
               ty (long (+ py (* y sy)))]
-          (assoc tile :proj-x tx :proj-y ty))))))
+          (assoc chip :proj-x tx :proj-y ty))))))
 
 (defn +locate
   "Make a raster to projection point transformer function."
@@ -209,13 +209,13 @@
 
 (defn locate
   "Use band's locator to turn a raster point to projection point."
-  [tile]
-  ((:locate-fn tile) tile))
+  [chip]
+  ((:locate-fn chip) chip))
 
 (defn conforms?
-  "PLACHOLDER. True if the referenced raster matches the band's tile-spec.
+  "PLACHOLDER. True if the referenced raster matches the band's chip-spec.
    This ensures the raster is the same projection and that the boundaries
-   precisely align to the tile-specs grid values."
+   precisely align to the chip-specs grid values."
   [band]
   (some? band))
 
@@ -225,31 +225,31 @@
   (log/debugf "producing bands for %s" path)
   (sequence band-xf (espa/load path)))
 
-(defn dataset->tiles
-  "Create sequence of tile from dataset referenced by band."
-  [tile-xf dataset x-step y-step]
+(defn dataset->chips
+  "Create sequence of chip from dataset referenced by band."
+  [chip-xf dataset x-step y-step]
   (let [image (gdal.dataset/get-band dataset 1)
-        tiles (tiles image x-step y-step)]
-    (sequence tile-xf tiles)))
+        chips (chips image x-step y-step)]
+    (sequence chip-xf chips)))
 
-(defn process-tile
-  "Isolates all side-effect related behavior performed on each tile"
-  [tile]
+(defn process-chip
+  "Isolates all side-effect related behavior performed on each chip"
+  [chip]
   (io!
-   (save tile))
-  tile)
+   (save chip))
+  chip)
 
 (defn process-band
-  "Saves band as tiles."
+  "Saves band as chips."
   [band source]
   (gdal.core/with-dataset [dataset (:path band)]
-    (let [tile-xf (comp (map #(merge band %))
+    (let [chip-xf (comp (map #(merge band %))
                         (map locate)
                         (remove fill?))
           [xs ys] (:data_shape band)
-          tiles   (dataset->tiles tile-xf dataset xs ys)]
+          chips   (dataset->chips chip-xf dataset xs ys)]
       (progress source "band-start" (:ubid band))
-      (dorun (map process-tile tiles))
+      (dorun (map process-chip chips))
       (progress source "band-done" (:ubid band)))))
 
 (defn process-scene
@@ -264,13 +264,13 @@
      :done)))
 
 (defn process
-  "Generate tiles from an ESPA archive.
+  "Generate chips from an ESPA archive.
 
   The six states of a source:
   * queue
   * check
   * stage
-  * tile
+  * chip
   * done
   * fail
   "

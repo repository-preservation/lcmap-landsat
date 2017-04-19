@@ -14,8 +14,8 @@
             [lcmap.aardvark.health :as health]
             [lcmap.aardvark.html :as html]
             [lcmap.aardvark.source :as source]
-            [lcmap.aardvark.tile :as tile]
-            [lcmap.aardvark.tile-spec :as tile-spec]
+            [lcmap.aardvark.chip :as chip]
+            [lcmap.aardvark.chip-spec :as chip-spec]
             [lcmap.commons.collections :refer [vectorize]]
             [lcmap.commons.numbers :refer [numberize]]
             [lcmap.aardvark.middleware :refer [wrap-handler]]))
@@ -58,38 +58,38 @@
         (some->> (source/save source)
                  (assoc {:status 202} :body)))))
 
-(defn get-tiles
-  "Get tiles containing point for given UBID and ISO8601 time range."
+(defn get-chips
+  "Get chips containing point for given UBID and ISO8601 time range."
   [{{:keys [:ubid :x :y :acquired] :as params} :params :as req}]
-  (let [query (tile/conform params)]
-    (or (some->> (tile/validate query)
+  (let [query (chip/conform params)]
+    (or (some->> (chip/validate query)
                  (seq)
                  (assoc {:status 403} :body))
-        (some->> (tile/find query)
+        (some->> (chip/find query)
                  (assoc {:status 200} :body))
         {:status 404 :body []})))
 
-(defn get-tile
-  "Gets a tile given x, y, acquired, satellite, sensor and band"
+(defn get-chip
+  "Gets a chip given x, y, acquired, satellite, sensor and band"
   [satellite sensor band request]
   (->> (str/join "/" [satellite sensor band])
        (update-in request [:params :ubid] str)
-       (get-tiles)))
+       (get-chips)))
 
-(defn get-tile-spec
+(defn get-chip-spec
   "Search for a source and produce a response map."
   [ubid {params :params :as req}]
-  (log/debugf "get tile-spec for '%s' with %s" ubid params)
-  (let [result (tile-spec/get ubid)]
+  (log/debugf "get chip-spec for '%s' with %s" ubid params)
+  (let [result (chip-spec/get ubid)]
     (if (= (:ubid result) ubid)
       {:status 200 :body result}
       {:status 404 :body nil})))
 
-(defn get-tile-specs
-  "Get tile-specs."
+(defn get-chip-specs
+  "Get chip-specs."
   [{{q :q :or {q "*"}} :params}]
-  (log/debug "get tile-specs")
-  {:status 200 :body (tile-spec/search q)})
+  (log/debug "get chip-specs")
+  {:status 200 :body (chip-spec/search q)})
 
 ;;; Request entity transformers.
 
@@ -170,25 +170,25 @@
      (ANY "/source" []
        (with-meta (allow ["GET" "PUT"])
          {:template html/default}))
-     (GET "/tiles" []
-       (with-meta (get-tiles request)
-         {:template html/tile-list}))
-     (GET "/tile/:satellite/:sensor/:band" [satellite sensor band]
-       (with-meta (get-tile satellite sensor band request)
-         {:template html/tile-info}))
-     (ANY "/tile" []
+     (GET "/chips" []
+       (with-meta (get-chips request)
+         {:template html/chip-list}))
+     (GET "/chip/:satellite/:sensor/:band" [satellite sensor band]
+       (with-meta (get-chip satellite sensor band request)
+         {:template html/chip-info}))
+     (ANY "/chip" []
        (with-meta (allow ["GET"])
          {:template html/default}))
-     (GET "/tile-specs" []
-       (with-meta (get-tile-specs request)
-         {:template html/tile-spec-list}))
-     (ANY "/tile-specs" []
+     (GET "/chip-specs" []
+       (with-meta (get-chip-specs request)
+         {:template html/chip-spec-list}))
+     (ANY "/chip-specs" []
        (with-meta (allow ["GET"])
          {:template html/default}))
-     (GET "/tile-spec/:ubid{.+}" [ubid]
-       (with-meta (get-tile-spec ubid request)
-         {:template html/tile-spec-info}))
-     (ANY "/tile-spec/:ubid{.+}" []
+     (GET "/chip-spec/:ubid{.+}" [ubid]
+       (with-meta (get-chip-spec ubid request)
+         {:template html/chip-spec-info}))
+     (ANY "/chip-spec/:ubid{.+}" []
        (with-meta (allow ["GET"])
          {:template html/default})))
    prepare-with respond-with))

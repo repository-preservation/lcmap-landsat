@@ -1,4 +1,4 @@
-(defproject lcmap-landsat "0.1.0-SNAPSHOT"
+(defproject lcmap-landsat "1.0.0-RC1"
   :description "Landsat HTTP resource & ingest for LCMAP"
   :url "http://github.com/usgs-eros/lcmap-landsat"
   :license {:name "Unlicense"

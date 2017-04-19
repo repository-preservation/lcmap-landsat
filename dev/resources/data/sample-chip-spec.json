@@ -27,7 +27,7 @@
   "pixel_y": -30,
   "shift_x":   0,
   "shift_y":   0,
-  "tile_x": 3840,
-  "tile_y": 3840,
+  "chip_x": 3840,
+  "chip_y": 3840,
   "resample_method": null
 }
