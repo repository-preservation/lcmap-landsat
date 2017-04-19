@@ -14,7 +14,7 @@
             [lcmap.aardvark.db :as db]
             [lcmap.aardvark.config :refer [config]]
             [lcmap.aardvark.elasticsearch :as es])
-  (:refer-clojure :exclude [find]))
+  (:refer-clojure :exclude [find get]))
 
 ;; States
 
