@@ -20,7 +20,7 @@ echo Commit: $COMMIT
 # Version is extracted from project.clj so that a meaningful tag can
 # be added to the image. This expects a particular versioning scheme
 # and handles the case when the string "-SNAPSHOT" is not present.
-export VERSION=`head -n1 project.clj | grep -oP "[\d+]\.[\d+]\.[\d+](-SNAPSHOT)?"`
+export VERSION=`head -n1 project.clj | grep -oP "[\d+]\.[\d+]\.[\d+](-SNAPSHOT)?(-RC[\d+])?"`
 echo Version: $VERSION
 
 # The docker login command print an error if authentication
