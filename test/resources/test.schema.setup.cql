@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS lcmap_landsat_unit.chip_specs (
     band_short_name text,
     band_spectrum list<double>,
     data_fill int,
-    data_range list<int>,
+    data_range list<double>,
     data_scale float,
     data_type text,
     data_units text,

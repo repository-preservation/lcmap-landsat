@@ -3,7 +3,7 @@
   (:require [clojure.tools.logging :as log]
             [gdal.core]
             [gdal.dataset]
-            [lcmap.aardvark.espa :as espa]
+            [lcmap.aardvark.ard :as ard]
             [lcmap.aardvark.util :as util]
             [me.raynes.fs :as fs]
             [mount.core :as mount :refer [defstate]]
@@ -131,7 +131,7 @@
 (defn process-scene
   "Create chip-specs for each band in scene"
   [path opts]
-  (doall (for [band (espa/load path)]
+  (doall (for [band (ard/load path)]
            (-> (merge (dataset->spec (:path band) (:data_shape opts))
                       (select-keys (:global_metadata band) [:satellite :instrument])
                       opts
@@ -140,20 +140,17 @@
                (save)))))
 
 (defn process
-  "Generate chip-specs from an ESPA archive"
+  "Generate chip-specs from an ARD archive"
   [{:keys [id checksum uri] :as source} opts]
   (let [download-file   (fs/temp-file "lcmap-")
-        uncompress-file (fs/temp-file "lcmap-")
         unarchive-file  (fs/temp-dir  "lcmap-")]
     (try
       (-> uri
           (util/download download-file)
           (util/verify checksum)
-          (util/uncompress uncompress-file)
           (util/unarchive unarchive-file)
           (process-scene opts))
       :done
       (finally
         (fs/delete-dir unarchive-file)
-        (fs/delete uncompress-file)
         (fs/delete download-file)))))
