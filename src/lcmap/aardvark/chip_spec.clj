@@ -140,20 +140,17 @@
                (save)))))
 
 (defn process
-  "Generate chip-specs from an ESPA archive"
+  "Generate chip-specs from an ARD archive"
   [{:keys [id checksum uri] :as source} opts]
   (let [download-file   (fs/temp-file "lcmap-")
-        uncompress-file (fs/temp-file "lcmap-")
         unarchive-file  (fs/temp-dir  "lcmap-")]
     (try
       (-> uri
           (util/download download-file)
           (util/verify checksum)
-          (util/uncompress uncompress-file)
           (util/unarchive unarchive-file)
           (process-scene opts))
       :done
       (finally
         (fs/delete-dir unarchive-file)
-        (fs/delete uncompress-file)
         (fs/delete download-file)))))

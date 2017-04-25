@@ -50,7 +50,7 @@
       (is (= 200 (:status resp)))
       (is (= "application/json" (get-in resp [:headers :content-type])))))
   (testing "get a single ubid as JSON"
-    (let [resp (req :get "http://localhost:5679/chip/LANDSAT_5/TM/sr_band1"
+    (let [resp (req :get "http://localhost:5679/chip/LANDSAT_7/ETM/SRB1"
                     :headers {"Accept" "application/json"}
                     :form-params {:x 0 :y 0
                                   :acquired "2000-01-01/2005-01-01"})]
@@ -58,11 +58,11 @@
 
 (deftest chip-spec-tests
   (testing "get an existing chip-spec"
-    (let [resp (req :get "http://localhost:5679/chip-spec/LANDSAT_5/TM/sr_band1"
+    (let [resp (req :get "http://localhost:5679/chip-spec/LANDSAT_7/ETM/SRB1"
                     :headers {"Accept" "application/json"})]
       (is (= 200 (:status resp)))))
   (testing "get a non-existent chip-spec"
-    (let [resp (req :get "http://localhost:5679/chip-spec/LANDSAT_5/TM/marklar"
+    (let [resp (req :get "http://localhost:5679/chip-spec/LANDSAT_7/ETM/marklar"
                     :headers {"Accept" "application/json"})]
       (is (= 404 (:status resp))))))
 

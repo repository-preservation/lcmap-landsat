@@ -97,7 +97,6 @@
   ;; add data to the db and search index, this does rely on functions
   ;; that require testing.
   (log/debug "saving chip-specs")
-  (doall (->> "chip-specs/L5.edn" util/read-edn (map chip-spec/save)))
   (doall (->> "chip-specs/L7.edn" util/read-edn (map chip-spec/save)))
   ;; the search index will update itself every second, this will force
   ;; re-indexing data, without this tests may fail intermittently.

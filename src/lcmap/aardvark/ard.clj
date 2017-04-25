@@ -1,8 +1,8 @@
 (ns lcmap.aardvark.ard
   "Functions for parsing ARD XML metadata.
 
-  This is useful for obtaining data to produce tile-specs and
-  convert bands into tiles."
+  This is useful for obtaining data to produce chip-specs and
+  convert bands into chips."
   (:require [clojure.java.io :as io]
             [clojure.xml :as xml]
             [clojure.zip :as zip]
@@ -126,9 +126,9 @@
                     (map +acquired))
               combo)))
 
-(def tile-spec-keys
+(def chip-spec-keys
   [:ubid :wkt :name
-   :tile_x :tile_y
+   :chip_x :chip_y
    :pixel_x :pixel_y
    :shift_x :shift_y
    :data_shape
@@ -138,12 +138,12 @@
    :data_units
    :satellite :instrument :band_name])
 
-(defn build-tile-specs
-  "List of bands with scene and tile metadata, useful for tile-spec creation."
+(defn build-chip-specs
+  "List of bands with scene and chip metadata, useful for chip-spec creation."
   [base-path defaults]
   (let [xml-path (find-xml base-path)]
     (sequence (comp (map #(merge % defaults))
-                    (map #(select-keys % tile-spec-keys))
+                    (map #(select-keys % chip-spec-keys))
                     (map #(into (sorted-map) %)))
               (parse-xml xml-path))))
 
