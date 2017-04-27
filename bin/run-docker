@@ -18,7 +18,8 @@ docker run \
   -e AARDVARK_BASE_URL="/" \
   -e AARDVARK_HTTP_PORT="5678" \
   -e AARDVARK_EVENT_HOST="resources_rabbit_1" \
-  -e AARDVARK_SERVER_EVENTS="local.docker.aardvark.server" \
-  -e AARDVARK_WORKER_EVENTS="localdocker.aarvark.worker" \
-  -e AARDVARK_SEARCH_INDEX_URL=http://resources_elastic_1:9200/tile-specs \
-usgseros/lcmap-landsat:0.1.0-SNAPSHOT
+  -e AARDVARK_SERVER_EVENTS="local.lcmap.aardvark.server" \
+  -e AARDVARK_WORKER_EVENTS="local.lcmap.aarvark.worker" \
+  -e AARDVARK_SEARCH_INDEX_URL="http://resources_elastic_1:9200/lcmap-landsat-local" \
+  -e AARDVARK_CHIP_SPEC_URL="http://resources_elastic_1:9200/lcmap-landsat-local/chip-specs" \
+usgseros/lcmap-landsat:1.0.0-SNAPSHOT

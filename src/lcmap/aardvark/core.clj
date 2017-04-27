@@ -32,13 +32,13 @@
                   :event    {:host      "AARDVARK_EVENT_HOST"
                              :port      "AARDVARK_EVENT_PORT"
                              :user      "AARDVARK_EVENT_USER"
-                             :password   "AARDVARK_EVENT_PASS"}
+                             :password  "AARDVARK_EVENT_PASS"}
                   :server   {:exchange  "AARDVARK_SERVER_EVENTS"
                              :queue     "AARDVARK_SERVER_EVENTS"}
                   :worker   {:exchange  "AARDVARK_WORKER_EVENTS"
                              :queue     "AARDVARK_WORKER_EVENTS"}
                   :search   {:index-url "AARDVARK_SEARCH_INDEX_URL"
-                             :chip-spec-url "AARDVARK_TILE_SPEC_URL"}})
+                             :chip-spec-url "AARDVARK_CHIP_SPEC_URL"}})
 
 ;; This nested map contains a default configuration. It is updated
 ;; with `environ-cfg` values during startup.

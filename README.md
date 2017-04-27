@@ -54,7 +54,7 @@ Initialize the local development schema and bindings. By default, a REPL will st
 
 ### Sample Data
 
-Once you have setup your environment you can load sample data. See `dev/curate.clj` to learn how to load some to use during development. This file contains code that can be evaulated in a REPL to load tile-specs and ingest tiles. Because it is a powerful used for both local development and operational environments, special instructions (and warnings) are provided.
+Once you have setup your environment you can load sample data. See `dev/curate.clj` to learn how to load some to use during development. This file contains code that can be evaulated in a REPL to load chip-specs and ingest chips. Because it is a powerful used for both local development and operational environments, special instructions (and warnings) are provided.
 
 ### Problems?
 
@@ -86,7 +86,7 @@ Provide configuration values using environment variables when runnning the appli
 | AARDVARK\_EVENT\_PASS         | nil        |
 | AARDVARK\_HTTP\_PORT          | 5678       |
 | AARDVARK\_SEARCH\_INDEX\_URL  | http://elasticsearch:9200/lcmap-landsat |
-| AARDVARK\_TILE\_SPEC\_URL     | http://elasticsearch:9200/lcmap-lands/tile-specs |
+| AARDVARK\_CHIP\_SPEC\_URL     | http://elasticsearch:9200/lcmap-landsat/chip-specs |
 | AARDVARK\_SERVER\_EVENTS      | lcmap.landsat.server |
 | AARDVARK\_WORKER\_EVENTS      | lcmap.landsat.worker |
 | AARDVARK\_LOG\LEVEL           | INFO       |
@@ -101,16 +101,16 @@ Although `dev` and `test` leiningen profiles use EDN based configuration files, 
 
 ## Usage
 
-This application's primary purpose is providing Landsat raster data via HTTP. It provides three resources: tiles, tile-specs, and sources.
+This application's primary purpose is providing Landsat raster data via HTTP. It provides three resources: chips, chip-specs, and sources.
 
 Resources are represented as either JSON or HTML. You can use a variety of HTTP tools and libraries to retrieve data. JSON is provided by default when no Accept header is present. Set the `Accept` header to `application/json` or `text/html` for JSON and HTML respectively. Be aware that most tools automatically set this header, if you're not receiving the expected format, consult its documentation.
 
-### Tiles
+### Chips
 
-Much like the way an operating system retrieves memory in pages, this application retrieves raster imagery as tiles, a stack of spatially and temporally coherent data.
+Much like the way an operating system retrieves memory in pages, this application retrieves raster imagery as chips, a stack of spatially and temporally coherent data.
 
 ```bash
-http http://localhost:5678/tiles
+http http://localhost:5678/chips
                         ?x=-2013585
                         &y=3095805
                         &acquired=2000-01-01/2017-01-01
@@ -119,31 +119,31 @@ http http://localhost:5678/tiles
                         &ubid=LANDSAT_8/OLI_TIRS/sr_band3
 ```
 
-### Tile-Specs
+### Chip-Specs
 
-Tile-Specs describe the geometry and data-type for tiles. You can get all available tile-specs...
-
-```bash
-http http://localhost:5678/tile-specs
-```
-
-...or you can get a single tile-spec...
+Chip-Specs describe the geometry and data-type for chips. You can get all available chip-specs...
 
 ```bash
-http http://localhost:5678/tile-specs/LANDSAT_5/TM/sr_band1
+http http://localhost:5678/chip-specs
 ```
 
-...or you can use [ElasticSearch QueryStringSyntax][4] to get a subset of available tile-specs. By default, Elasticsearch applies the query against all indexed fields. Individual fields may also be searched directly by prepending the query with the field name plus colon. For example, `?q=ubid:landsat_7 AND etm AND sr_band1`
+...or you can get a single chip-spec...
+
+```bash
+http http://localhost:5678/chip-specs/LANDSAT_5/TM/sr_band1
+```
+
+...or you can use [ElasticSearch QueryStringSyntax][4] to get a subset of available chip-specs. By default, Elasticsearch applies the query against all indexed fields. Individual fields may also be searched directly by prepending the query with the field name plus colon. For example, `?q=ubid:landsat_7 AND etm AND sr_band1`
 
 *Please note: UBIDs contain a forward-slash "/" and cannot be supplied as a ?q parameter; Elasticsearch syntax interprets this character as a regular expression, so they must be escaped.*
 
 ```bash
-http http://localhost:5678/tile-specs?q=((landsat AND 8) AND NOT sr AND (band1 OR band2 OR band3))
+http http://localhost:5678/chip-specs?q=((landsat AND 8) AND NOT sr AND (band1 OR band2 OR band3))
 ```
 
 ### Sources
 
-Sources provide information about where information was obtained. Each tile has a `source-id` that can be used to determine what file was ingested and which bands were tiled. A random sample of ten sources can be retrieved like this:
+Sources provide information about where information was obtained. Each chip has a `source-id` that can be used to determine what file was ingested and which bands were chipped. A random sample of ten sources can be retrieved like this:
 
 ```bash
 http http://localhost:5678/sources
