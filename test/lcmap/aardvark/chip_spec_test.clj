@@ -10,9 +10,9 @@
 
 (use-fixtures :each fixtures/with-data)
 
-(def L7 {:id "LE07_CU_014007_20150223_20170330_C01_V01_SR"
-         :uri (-> "ARD/LE07_CU_014007_20150223_20170330_C01_V01_SR.tar" io/resource io/as-url str)
-         :checksum "6c06e8b4ce5e8bafb1fe02c26c704237"})
+(def L7 {:id "LE07_CU_014007_20150223_20170330_C01_V01_BT"
+         :uri (-> "ARD/LE07_CU_014007_20150223_20170330_C01_V01_BT.tar" io/resource io/as-url str)
+         :checksum "93ab262902e3199e1372b6f5e2491a98"})
 
 (def spec-opts {:name "conus"
                 :data_shape [100 100]
