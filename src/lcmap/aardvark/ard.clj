@@ -40,6 +40,17 @@
         acquired (format "%sT%sZ" date time-no-ms)]
     (assoc band :acquired acquired)))
 
+(def chip-spec-tags (util/read-edn "chip-spec-tags.edn"))
+
+(defn +tags
+  "Appends additional tags to a chip-spec"
+  [chip-spec]
+  (log/debugf "appending additional tags to chip-spec")
+  (let [ubid-tags (clojure.string/split (:ubid chip-spec) #"/|_")]
+    (-> chip-spec
+        (update :tags concat ubid-tags)
+        (update :tags concat (chip-spec-tags (:ubid chip-spec))))))
+
 (defn parse-tile-metadata
   [root]
   ""
@@ -127,7 +138,7 @@
               combo)))
 
 (def chip-spec-keys
-  [:ubid :wkt :name
+  [:ubid :wkt :name :tags
    :chip_x :chip_y
    :pixel_x :pixel_y
    :shift_x :shift_y
@@ -143,6 +154,7 @@
   [base-path defaults]
   (let [xml-path (find-xml base-path)]
     (sequence (comp (map #(merge % defaults))
+                    (map #(+tags %))
                     (map #(select-keys % chip-spec-keys))
                     (map #(into (sorted-map) %)))
               (parse-xml xml-path))))
