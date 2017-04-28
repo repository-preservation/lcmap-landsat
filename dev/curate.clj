@@ -237,3 +237,24 @@
                 :uri (-> path io/resource io/as-url str)
                 :checksum "22b221a14196b318acb7b00999a44c8a"}]
     (chip/process source)))
+
+(defn progress-2
+  [sources]
+  (map (comp :progress_name last source/search last) sources))
+
+(defn progress-report-2
+  "Group sources together by most recent progress/state with count."
+  [sources]
+  (->> sources
+       (map (comp :progress_name last source/search last))
+       (frequencies)))
+
+       
+(comment
+  (def tile-sources
+    (->> (slurp "https://edclpdsftp.cr.usgs.gov/downloads/collections/tiles-l2-20170427/h05v02/h05v02.md5_list")
+         (re-seq #"\S+")
+         (partition 2)))
+  (def tile-progress (progress-2 tile-sources))
+  (last tile-progress)
+  (progress-report-2 tile-sources))

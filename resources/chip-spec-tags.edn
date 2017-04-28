@@ -1,4 +1,5 @@
-{"LANDSAT_4/TM/SRB1"         #{"sr" "blue"}
+{"LANDSAT_4/TM/BTB6"         #{"bt" "brightness" "temp" "temperature" "thermal"}
+ "LANDSAT_4/TM/SRB1"         #{"sr" "blue"}
  "LANDSAT_4/TM/SRB2"         #{"sr" "green"}
  "LANDSAT_4/TM/SRB3"         #{"sr" "red"}
  "LANDSAT_4/TM/SRB4"         #{"sr" "nir"}
@@ -14,6 +15,7 @@
  "LANDSAT_4/TM/TAB5"         #{"ta" "swir1"}
  "LANDSAT_4/TM/TAB6"         #{"ta" "thermal"}
  "LANDSAT_4/TM/TAB7"         #{"ta" "swir2"}
+ "LANDSAT_5/TM/BTB6"         #{"bt" "brightness" "temp" "temperature" "thermal"}
  "LANDSAT_5/TM/SRB1"         #{"sr" "blue"}
  "LANDSAT_5/TM/SRB2"         #{"sr" "green"}
  "LANDSAT_5/TM/SRB3"         #{"sr" "red"}
@@ -30,7 +32,7 @@
  "LANDSAT_5/TM/TAB7"         #{"ta" "swir2"}
  "LANDSAT_5/TM/LINEAGEQA"    #{"lineage" "qa"}
  "LANDSAT_5/TM/PIXELQA"      #{"pixel" "qa"}
- "LANDSAT_7/ETM/BTB6"        #{"bt" "brightness" "temp" "temperature"}
+ "LANDSAT_7/ETM/BTB6"        #{"bt" "brightness" "temp" "temperature" "thermal"}
  "LANDSAT_7/ETM/LINEAGEQA"   #{"lineage" "qa"}
  "LANDSAT_7/ETM/PIXELQA"     #{"pixel" "qa"}
  "LANDSAT_7/ETM/RADSATQA"    #{"saturation" "mask"}
@@ -53,6 +55,8 @@
  "LANDSAT_7/ETM/TAB5"        #{"ta" "swir1"}
  "LANDSAT_7/ETM/TAB6"        #{"ta" "thermal"}
  "LANDSAT_7/ETM/TAB7"        #{"ta" "swir2"}
+ "LANDSAT_8/OLI_TIRS/BTB10"  #{"bt" "brightness" "temp" "temperature" "thermal" "tirs1"}
+ "LANDSAT_8/OLI_TIRS/BTB11"  #{"bt" "brightness" "temp" "temperature" "thermal" "tirs2"}
  "LANDSAT_8/OLI_TIRS/SRB1"   #{"sr" "coastal" "aerosol" "plurpal"}
  "LANDSAT_8/OLI_TIRS/SRB2"   #{"sr" "blue"}
  "LANDSAT_8/OLI_TIRS/SRB3"   #{"sr" "green"}
