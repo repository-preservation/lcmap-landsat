@@ -89,9 +89,7 @@
 ;; the EDN files in a directory with `save-sources`.
 
 (comment
-  (save-sources "sources/california/H02V09-35.edn" 25)
-  (save-sources "sources/california/H02V09-627.edn" 1)
-  (save-sources "sources/california/H02V09-857.edn" 1))
+  (save-sources "sources/washington/h05v02.edn" 25))
 
 ;; Step 4: See how things are going. This will inspect the
 ;; sources table for activity and check the most recent
@@ -111,89 +109,33 @@
        (frequencies)))
 
 (comment
-  (progress-report "sources/california/H02V09-35.edn")
-  (progress-report "sources/california/H02V09-627.edn")
-  (progress-report "sources/california/H02V09-857.edn"))
+  (progress-report "sources/washington/h05v02.edn"))
 
-;; Create source EDN from files with checksum/source pairs.
+;; These functions are useful when an EDN file with sources has not been created.
 
-(defn dir->files
-  "Produce a list of files contained in directory at path"
-  [path]
-  (let [fs (file-seq (io/file path))
-        tf (remove #(.isDirectory %))]
-    (into [] tf fs)))
+(defn to-source
+  ""
+  [[checksum filename] base-url]
+  (let [uri (str base-url filename)]
+    {:id filename :checksum checksum :uri uri}))
 
-(defn pair->source
-  "Create source"
-  [base-uri [checksum source]]
-  (let [source-id (last (re-find #"(.+)\.tar\.gz" source))
-        source-uri (str base-uri "/" source)]
-    {:id source-id
-     :uri source-uri
-     :checksum checksum}))
-
-(defn file->sources
-  "Create list of sources contained in a file."
-  [base-uri file]
-  (let [path-to-parent (.getParent file)]
-  (->> (slurp file)
+(defn manifest-to-sources
+  ""
+  [url base-url]
+  (->> (slurp url)
        (re-seq #"\S+")
        (partition 2)
-       (map (partial pair->source base-uri)))))
-
-(defn save-source-as-edn
-  "Produce an EDN file containing sources (id, checksum, uri).
-
-  Because the list of sources only contains the filename and checksum,
-  an absolute URL need to be built. You can accomplish this two ways:
-
-  Provide a base-uri that does not include any path or parent directories,
-  then specify a source-file that is nested in directories. The parent
-  directories will be used to form a path to the source file.
-
-  Alternatively, specify a base-url including the path to the file
-  name and a path to a source file that does not have any relative parent
-  directories. Although this works, it is somewhat confusing.
-  "
-  [base-uri source-file out-dir]
-  (let [chip-name (-> source-file (.getParentFile) (.getName))
-        save-path (str out-dir "/" chip-name ".edn")
-        chip-path (-> source-file (.getParentFile) (.getPath))
-        base-uri (str base-uri "/" chip-path)]
-    (->> (file->sources base-uri source-file)
-         (util/save-edn save-path))))
+       (map #(to-source % base-url))))
 
 (comment
-  "This will recursively find *all* files in a directory and produce
-  an EDN file for each input file. The name of the EDN file will match
-  the name of the immediate parent dir of source file. The EDN fill
-  is written to a directory.
+  "Create an EDN file that contains pre-made sources."
+  (let [tile-id      "h05v02"
+        manifest-url (format "https://edclpdsftp.cr.usgs.gov/downloads/collections/tiles-l2-20170427/%s/%s.md5_list" tile-id tile-id)
+        base-url     (format "https://edclpdsftp.cr.usgs.gov/downloads/collections/tiles-l2-20170427/%s/" tile-id)]
+    #_(util/save-edn (format "data/%s.edn" tile-id) (manifest-to-sources manifest-url base-url))))
 
-  The input directory should only contain text files with a checksum
-  and source file name on each line. These files are produced separately
-  with a shell script.
-
-  Notice that the nested paths are used to build an absolute URL to
-  the actual file. This is needed because the input checksum/source
-  does not have an absolute path already; it must be deduced.
-
-  The list of sources should be in directories like this:
-  - sites/california/H02V09-35/sources.txt
-  - sites/california/H02V09-627/sources.txt
-  - sites/california/H02V09-857/sources.txt
-  - ...
-
-  The list of outputs will be:
-  - data/sources/california/H02V09-35.edn
-  - data/sources/california/H02V09-627.edn
-  - data/sources/california/H02V09-857.edn
-  - ...
-  "
-  (def ^:dynamic *base-uri* "https://edclpdsftp.cr.usgs.gov/downloads/lcmap")
-  (let [files (dir->files "sites/lakes")
-        saver #(save-source-as-edn *base-uri* % "data/sources/lakes")]
-    (dorun (pmap saver files))))
+;; These are helper functions used to build sample data. These are only needed
+;; when creating new test data.
 
 (comment
   "Create chip-specs from ARD source data."
@@ -237,24 +179,3 @@
                 :uri (-> path io/resource io/as-url str)
                 :checksum "22b221a14196b318acb7b00999a44c8a"}]
     (chip/process source)))
-
-(defn progress-2
-  [sources]
-  (map (comp :progress_name last source/search last) sources))
-
-(defn progress-report-2
-  "Group sources together by most recent progress/state with count."
-  [sources]
-  (->> sources
-       (map (comp :progress_name last source/search last))
-       (frequencies)))
-
-       
-(comment
-  (def tile-sources
-    (->> (slurp "https://edclpdsftp.cr.usgs.gov/downloads/collections/tiles-l2-20170427/h05v02/h05v02.md5_list")
-         (re-seq #"\S+")
-         (partition 2)))
-  (def tile-progress (progress-2 tile-sources))
-  (last tile-progress)
-  (progress-report-2 tile-sources))
