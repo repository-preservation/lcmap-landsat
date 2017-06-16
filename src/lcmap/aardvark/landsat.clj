@@ -62,6 +62,7 @@
   "Get chips containing point for given UBID and ISO8601 time range."
   [{{:keys [:ubid :x :y :acquired] :as params} :params :as req}]
   (let [query (chip/conform params)]
+    (log/debugf "get chips %s (%s,%s) @ %s" ubid x y acquired)
     (or (some->> (chip/validate query)
                  (seq)
                  (assoc {:status 403} :body))
