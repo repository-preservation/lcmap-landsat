@@ -1,5 +1,6 @@
 {:database  {:cluster {:contact-points ["localhost"]
-                       :socket-options {:read-timeout-millis 20000}}
+                       :socket-options {:read-timeout-millis 20000}
+                       :query-options {:consistency :quorum}}
              :default-keyspace "lcmap_landsat_local"
              :schema {:setup true :teardown false}}
  :http      {:port 5678
