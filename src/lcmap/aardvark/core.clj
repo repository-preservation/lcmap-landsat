@@ -44,7 +44,7 @@
 ;; with `environ-cfg` values during startup.
 
 (def default-cfg {:database  {:cluster {:contact-points "cassandra"
-                                        :socket-options {:read-timeout-millis 20000}
+                                        :socket-options {:read-timeout-millis 30000}
                                         :query-options {:consistency :quorum}}
                               :default-keyspace "lcmap_landsat"
                               :schema {:setup false :teardown false}}
